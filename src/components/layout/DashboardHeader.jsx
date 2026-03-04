@@ -16,7 +16,7 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
             <div className="flex justify-between items-center">
                 {/* Logo / Menu Mobile */}
                 <div className="flex items-center gap-3 lg:hidden">
-                    <img src="/logo.png" alt="Prioriza" className="h-8 w-auto object-contain" />
+                    <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Prioriza" className="h-8 w-auto object-contain" />
                 </div>
 
                 {/* Greeting (Desktop) */}

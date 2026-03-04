@@ -60,7 +60,7 @@ export default function Auth({ onLogin }) {
         <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
             <div className="max-w-md w-full">
                 <div className="text-center mb-8">
-                    <img src="/logo.png" alt="Prioriza" className="h-12 w-auto mx-auto mb-4 object-contain" />
+                    <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Prioriza" className="h-12 w-auto mx-auto mb-4 object-contain" />
                     <h2 className="text-3xl font-extrabold text-gray-900">
                         {isLogin ? 'Bem-vindo de volta' : 'Crie sua conta'}
                     </h2>

@@ -42,7 +42,7 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
             >
                 {/* Logo (Desktop) */}
                 <div className="mb-8 hidden lg:flex items-center justify-center w-full">
-                    <img src="/logo.png" alt="Prioriza" className="h-16 w-auto object-contain" />
+                    <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Prioriza" className="h-16 w-auto object-contain" />
                 </div>
 
                 {/* Hamburger / Menu Trigger (Mobile Close) */}

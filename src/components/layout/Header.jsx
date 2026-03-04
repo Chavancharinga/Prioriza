@@ -13,7 +13,7 @@ export default function Header() {
                 <div className="flex items-center gap-3">
                     <div className="relative">
                         <img
-                            src="/logo.png"
+                            src={`${import.meta.env.BASE_URL}logo.png`}
                             alt="Prioriza"
                             className="h-9 w-9 object-contain"
                         />
