@@ -101,18 +101,29 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
                         {/* Priority & Minutes */}
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Prioridade</label>
-                                <select
-                                    value={formData.priority}
-                                    onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) })}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all bg-white"
-                                >
-                                    <option value={1}>1 - Crítica (Vermelho)</option>
-                                    <option value={2}>2 - Alta (Laranja)</option>
-                                    <option value={3}>3 - Média (Amarelo)</option>
-                                    <option value={4}>4 - Baixa (Azul)</option>
-                                    <option value={5}>5 - Mínima (Verde)</option>
-                                </select>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Prioridade</label>
+                                <div className="flex items-center gap-3 h-10">
+                                    {[
+                                        { bg: 'bg-red-500', value: 1, label: 'Crítica' },
+                                        { bg: 'bg-orange-500', value: 2, label: 'Alta' },
+                                        { bg: 'bg-yellow-400', value: 3, label: 'Média' },
+                                        { bg: 'bg-blue-500', value: 4, label: 'Baixa' },
+                                        { bg: 'bg-green-500', value: 5, label: 'Mínima' }
+                                    ].map((opt) => (
+                                        <button
+                                            key={opt.value}
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, priority: opt.value })}
+                                            title={opt.label}
+                                            className={`w-6 h-6 rounded-full transition-all duration-200 shadow-sm
+                                                ${opt.bg} 
+                                                ${formData.priority === opt.value
+                                                    ? 'ring-4 ring-offset-2 scale-110 !ring-blue-200 dark:!ring-blue-900 border-2 border-white dark:border-[var(--color-surface)]'
+                                                    : 'hover:scale-110 opacity-70 hover:opacity-100 border border-black/10'
+                                                }`}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Est. Minutos</label>
