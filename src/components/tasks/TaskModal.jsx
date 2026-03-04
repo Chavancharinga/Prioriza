@@ -118,7 +118,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
                                             className={`w-6 h-6 rounded-full transition-all duration-200 shadow-sm
                                                 ${opt.bg} 
                                                 ${formData.priority === opt.value
-                                                    ? 'ring-4 ring-offset-2 scale-110 !ring-blue-200 dark:!ring-blue-900 border-2 border-white dark:border-[var(--color-surface)]'
+                                                    ? 'ring-4 ring-offset-2 scale-110 ring-blue-200! dark:ring-blue-900! border-2 border-white dark:border-(--color-surface)'
                                                     : 'hover:scale-110 opacity-70 hover:opacity-100 border border-black/10'
                                                 }`}
                                         />
