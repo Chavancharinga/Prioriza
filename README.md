@@ -1,99 +1,93 @@
 <h1 align="center">
-  🚀 Prioriza
+  Prioriza
 </h1>
 
 <p align="center">
-  <strong>Gere as tuas tarefas com a máxima eficiência baseada na Matriz de Eisenhower e foco interativo.</strong>
+  <strong>Gira as suas tarefas diárias com a máxima eficiência baseando-se na Matriz de Eisenhower e foco interativo.</strong>
 </p>
 
 <p align="center">
-  <a href="#-sobre">Sobre</a> •
-  <a href="#-funcionalidades">Funcionalidades</a> •
-  <a href="#%EF%B8%8F-tecnologias">Tecnologias</a> •
-  <a href="#-como-come%C3%A7ar">Como Começar</a> •
-  <a href="#-documenta%C3%A7%C3%A3o-e-wiki">Wiki Oficial</a>
+  <a href="#sobre">Sobre</a> •
+  <a href="#funcionalidades">Funcionalidades</a> •
+  <a href="#tecnologias">Tecnologias</a> •
+  <a href="#como-comecar">Como Começar</a> •
+  <a href="#documentacao-e-wiki">Wiki Oficial</a>
 </p>
 
 ---
 
-## 🎯 Sobre
+## Sobre
 
-O **Prioriza** é uma SPA (Single Page Application) concebida para redefinir a produtividade diária. Utilizando uma arquitetura modular moderna e uma interface minimalista incrível com suporte para _Dark Mode_, o Prioriza afasta-se das simples listas de tarefas para te oferecer um ecossistema focado na priorização inteligente.
+O Prioriza é uma Aplicação de Página Única (SPA) projetada com o fito de redefinir a produtividade e a gestão pessoal de tarefas. Desenvolvida sob uma arquitetura modular moderna e uma interface de utilizador iminentemente minimalista, a plataforma prioriza uma abordagem inteligente centrada na categorização e estruturação do trabalho diário.
 
-Este projeto já dispõe de suporte em tempo real à base de dados, gestão de calendário de planeamento, visualização analítica KPI avançada e autenticação completa.
+Este projeto dispõe atualmente de integração perene com bases de dados em tempo real, capacidade de visualização através de painéis analíticos, suporte para modo noturno e fluxos automatizados de autenticação.
 
-👉 **[Ver a App em Funcionamento (GitHub Pages)](https://chavancharinga.github.io/Prioriza/)**
-
----
-
-## ✨ Funcionalidades
-
-- **Autenticação Segura:** Autenticação imediata via Supabase (Email/Senha).
-- **Três Vistas de Gestão:**
-  - 📋 **Lista:** Visualização limpa e clássica.
-  - 🧱 **Kanban:** Interface Drag & Drop fluida por status (A Fazer, Progresso, Concluído).
-  - 🌳 **Árvore Hierárquica:** Visão parental das tuas prioridades aninhadas e indicadores em tempo real.
-- **Painel Analítico:** Acompanha verdadeiras estatísticas com gráficos SVG polidos (Taxa de Conclusão, Distribuição, Velocidade Típica).
-- **Foco e Recursos:** Modo timer nas subtarefas, integração com links de documentação em anexo, painel integrado para notas markdown curtas.
-- **Dark Mode Robusto:** Preferência local baseada em Tokens CSS dinâmicos e `@custom-variant` via **Tailwind v4**.
-- **Gestor de Planeamento Mensal:** Visualização de calendário global.
+[Aceder à Aplicação Pelo GitHub Pages](https://chavancharinga.github.io/Prioriza/)
 
 ---
 
-## 🛠️ Tecnologias
+## Funcionalidades Principais
 
-- **Frontend:** [React 18](https://reactjs.org/) + [Vite](https://vitejs.dev/)
-- **Estilos:** [Tailwind CSS v4](https://tailwindcss.com/)
-- **BaaS (Base de Dados e Autenticação):** [Supabase](https://supabase.com/)
-- **Animações (UX):** [Framer Motion](https://www.framer.com/motion/)
-- **Routing:** [React Router v6](https://reactrouter.com/)
-- **CI/CD:** GitHub Actions -> GitHub Pages Deployment
+- **Autenticação Segura:** Registo e identificação na plataforma, assegurados pela infraestrutura integrada do Supabase.
+- **Métodos de Visualização:**
+  - **Lista Modular:** Perspetiva em tabela minimalista para uma rápida revisão tática das pendências diárias.
+  - **Quadro Kanban:** Interface segmentada por estado, facilitando a transição de tarefas arrastando as opções com o cursor.
+  - **Árvore Hierárquica:** Visão que agrupa elementos parentais das prioridades aninhadas mediante indicadores de tempo real.
+- **Painel Analítico Avançado:** Fornecimento analítico por indicadores fulcrais e representações gráficas relativas à distribuição de tarefas e tempo de conclusão transversal a prioridades.
+- **Ferramentas de Foco Intrínsecas:** Temporizador localizado nas subtarefas e integração simplificada com sistemas de texto estendido baseados em Markdown.
+- **Estilização Dinâmica:** Incorporação robusta de um Tema Escuro através do manuseamento de Variáveis CSS nativas no padrão mais recente do Tailwind v4.
+- **Gestão de Planeamento Mensal:** Módulo expansivo do calendário global para projeção temporal pormenorizada.
 
 ---
 
-## 🚀 Como Começar (Ambiente Local)
+## Tecnologias Integradas
 
-### Pré-requisitos
-- [Node.js](https://nodejs.org/) (versão 20 ou superior)
-- Um projeto limpo no [Supabase](https://supabase.com/).
+- **Desenvolvimento da Interface (Frontend):** React 18 acoplado à solução de compilação Vite
+- **Definição Estilística:** Tailwind CSS v4
+- **Backend as a Service (BaaS):** Supabase (PostgreSQL e Processamento Multi-Fator)
+- **Engenharia de Interação:** Framer Motion (UX e transições de Estado Interativo)
+- **Gestão de Transição Operacional (Routing):** React Router v6
+- **Procedimentos de Implementação Progressiva (CI/CD):** Componente de entrega em Pipelines do GitHub Actions e GitHub Pages
 
-### Instalação
+---
 
-1. Clona este repositório:
+## Como Começar (Ambiente Local)
+
+### Requisitos Técnicos
+- Engine de JavaScript Node.js (versão atestada: 20 ou superior)
+- Um projeto limpo instanciado na plataforma do Supabase.
+
+### Instruções de Instalação
+
+1. Duplique o diretório localmente:
    ```bash
    git clone https://github.com/Chavancharinga/Prioriza.git
    cd Prioriza/Code/Prioriza_pasta
    ```
 
-2. Instala as dependências:
+2. Efetue o download das dependências subjacentes:
    ```bash
    npm install
    ```
 
-3. Configura as variáveis de ambiente:
-   - Cria um ficheiro `.env.local` na raiz de `/Prioriza_pasta` e adiciona as tuas credenciais (conferir o ficheiro modelo ou adicionar o standard do Supabase):
+3. Exponha as varíaveis locais fundamentais para a infraestrutura operar:
+   - Crie um ficheiro intitulado `.env.local` na raiz `/Prioriza_pasta`, fornecendo de seguida os acessos alocados pelo seu painel de API no Supabase:
    ```env
-   VITE_SUPABASE_URL=teu_url_supabase
-   VITE_SUPABASE_ANON_KEY=tua_chave_supabase
+   VITE_SUPABASE_URL=url_de_api_reservado_no_supabase
+   VITE_SUPABASE_ANON_KEY=chave_anon_atestada_no_supabase
    ```
 
-4. Executa o servidor de desenvolvimento:
+4. Dispare o servidor de desenvolvimento para depuração iterativa local:
    ```bash
    npm run dev
    ```
 
 ---
 
-## 📚 Documentação e WIKI
+## Documentação Técnica e WIKI
 
-O nosso processo criativo foi arduamente documentado para assegurar máxima transparência arquitetural e facilidade para a submissão de código futuro (roadmap).
+O plano tático transposto originou também a idealização e registo progressivo do desenvolvimento. De forma a dotar futuras metodologias de análise facilitada para integração técnica, optou-se pela criação de uma robusta Wiki dentro do próprio ambiente do projeto.
 
-Para os mergulhos técnicos profundos — incluindo os desafios de *builds CI/CD* que tivemos, o porquê de escolhas arquiteturais específicas, e as funcionalidades de **Inteligência Artificial** (Gemini AI) planeadas para as próximas grandes versões — por favor, consulta o WIKI Oficial focado em Developer Experience:
+Para explorações a um nível informático granular — listando também incidentes técnicos suplantados que serviram como fonte resoluta dos problemas de CI/CD recentes, razões logísticas prementes na escolha técnica da fundação, a par do catálogo para futuras injeções algoritmicas e semânticas com recurso a GenAI e LLMs — deverá consultar a listagem de leitura orientada e oficial para promotores (Developer Experience).
 
-📄 **[Aceder ao Resumo na Wiki do Projeto (docs/WIKI.md)](docs/WIKI.md)**
-
----
-
-<p align="center">
-  Feito com ☕ e foco.
-</p>
+[Aceder à Documentação Central Técnica (WIKI)](docs/WIKI.md)
