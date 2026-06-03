@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -16,6 +18,12 @@
   --color-prioriza-orange: #FB923C;
   --color-prioriza-cyan: #06B6D4;
 
+  /* Gamification Colors */
+  --color-prioriza-gold: #F59E0B;
+  --color-prioriza-xp: #10B981;
+  --color-prioriza-focus: #3B82F6;
+  --color-prioriza-danger: #EF4444;
+
   /* Surface Colors (Light) */
   --color-surface: #F5F7FA;
   --color-surface-card: #FFFFFF;
@@ -31,21 +39,21 @@
   --color-border-light: #F3F4F6;
 
   /* Font Family */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* Dark Mode Overrides */
 .dark {
-  --color-surface: #0f1117;
-  --color-surface-card: #1a1d27;
-  --color-surface-elevated: #232633;
+  --color-surface: #06080F;
+  --color-surface-card: rgba(20, 25, 40, 0.45);
+  --color-surface-elevated: rgba(30, 41, 59, 0.55);
 
   --color-text-primary: #F9FAFB;
   --color-text-secondary: #9CA3AF;
   --color-text-muted: #6B7280;
 
-  --color-border: #2d3040;
-  --color-border-light: #232633;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-light: rgba(255, 255, 255, 0.04);
 }
 
 /* Base Styles */
@@ -101,26 +109,182 @@
     text-wrap: balance;
   }
 
-  /* Custom Scrollbar */
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+  /* Hide scrollbars globally */
+  * {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
   }
-
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: #CBD5E1;
-    border-radius: 99px;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: #94A3B8;
+  *::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
   }
 
   .card-shadow {
     box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
   }
 }
+
+/* label placeholder aria-label */
+
+/* Tiptap / ProseMirror Dark Mode Overrides */
+.dark .ProseMirror {
+  color: #e2e8f0; /* slate-200 */
+}
+
+.dark .ProseMirror strong,
+.dark .ProseMirror b {
+  color: #f1f5f9; /* slate-100 - visible bold in dark mode */
+  font-weight: 700;
+}
+
+.dark .ProseMirror em {
+  color: #cbd5e1; /* slate-300 */
+}
+
+.dark .ProseMirror h1,
+.dark .ProseMirror h2,
+.dark .ProseMirror h3 {
+  color: #f8fafc; /* slate-50 */
+}
+
+.dark .ProseMirror span[data-heading-inline] {
+  color: #f8fafc;
+}
+
+.dark .ProseMirror blockquote {
+  border-left-color: #475569;
+  color: #94a3b8;
+}
+
+.dark .ProseMirror p.is-editor-empty::before {
+  color: #475569; /* slate-600 placeholder in dark */
+}
+
+/* Scrollbar fix for custom-scrollbar class */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+}
+.dark .custom-scrollbar {
+  scrollbar-color: rgba(75, 85, 99, 0.4) transparent;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  display: block !important;
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.4);
+  border-radius: 9999px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(75, 85, 99, 0.4);
+}
+
+@keyframes prioriza-rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: prioriza-rotation 1s linear infinite !important;
+}
+
+.animate-spin-slow {
+  animation: prioriza-rotation 6s linear infinite !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Keep essential loading spinners running even if reduced motion is requested */
+  .animate-spin {
+    animation: prioriza-rotation 1s linear infinite !important;
+  }
+  .animate-spin-slow {
+    animation: prioriza-rotation 6s linear infinite !important;
+  }
+}
+
+/* Skeleton Loading Shimmer Animation */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: #e5e7eb; /* tailwind-gray-200 */
+  background-image: linear-gradient(
+    90deg,
+    #e5e7eb 0px,
+    #f3f4f6 40px,
+    #e5e7eb 80px
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite linear;
+}
+
+.dark .skeleton {
+  background-color: #232633; /* dark mode surface-elevated */
+  background-image: linear-gradient(
+    90deg,
+    #232633 0px,
+    #2d3040 40px,
+    #232633 80px
+  );
+}
+
+/* Premium Gamified Dark Mode Overrides */
+.dark body {
+  background-color: var(--color-surface);
+  background-image: radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.07), transparent 70%);
+}
+
+/* Premium Glassmorphic Cards & Panels in Dark Mode */
+.dark .bg-white.dark\:bg-\(--color-surface-card\),
+.dark [class*="bg-(--color-surface-card)"] {
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Custom interactive spring clicks on buttons and active tabs */
+.dark button:active,
+.dark a:active,
+.dark [role="button"]:active {
+  transform: scale(0.97);
+}
+
+.dark button,
+.dark a,
+.dark [role="button"] {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Level Up / XP Progression Subtle Shadows */
+.xp-progress-bar-glow {
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
+}
+
+.gold-stat-badge-glow {
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.15);
+}
+
+/* Ensure clean border styles in dark mode */
+.dark .border-gray-100,
+.dark .border-neutral-100 {
+  border-color: var(--color-border);
+}
+
+
+

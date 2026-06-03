@@ -10,6 +10,8 @@ export default function Auth({ onLogin }) {
     const [message, setMessage] = useState(null)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [fullName, setFullName] = useState('')
+    const [username, setUsername] = useState('')
 
     const handleAuth = async (e) => {
         e.preventDefault()
@@ -29,6 +31,12 @@ export default function Auth({ onLogin }) {
                 const { data, error } = await supabase.auth.signUp({
                     email: cleanEmail,
                     password,
+                    options: {
+                        data: {
+                            full_name: fullName.trim(),
+                            username: username.trim()
+                        }
+                    }
                 })
                 if (error) throw error
 
@@ -71,6 +79,33 @@ export default function Auth({ onLogin }) {
 
                 <Card className="p-8">
                     <form onSubmit={handleAuth} className="space-y-6">
+                        {!isLogin && (
+                            <>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Nome Completo</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={fullName}
+                                        onChange={(e) => setFullName(e.target.value)}
+                                        className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Seu nome completo"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Nome de Usuário (Username)</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={username}
+                                        onChange={(e) => setUsername(e.target.value)}
+                                        className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Ex: joao_silva"
+                                    />
+                                </div>
+                            </>
+                        )}
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Email</label>
                             <input

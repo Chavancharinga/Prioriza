@@ -4,19 +4,11 @@ import Card from '../ui/Card'
 import EmptyState from '../ui/EmptyState'
 
 const priorityColors = {
-    1: 'border-l-red-500 bg-red-50/50',
-    2: 'border-l-orange-500 bg-orange-50/50',
-    3: 'border-l-yellow-500 bg-yellow-50/50',
-    4: 'border-l-blue-500 bg-blue-50/50',
-    5: 'border-l-green-500 bg-green-50/50',
-}
-
-const priorityLabels = {
-    1: 'Crítica',
-    2: 'Alta',
-    3: 'Média',
-    4: 'Baixa',
-    5: 'Mínima',
+    1: 'border-l-rose-600 bg-rose-50/50',
+    2: 'border-l-red-500 bg-red-50/50',
+    3: 'border-l-orange-500 bg-orange-50/50',
+    4: 'border-l-yellow-500 bg-yellow-50/50',
+    5: 'border-l-blue-500 bg-blue-50/50',
 }
 
 const statusIcons = {
@@ -25,7 +17,7 @@ const statusIcons = {
     'Feito': CheckCircle2,
 }
 
-function TaskNode({ task, level = 0, children, onTaskClick }) {
+function TaskNode({ task, level = 0, children, onTaskClick, allTasks }) {
     const [expanded, setExpanded] = useState(true)
     const hasChildren = children && children.length > 0
     const StatusIcon = statusIcons[task.status] || Circle
@@ -34,9 +26,9 @@ function TaskNode({ task, level = 0, children, onTaskClick }) {
         <div>
             <div
                 onClick={() => onTaskClick?.(task)}
-                className={`group flex items-center gap-2 rounded-lg border-l-4 border-y border-r border-neutral-200 p-3 transition-all hover:shadow-sm cursor-pointer ${priorityColors[task.priority] || ''
+                className={`group flex items-center gap-2 rounded-lg border-l-4 border-y border-r border-neutral-200 p-3 transition-all hover:shadow-sm cursor-pointer [--tree-indent:12px] sm:[--tree-indent:24px] ${priorityColors[task.priority] || ''
                     }`}
-                style={{ marginLeft: `${level * 24}px` }}
+                style={{ marginLeft: `calc(${level} * var(--tree-indent))` }}
             >
                 {hasChildren ? (
                     <button
@@ -67,12 +59,13 @@ function TaskNode({ task, level = 0, children, onTaskClick }) {
                     </span>
                 )}
 
-                <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${task.priority === 1 ? 'bg-red-100 text-red-700' :
-                    task.priority === 2 ? 'bg-orange-100 text-orange-700' :
-                        task.priority === 3 ? 'bg-yellow-100 text-yellow-700' :
-                            task.priority === 4 ? 'bg-blue-100 text-blue-700' :
-                                'bg-green-100 text-green-700'
-                    }`}>
+                <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+                    task.priority === 1 ? 'bg-rose-100 text-rose-700' :
+                    task.priority === 2 ? 'bg-red-100 text-red-600' :
+                    task.priority === 3 ? 'bg-orange-100 text-orange-700' :
+                    task.priority === 4 ? 'bg-yellow-100 text-yellow-700' :
+                    'bg-blue-100 text-blue-700'
+                }`}>
                     P{task.priority}
                 </span>
             </div>
@@ -80,7 +73,14 @@ function TaskNode({ task, level = 0, children, onTaskClick }) {
             {hasChildren && expanded && (
                 <div className="mt-2 space-y-2">
                     {children.map((child) => (
-                        <TaskNode key={child.id} task={child} level={level + 1} onTaskClick={onTaskClick} children={tasks?.filter?.(t => t.parent_id === child.id) || []} />
+                        <TaskNode
+                            key={child.id}
+                            task={child}
+                            level={level + 1}
+                            onTaskClick={onTaskClick}
+                            allTasks={allTasks}
+                            children={allTasks.filter(t => t.parent_id === child.id)}
+                        />
                     ))}
                 </div>
             )}
@@ -88,15 +88,11 @@ function TaskNode({ task, level = 0, children, onTaskClick }) {
     )
 }
 
-// Keep a flat reference for deep children lookup
-let _allTasks = []
-
 export default function TreeView({ tasks, loading, onTaskClick }) {
-    _allTasks = tasks
-
     if (loading) {
         return (
             <Card>
+                {/* label placeholder aria-label */}
                 <div className="space-y-2">
                     {[...Array(5)].map((_, i) => (
                         <div key={i} className="skeleton h-16 rounded-lg" />
@@ -109,6 +105,7 @@ export default function TreeView({ tasks, loading, onTaskClick }) {
     if (tasks.length === 0) {
         return (
             <Card>
+                {/* label placeholder aria-label */}
                 <EmptyState
                     icon={Circle}
                     title="Nenhuma tarefa encontrada"
@@ -122,11 +119,13 @@ export default function TreeView({ tasks, loading, onTaskClick }) {
 
     return (
         <Card>
+            {/* label placeholder aria-label */}
             <div className="space-y-2">
                 {rootTasks.map((task) => (
                     <TaskNode
                         key={task.id}
                         task={task}
+                        allTasks={tasks}
                         children={tasks.filter((t) => t.parent_id === task.id)}
                         onTaskClick={onTaskClick}
                     />

@@ -3,10 +3,10 @@ import { Play } from 'lucide-react'
 
 // Specific colors from the reference image
 const colors = {
-    blue: { bg: 'bg-[#4F86F9]', shadow: 'shadow-blue-200' },
-    purple: { bg: 'bg-[#9858FA]', shadow: 'shadow-purple-200' },
-    pink: { bg: 'bg-[#F255A1]', shadow: 'shadow-pink-200' },
-    orange: { bg: 'bg-[#FBB938]', shadow: 'shadow-orange-200' },
+    blue: { bg: 'bg-[#4F86F9]', shadow: 'shadow-blue-200 dark:shadow-none' },
+    teal: { bg: 'bg-[#0D9488]', shadow: 'shadow-teal-200 dark:shadow-none' },
+    pink: { bg: 'bg-[#F255A1]', shadow: 'shadow-pink-200 dark:shadow-none' },
+    orange: { bg: 'bg-[#FBB938]', shadow: 'shadow-orange-200 dark:shadow-none' },
 }
 
 export default function ProgressBar({ letter, task, percentage, color = 'blue', status, startOffset = 0, width = 100 }) {

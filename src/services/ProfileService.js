@@ -45,18 +45,22 @@ export const ProfileService = {
         return true
     },
 
-    // Upload Avatar
+    // Upload Avatar - uses {userId}/{timestamp}.ext path for RLS compatibility
     async uploadAvatar(file) {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) throw new Error('User not authenticated')
 
-        const fileExt = file.name.split('.').pop()
-        const fileName = `${user.id}-${Math.random()}.${fileExt}`
-        const filePath = `${fileName}`
+        const fileExt = file.name.split('.').pop().toLowerCase()
+        const timestamp = Date.now()
+        // Path pattern: {userId}/{timestamp}.{ext}  → matches storage RLS policy
+        const filePath = `${user.id}/${timestamp}.${fileExt}`
 
         const { error: uploadError } = await supabase.storage
             .from('avatars')
-            .upload(filePath, file)
+            .upload(filePath, file, {
+                upsert: true,           // Replace if already exists
+                contentType: file.type,
+            })
 
         if (uploadError) throw uploadError
 
@@ -64,6 +68,7 @@ export const ProfileService = {
             .from('avatars')
             .getPublicUrl(filePath)
 
-        return data.publicUrl
+        // Cache-busting: force browser to reload the new image
+        return `${data.publicUrl}?t=${timestamp}`
     }
 }

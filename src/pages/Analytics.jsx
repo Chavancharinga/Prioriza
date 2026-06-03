@@ -1,14 +1,15 @@
 import { useState, useEffect, useMemo } from 'react'
 import { BarChart3, TrendingUp, Clock, CheckCircle2, Target, Activity } from 'lucide-react'
 import { TaskService } from '../services/TaskService'
+import Skeleton from '../components/ui/Skeleton'
 
 const priorityLabels = { 1: 'Crítica', 2: 'Alta', 3: 'Média', 4: 'Baixa', 5: 'Mínima' }
 const priorityColors = {
-    1: { bg: 'bg-red-500', light: 'bg-red-100', text: 'text-red-700' },
-    2: { bg: 'bg-orange-500', light: 'bg-orange-100', text: 'text-orange-700' },
-    3: { bg: 'bg-yellow-500', light: 'bg-yellow-100', text: 'text-yellow-700' },
-    4: { bg: 'bg-blue-500', light: 'bg-blue-100', text: 'text-blue-700' },
-    5: { bg: 'bg-green-500', light: 'bg-green-100', text: 'text-green-700' },
+    1: { bg: 'bg-rose-600', light: 'bg-rose-100', text: 'text-rose-700' },
+    2: { bg: 'bg-red-500', light: 'bg-red-100', text: 'text-red-600' },
+    3: { bg: 'bg-orange-500', light: 'bg-orange-100', text: 'text-orange-700' },
+    4: { bg: 'bg-yellow-500', light: 'bg-yellow-100', text: 'text-yellow-700' },
+    5: { bg: 'bg-blue-500', light: 'bg-blue-100', text: 'text-blue-700' },
 }
 
 export default function Analytics() {
@@ -21,8 +22,8 @@ export default function Analytics() {
 
     async function loadTasks() {
         try {
-            const data = await TaskService.getTasks()
-            setTasks(data || [])
+            const tasksData = await TaskService.getTasks()
+            setTasks(tasksData || [])
         } catch (err) {
             console.error('Error loading analytics data:', err)
         } finally {
@@ -76,11 +77,56 @@ export default function Analytics() {
     }
 
     if (loading) {
-        return <div className="p-8 flex justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>
+        return (
+            <div className="space-y-6 lg:space-y-8">
+                {/* KPI Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                    {[...Array(5)].map((_, i) => (
+                        <Skeleton.Card key={i} className="p-5">
+                            <div className="flex items-center gap-3 mb-3">
+                                <Skeleton.Circle size="h-9 w-9" className="rounded-xl" />
+                                <Skeleton className="h-4 w-12" />
+                            </div>
+                            <Skeleton className="h-7 w-16 mb-1" />
+                        </Skeleton.Card>
+                    ))}
+                </div>
+
+                {/* Main Charts area */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Chart 1 skeleton */}
+                    <Skeleton.Card className="h-80">
+                        <Skeleton className="h-5 w-44 mb-6" />
+                        <div className="flex items-end justify-between h-48 px-4">
+                            {[...Array(5)].map((_, i) => (
+                                <Skeleton key={i} className="w-12 rounded-t-md" style={{ height: `${20 + i * 15}%` }} />
+                            ))}
+                        </div>
+                    </Skeleton.Card>
+
+                    {/* Chart 2 skeleton */}
+                    <Skeleton.Card className="h-80">
+                        <Skeleton className="h-5 w-32 mb-6" />
+                        <div className="space-y-4">
+                            {[...Array(3)].map((_, i) => (
+                                <div key={i} className="space-y-2">
+                                    <div className="flex justify-between">
+                                        <Skeleton className="h-3.5 w-16" />
+                                        <Skeleton className="h-3.5 w-8" />
+                                    </div>
+                                    <Skeleton className="h-2 w-full" />
+                                </div>
+                            ))}
+                        </div>
+                    </Skeleton.Card>
+                </div>
+            </div>
+        )
     }
 
     return (
         <div className="space-y-6 lg:space-y-8">
+            {/* label placeholder aria-label */}
             {/* KPI Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                 {[
@@ -183,6 +229,77 @@ export default function Analytics() {
                                 </div>
                             )
                         })}
+                    </div>
+                </div>
+
+                {/* Telemetry Dashboard: Planned vs Actual */}
+                <div className="bg-white rounded-[24px] sm:rounded-[32px] p-6 lg:p-8 shadow-[0_2px_40px_-10px_rgba(0,0,0,0.05)] col-span-1 xl:col-span-2">
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">Telemetria de Tempo: Planejado vs. Executado</h3>
+                    <p className="text-xs text-gray-400 mb-6">Comparação direta por prioridade (P1 a P5) entre estimativa teórica e ciclos Pomodoro concluídos.</p>
+
+                    <div className="space-y-6">
+                        {[1, 2, 3, 4, 5].map(p => {
+                            // Calculate estimated vs actual minutes directly from tasks to avoid view duplication bugs
+                            const estimatedMin = Math.round(
+                                tasks
+                                    .filter(t => t.priority === p)
+                                    .reduce((acc, t) => acc + (t.estimated_minutes || 0), 0)
+                            )
+                            const actualMin = Math.round(
+                                tasks
+                                    .filter(t => t.priority === p)
+                                    .reduce((acc, t) => acc + (t.time_spent || 0), 0) / 60
+                            )
+                            
+                            // Find the max value across all priorities for scaling (minimum of 60 minutes)
+                            const allPrioritiesMax = [1, 2, 3, 4, 5].map(pr => {
+                                const est = tasks.filter(t => t.priority === pr).reduce((acc, t) => acc + (t.estimated_minutes || 0), 0)
+                                const act = tasks.filter(t => t.priority === pr).reduce((acc, t) => acc + (t.time_spent || 0), 0) / 60
+                                return Math.max(est, act)
+                            })
+                            const maxVal = Math.max(...allPrioritiesMax, 60)
+                            
+                            const estWidth = `${Math.min(100, (estimatedMin / maxVal) * 100)}%`
+                            const actWidth = `${Math.min(100, (actualMin / maxVal) * 100)}%`
+                            const colors = priorityColors[p]
+
+                            return (
+                                <div key={p} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center border-b border-neutral-50 pb-4 last:border-0 last:pb-0">
+                                    <div className="md:col-span-3 flex items-center gap-2">
+                                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${colors?.light} ${colors?.text}`}>
+                                            P{p}
+                                        </span>
+                                        <span className="text-xs font-bold text-gray-600 truncate">{priorityLabels[p]}</span>
+                                    </div>
+                                    <div className="md:col-span-9 space-y-1.5">
+                                        {/* Estimated Bar */}
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-2.5 bg-blue-50 rounded-full flex-1 overflow-hidden">
+                                                <div className="h-full bg-blue-500 rounded-full transition-all duration-500" style={{ width: estWidth }} />
+                                            </div>
+                                            <span className="text-[10px] font-bold text-blue-600 w-12 text-right">{estimatedMin}m</span>
+                                        </div>
+                                        {/* Actual Bar */}
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-2.5 bg-emerald-50 rounded-full flex-1 overflow-hidden">
+                                                <div className="h-full bg-emerald-500 rounded-full transition-all duration-500" style={{ width: actWidth }} />
+                                            </div>
+                                            <span className="text-[10px] font-bold text-emerald-600 w-12 text-right">{actualMin}m</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div className="flex flex-wrap justify-end gap-6 mt-6 border-t border-neutral-100 pt-4">
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-blue-500 rounded" />
+                            <span className="text-xs font-semibold text-gray-500">Tempo Planejado (Estimado)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-emerald-500 rounded" />
+                            <span className="text-xs font-semibold text-gray-500">Tempo Executado (Foco Logado)</span>
+                        </div>
                     </div>
                 </div>
             </div>

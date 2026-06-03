@@ -16,6 +16,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
 
     useEffect(() => {
         if (taskToEdit) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setFormData({
                 title: taskToEdit.title || '',
                 description: taskToEdit.description || '',
@@ -104,11 +105,11 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Prioridade</label>
                                 <div className="flex items-center gap-3 h-10">
                                     {[
-                                        { bg: 'bg-red-500', value: 1, label: 'Crítica' },
-                                        { bg: 'bg-orange-500', value: 2, label: 'Alta' },
-                                        { bg: 'bg-yellow-400', value: 3, label: 'Média' },
-                                        { bg: 'bg-blue-500', value: 4, label: 'Baixa' },
-                                        { bg: 'bg-green-500', value: 5, label: 'Mínima' }
+                                        { bg: 'bg-rose-600', value: 1, label: 'Crítica' },
+                                        { bg: 'bg-red-500', value: 2, label: 'Alta' },
+                                        { bg: 'bg-orange-500', value: 3, label: 'Média' },
+                                        { bg: 'bg-yellow-500', value: 4, label: 'Baixa' },
+                                        { bg: 'bg-blue-500', value: 5, label: 'Mínima' }
                                     ].map((opt) => (
                                         <button
                                             key={opt.value}

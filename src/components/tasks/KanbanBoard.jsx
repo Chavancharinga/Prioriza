@@ -1,4 +1,5 @@
 import { Circle, Clock, CheckCircle2, Pencil, Trash2 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import Card from '../ui/Card'
 
 const columns = [
@@ -8,25 +9,27 @@ const columns = [
 ]
 
 const priorityColors = {
-    1: 'border-l-red-500',
-    2: 'border-l-orange-500',
-    3: 'border-l-yellow-500',
-    4: 'border-l-blue-500',
-    5: 'border-l-green-500',
+    1: 'border-l-rose-600',
+    2: 'border-l-red-500',
+    3: 'border-l-orange-500',
+    4: 'border-l-yellow-500',
+    5: 'border-l-blue-500',
 }
 
 export default function KanbanBoard({ tasks, loading, onEdit, onDelete, onStatusChange, onTaskClick }) {
     if (loading) {
         return (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="flex lg:grid lg:grid-cols-3 gap-4 overflow-x-auto custom-scrollbar lg:overflow-visible pb-4 lg:pb-0 snap-x snap-mandatory">
                 {columns.map((col) => (
-                    <Card key={col.id} title={col.label}>
-                        <div className="space-y-2">
-                            {[...Array(3)].map((_, i) => (
-                                <div key={i} className="skeleton h-20 rounded-lg" />
-                            ))}
-                        </div>
-                    </Card>
+                    <div key={col.id} className="w-[88vw] sm:w-[350px] lg:w-auto shrink-0 snap-align-center">
+                        <Card title={col.label}>
+                            <div className="space-y-2">
+                                {[...Array(3)].map((_, i) => (
+                                    <div key={i} className="skeleton h-20 rounded-lg" />
+                                ))}
+                            </div>
+                        </Card>
+                    </div>
                 ))}
             </div>
         )
@@ -49,7 +52,8 @@ export default function KanbanBoard({ tasks, loading, onEdit, onDelete, onStatus
     }
 
     return (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="flex lg:grid lg:grid-cols-3 gap-4 overflow-x-auto custom-scrollbar lg:overflow-visible pb-4 lg:pb-0 snap-x snap-mandatory">
+            {/* label placeholder aria-label */}
             {columns.map((column) => {
                 const Icon = column.icon
                 const columnTasks = tasks.filter((t) => t.status === column.id)
@@ -59,7 +63,7 @@ export default function KanbanBoard({ tasks, loading, onEdit, onDelete, onStatus
                         key={column.id}
                         onDragOver={handleDragOver}
                         onDrop={(e) => handleDrop(e, column.id)}
-                        className="h-full"
+                        className="w-[88vw] sm:w-[350px] lg:w-auto shrink-0 snap-align-center h-full"
                     >
                         <Card
                             title={
@@ -79,47 +83,74 @@ export default function KanbanBoard({ tasks, loading, onEdit, onDelete, onStatus
                                         Solte aqui
                                     </p>
                                 ) : (
-                                    columnTasks.map((task) => (
-                                        <div
-                                            key={task.id}
-                                            draggable={task.status !== 'Feito'}
-                                            onDragStart={(e) => handleDragStart(e, task.id)}
-                                            onClick={() => onTaskClick && onTaskClick(task)}
-                                            className={`group relative rounded-lg border-l-4 border-y border-r border-neutral-200 bg-white p-3 shadow-sm transition-all ${task.status !== 'Feito' ? 'cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-1' : 'cursor-pointer opacity-80 bg-gray-50'
-                                                } ${priorityColors[task.priority] || 'border-l-neutral-300'
-                                                }`}
-                                        >
-                                            <div className="flex justify-between items-start">
-                                                <h4 className="text-sm font-medium text-neutral-900 line-clamp-2 mb-1">
-                                                    {task.title}
-                                                </h4>
-                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity absolute top-2 right-2 bg-white/90 rounded shadow-sm">
-                                                    <button onClick={() => onEdit(task)} className="p-1 hover:text-blue-600"><Pencil className="w-3 h-3" /></button>
-                                                    <button onClick={() => onDelete(task.id)} className="p-1 hover:text-red-600"><Trash2 className="w-3 h-3" /></button>
+                                    <AnimatePresence mode="popLayout">
+                                        {columnTasks.map((task) => (
+                                            <motion.div
+                                                layout
+                                                initial={{ opacity: 0, scale: 0.95 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                exit={{ opacity: 0, scale: 0.95 }}
+                                                transition={{ type: "spring", stiffness: 450, damping: 30 }}
+                                                key={task.id}
+                                                draggable={task.status !== 'Feito'}
+                                                onDragStart={(e) => handleDragStart(e, task.id)}
+                                                onClick={() => onTaskClick && onTaskClick(task)}
+                                                className={`group relative rounded-lg border-l-4 border-y border-r border-neutral-200 bg-white p-3 shadow-sm transition-all ${task.status !== 'Feito' ? 'cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-1' : 'cursor-pointer opacity-80 bg-gray-50'
+                                                    } ${priorityColors[task.priority] || 'border-l-neutral-300'
+                                                    }`}
+                                                title="Clique para abrir o espaço de trabalho (Pomodoro, Notas, Checklists)"
+                                            >
+                                                <div className="flex justify-between items-start">
+                                                    <h4 className="text-sm font-medium text-neutral-900 line-clamp-2 mb-1 pr-6">
+                                                        {task.title}
+                                                    </h4>
+                                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity absolute top-2 right-2 bg-white/90 rounded shadow-sm z-20">
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                onEdit(task)
+                                                            }}
+                                                            className="p-1 hover:text-blue-600 cursor-pointer"
+                                                        >
+                                                            <Pencil className="w-3 h-3" />
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                onDelete(task.id)
+                                                            }}
+                                                            className="p-1 hover:text-red-600 cursor-pointer"
+                                                        >
+                                                            <Trash2 className="w-3 h-3" />
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            {task.description && (
-                                                <p className="text-xs text-neutral-500 line-clamp-2 mb-2">
-                                                    {task.description}
-                                                </p>
-                                            )}
-
-                                            <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-50">
-                                                {task.due_date && (
-                                                    <span className="text-[10px] text-neutral-400 font-medium">
-                                                        {new Date(task.due_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
-                                                    </span>
+                                                {task.description && (
+                                                    <p className="text-xs text-neutral-500 line-clamp-2 mb-2">
+                                                        {task.description}
+                                                    </p>
                                                 )}
-                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${task.priority === 1 ? 'bg-red-100 text-red-700' :
-                                                    task.priority === 2 ? 'bg-orange-100 text-orange-700' :
-                                                        'bg-gray-100 text-gray-600'
+
+                                                <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-50">
+                                                    {task.due_date && (
+                                                        <span className="text-[10px] text-neutral-400 font-medium">
+                                                            {new Date(task.due_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+                                                        </span>
+                                                    )}
+                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                                                        task.priority === 1 ? 'bg-rose-100 text-rose-700' :
+                                                        task.priority === 2 ? 'bg-red-100 text-red-600' :
+                                                        task.priority === 3 ? 'bg-orange-100 text-orange-700' :
+                                                        task.priority === 4 ? 'bg-yellow-100 text-yellow-700' :
+                                                        'bg-blue-100 text-blue-700'
                                                     }`}>
-                                                    P{task.priority}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    ))
+                                                        P{task.priority}
+                                                    </span>
+                                                </div>
+                                            </motion.div>
+                                        ))}
+                                    </AnimatePresence>
                                 )}
                             </div>
                         </Card>

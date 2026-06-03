@@ -28,7 +28,7 @@ export default function TopBar({ activeTab, onTabChange }) {
                             {isActive && (
                                 <motion.div
                                     layoutId="activeTab"
-                                    className="absolute inset-0 rounded-xl bg-linear-to-r from-primary-500 to-prioriza-purple shadow-lg shadow-primary-500/30"
+                                    className="absolute inset-0 rounded-xl bg-linear-to-r from-primary-500 to-prioriza-cyan shadow-lg shadow-primary-500/30"
                                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                 />
                             )}

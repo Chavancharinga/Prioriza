@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { LayoutList, LayoutGrid, Network, Search, Plus } from 'lucide-react'
+import { LayoutList, LayoutGrid, Network, Search, Plus, Lightbulb } from 'lucide-react'
 import { TaskService } from '../services/TaskService'
+import { GamificationService } from '../services/GamificationService'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import TaskList from '../components/tasks/TaskList'
@@ -15,7 +16,7 @@ const views = [
     { id: 'tree', label: 'Árvore', icon: Network },
 ]
 
-export default function Tasks() {
+export default function Tasks({ profile, onNavigate }) {
     const [activeView, setActiveView] = useState('list')
     const [tasks, setTasks] = useState([])
     const [loading, setLoading] = useState(true)
@@ -136,13 +137,13 @@ export default function Tasks() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <div className="grid grid-cols-12 gap-2 w-full sm:flex sm:w-auto sm:items-center">
                         {/* Search */}
-                        <div className="relative flex-1 sm:w-64">
+                        <div className="relative col-span-6 sm:w-64">
                             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                             <input
                                 type="search"
-                                placeholder="Buscar tarefas..."
+                                placeholder="Buscar..."
                                 value={searchQuery}
                                 onClick={(e) => e.stopPropagation()}
                                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -155,19 +156,18 @@ export default function Tasks() {
                             value={statusFilter}
                             onClick={(e) => e.stopPropagation()}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="h-9 rounded-lg border border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-700 outline-none transition-all hover:border-neutral-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="h-9 col-span-3 rounded-lg border border-neutral-200 bg-white px-2 text-xs font-semibold text-neutral-700 outline-none transition-all hover:border-neutral-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                         >
                             <option value="all">Todas</option>
                             <option value="pending">A Fazer</option>
-                            <option value="in_progress">Em Progresso</option>
+                            <option value="in_progress">Progresso</option>
                             <option value="completed">Concluídas</option>
                         </select>
 
                         {/* Add Button */}
-                        <Button variant="primary" onClick={openCreateModal} className="h-9 flex items-center justify-center gap-2 px-4 whitespace-nowrap">
+                        <Button variant="primary" onClick={openCreateModal} className="h-9 col-span-3 flex items-center justify-center gap-1.5 px-2 text-xs sm:text-sm font-semibold whitespace-nowrap">
                             <Plus className="w-4 h-4" />
-                            <span className="hidden sm:inline">Nova Tarefa</span>
-                            <span className="sm:hidden">Adicionar</span>
+                            <span>Nova</span>
                         </Button>
                     </div>
                 </div>
@@ -198,9 +198,34 @@ export default function Tasks() {
                         onTaskClick={handleTaskClick}
                         onStatusChange={async (id, status) => {
                             try {
-                                await TaskService.updateStatus(id, status)
-                                setTasks(tasks.map(t => t.id === id ? { ...t, status } : t))
+                                const targetTask = tasks.find(t => t.id === id)
+                                const isCompleting = status === 'Feito' && targetTask?.status !== 'Feito'
+                                
+                                if (isCompleting && targetTask) {
+                                    // Fetch checklist items for this task first
+                                    const details = await TaskService.getTaskDetails(id)
+                                    const totalChecklist = details?.checklist_items?.length || 0
+                                    const completedChecklist = details?.checklist_items?.filter(i => i.is_completed).length || 0
+                                    const pendingChecklist = totalChecklist - completedChecklist
+
+                                    await TaskService.updateStatus(id, status)
+                                    setTasks(tasks.map(t => t.id === id ? { ...t, status } : t))
+
+                                    if (pendingChecklist > 0) {
+                                        alert(`A tarefa foi movida para "Feito", mas como existem ${pendingChecklist} sub-tarefa(s) pendente(s) na checklist, nenhum ponto de XP foi concedido (0 XP).`)
+                                    } else {
+                                        const priorityXp = (6 - (targetTask.priority || 3)) * 20
+                                        const res = await GamificationService.awardXp(priorityXp)
+                                        if (res && res.levelUp) {
+                                            alert(`SUBIU DE NÍVEL!\nVocê alcançou o Nível ${res.newLevel}! Continue assim!`)
+                                        }
+                                    }
+                                } else {
+                                    await TaskService.updateStatus(id, status)
+                                    setTasks(tasks.map(t => t.id === id ? { ...t, status } : t))
+                                }
                             } catch (err) {
+                                console.error('Error moving task:', err)
                                 alert('Erro ao mover tarefa')
                             }
                         }}
@@ -229,6 +254,8 @@ export default function Tasks() {
                 isOpen={isDetailsOpen}
                 onClose={() => setIsDetailsOpen(false)}
                 onUpdate={loadTasks} // Reload tasks in background to keep data fresh
+                onNavigate={onNavigate}
+                profile={profile}
             />
         </div>
     )

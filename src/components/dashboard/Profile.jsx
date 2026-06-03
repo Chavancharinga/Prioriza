@@ -1,14 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
-import { User, Mail, Globe, Save, Upload, Loader2, Camera, Calendar, CheckCircle2 } from 'lucide-react'
+import { User, Mail, Globe, Save, Upload, Loader2, Camera, Calendar, CheckCircle2, Trash2, Plus } from 'lucide-react'
 import { ProfileService } from '../../services/ProfileService'
 import { TaskService } from '../../services/TaskService'
 import Button from '../ui/Button'
 import Card from '../ui/Card'
 import ConfirmationModal from '../ui/ConfirmationModal'
+import Skeleton from '../ui/Skeleton'
 
 export default function Profile({ profile: appProfile, onProfileUpdate }) {
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
+    const [generatingMocks, setGeneratingMocks] = useState(false)
     const [confirmation, setConfirmation] = useState({
         isOpen: false,
         type: 'info',
@@ -20,7 +22,8 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
         username: '',
         full_name: '',
         avatar_url: '',
-        email: ''
+        email: '',
+        preferências: {}
     })
     const [stats, setStats] = useState({ total: 0, done: 0 })
     const fileInputRef = useRef(null)
@@ -45,7 +48,8 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
                 username: userProfile.username || '',
                 full_name: userProfile.full_name || '',
                 avatar_url: userProfile.avatar_url || '',
-                email: userProfile.email || '' // Read-only from Auth
+                email: userProfile.email || '',
+                preferências: userProfile.preferências || {}
             })
             setStats({ total, done })
         } catch (error) {
@@ -63,7 +67,8 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
                 username: profile.username,
                 full_name: profile.full_name,
                 avatar_url: profile.avatar_url,
-                updated_at: new Date(),
+                preferências: profile.preferências || {},
+                updated_at: new Date().toISOString(),
             }
             await ProfileService.updateProfile(updates)
 
@@ -88,6 +93,63 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
             })
         } finally {
             setSaving(false)
+        }
+    }
+
+    function updateSlot(day, index, field, value) {
+        setProfile(prev => {
+            const prefs = { ...prev.preferências }
+            const hours = { ...prefs.work_hours }
+            const slots = [...(hours[day] || [])]
+            slots[index] = { ...slots[index], [field]: value }
+            hours[day] = slots
+            prefs.work_hours = hours
+            return { ...prev, preferências: prefs }
+        })
+    }
+
+    function removeSlot(day, index) {
+        setProfile(prev => {
+            const prefs = { ...prev.preferências }
+            const hours = { ...prefs.work_hours }
+            const slots = (hours[day] || []).filter((_, i) => i !== index)
+            hours[day] = slots
+            prefs.work_hours = hours
+            return { ...prev, preferências: prefs }
+        })
+    }
+
+    function addSlot(day) {
+        setProfile(prev => {
+            const prefs = { ...prev.preferências }
+            const hours = { ...prefs.work_hours }
+            const slots = [...(hours[day] || []), { start: '09:00', end: '17:00' }]
+            hours[day] = slots
+            prefs.work_hours = hours
+            return { ...prev, preferências: prefs }
+        })
+    }
+
+    async function handleGenerateMockTasks() {
+        try {
+            setGeneratingMocks(true)
+            await TaskService.generateMockTasks()
+            
+            setConfirmation({
+                isOpen: true,
+                type: 'success',
+                title: 'Dados de Teste Gerados',
+                message: 'Inserimos várias tarefas com tempos, estimativas, checklist e prioridades variadas em sua conta para você testar.',
+                onConfirm: () => {
+                    setConfirmation(prev => ({ ...prev, isOpen: false }))
+                    loadProfile()
+                }
+            })
+        } catch (err) {
+            console.error('Error generating mock tasks:', err)
+            alert('Erro ao gerar tarefas: ' + err.message)
+        } finally {
+            setGeneratingMocks(false)
         }
     }
 
@@ -133,15 +195,60 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
 
     if (loading && !profile.username) {
         return (
-            <div className="flex items-center justify-center h-full">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            <div className="max-w-4xl mx-auto space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Left Column Skeleton */}
+                    <div className="space-y-6">
+                        <Skeleton.Card className="text-center space-y-4">
+                            <Skeleton.Circle size="w-32 h-32 mx-auto" />
+                            <div className="space-y-2">
+                                <Skeleton className="h-5 w-32 mx-auto" />
+                                <Skeleton className="h-4 w-20 mx-auto" />
+                            </div>
+                        </Skeleton.Card>
+                        <Skeleton.Card className="space-y-4">
+                            <Skeleton className="h-4 w-24 mb-4" />
+                            <div className="space-y-3">
+                                <div className="flex justify-between">
+                                    <Skeleton className="h-4 w-28" />
+                                    <Skeleton className="h-4 w-8" />
+                                </div>
+                                <div className="flex justify-between">
+                                    <Skeleton className="h-4 w-20" />
+                                    <Skeleton className="h-4 w-8" />
+                                </div>
+                                <Skeleton className="h-2 w-full" />
+                            </div>
+                        </Skeleton.Card>
+                    </div>
+
+                    {/* Right Column Skeleton (span-2) */}
+                    <div className="md:col-span-2 space-y-6">
+                        <Skeleton.Card className="space-y-4">
+                            <Skeleton className="h-5 w-48 mb-4" />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Skeleton className="h-3 w-16" />
+                                    <Skeleton className="h-10 w-full rounded-lg" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Skeleton className="h-3 w-16" />
+                                    <Skeleton className="h-10 w-full rounded-lg" />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Skeleton className="h-3 w-28" />
+                                <Skeleton className="h-10 w-full rounded-lg" />
+                            </div>
+                        </Skeleton.Card>
+                    </div>
+                </div>
             </div>
         )
     }
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            <h1 className="text-2xl font-bold text-gray-900">Meu Perfil</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Left Column: Avatar & Stats */}
@@ -171,6 +278,7 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
                                 ref={fileInputRef}
                                 onChange={handleAvatarUpload}
                                 accept="image/*"
+                                aria-label="Upload do avatar"
                                 className="hidden"
                             />
                         </div>
@@ -201,6 +309,26 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
                                 ></div>
                             </div>
                         </div>
+                    </Card>
+
+                    <Card className="p-6 space-y-4">
+                        <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                            <Plus className="w-4 h-4 text-blue-600" />
+                            Ações de Desenvolvedor
+                        </h3>
+                        <p className="text-xs text-gray-500 leading-relaxed">
+                            Gere dados fictícios no banco de dados para testar os cronômetros, gráficos de telemetria e o autoplanejamento.
+                        </p>
+                        <Button
+                            onClick={handleGenerateMockTasks}
+                            disabled={generatingMocks}
+                            variant="secondary"
+                            className="w-full flex items-center justify-center gap-2 border-dashed border-2 hover:border-solid py-2 text-xs font-bold"
+                            type="button"
+                        >
+                            {generatingMocks ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                            Gerar Tarefas de Teste
+                        </Button>
                     </Card>
                 </div>
 
@@ -257,6 +385,65 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
                                 </Button>
                             </div>
                         </form>
+                    </Card>
+
+                    <Card className="p-6 md:p-8 space-y-6 mt-6">
+                        <div>
+                            <h3 className="text-sm font-bold text-gray-900 mb-1 flex items-center gap-2">
+                                <Calendar className="w-4 h-4 text-blue-600" />
+                                Horários de Trabalho Disponíveis
+                            </h3>
+                            <p className="text-xs text-gray-500">Configure as faixas de horários livres em cada dia da semana para autoplanejar seu calendário.</p>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map(day => {
+                                const slots = profile.preferências?.work_hours?.[day] || []
+                                return (
+                                    <div key={day} className="flex flex-col sm:flex-row sm:items-start gap-4 border-b border-gray-100 pb-4 last:border-0">
+                                        <span className="w-12 text-xs font-bold text-gray-700 pt-2 shrink-0">{day}</span>
+                                        <div className="flex-1 space-y-2">
+                                            {slots.map((slot, index) => (
+                                                <div key={index} className="flex items-center gap-2">
+                                                    <input
+                                                        type="time"
+                                                        value={slot.start}
+                                                        aria-label="Hora de início"
+                                                        onChange={(e) => updateSlot(day, index, 'start', e.target.value)}
+                                                        className="px-3 py-1 border border-gray-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                                    />
+                                                    <span className="text-gray-400 text-xs">até</span>
+                                                    <input
+                                                        type="time"
+                                                        value={slot.end}
+                                                        aria-label="Hora de fim"
+                                                        onChange={(e) => updateSlot(day, index, 'end', e.target.value)}
+                                                        className="px-3 py-1 border border-gray-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeSlot(day, index)}
+                                                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {slots.length === 0 && (
+                                                <p className="text-xs text-gray-400 italic pt-1">Sem horários configurados (Indisponível)</p>
+                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={() => addSlot(day)}
+                                                className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 hover:underline mt-1"
+                                            >
+                                                <Plus className="w-3 h-3" /> Adicionar Intervalo
+                                            </button>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
                     </Card>
                 </div>
             </div>

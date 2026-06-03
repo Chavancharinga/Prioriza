@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
 
 const variants = {
-    primary: 'bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 active:shadow-md',
+    primary: 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 active:shadow-md',
     ghost: 'bg-transparent text-neutral-700 hover:bg-neutral-100 active:bg-neutral-200',
     outline: 'border-2 border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50 hover:border-blue-500 active:bg-neutral-100',
     danger: 'bg-gradient-to-r from-red-600 to-orange-600 text-white shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40',

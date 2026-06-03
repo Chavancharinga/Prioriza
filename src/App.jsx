@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from './lib/supabase'
 import Sidebar from './components/layout/Sidebar'
+import BottomNav from './components/layout/BottomNav'
 import DashboardHeader from './components/layout/DashboardHeader'
 import Home from './pages/Home'
 import Tasks from './pages/Tasks'
@@ -10,18 +11,34 @@ import Planning from './pages/Planning'
 import Analytics from './pages/Analytics'
 import Profile from './components/dashboard/Profile'
 import { ProfileService } from './services/ProfileService'
+import { GamificationService } from './services/GamificationService'
+import Skeleton from './components/ui/Skeleton'
 
 export default function App() {
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [activePage, setActivePage] = useState('dashboard')
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true) // Start collapsed (desktop) or hidden (mobile)
+  const [activePage, setActivePage] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('prioriza_active_page')
+      return saved && ['dashboard', 'tasks', 'planning', 'analytics', 'profile'].includes(saved) ? saved : 'dashboard'
+    }
+    return 'dashboard'
+  })
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 1024 : true) // Start collapsed (desktop) or hidden (mobile)
   const [profile, setProfile] = useState(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('prioriza_active_page', activePage)
+    }
+  }, [activePage])
+
 
   const loadProfile = useCallback(async () => {
     try {
       const data = await ProfileService.getProfile()
       setProfile(data)
+      await GamificationService.checkOverdueTasksAndPenalize()
     } catch (error) {
       console.error('Error loading app profile:', error)
     }
@@ -50,6 +67,24 @@ export default function App() {
     return () => subscription.unsubscribe()
   }, [loadProfile])
 
+  useEffect(() => {
+    const handleXpUpdate = () => {
+      loadProfile()
+    }
+    const handleOverduePenalty = (e) => {
+      const { tasks, deduction } = e.detail
+      const titles = tasks.map(t => `"${t.title}"`).join(', ')
+      alert(`PRAZO EXPIRADO!\n\nAs seguintes tarefas passaram do prazo sem conclusão: ${titles}.\nVocê perdeu ${deduction} XP de penalidade. Acelere suas entregas!`)
+      loadProfile()
+    }
+    window.addEventListener('xp-updated', handleXpUpdate)
+    window.addEventListener('tasks-overdue-penalty', handleOverduePenalty)
+    return () => {
+      window.removeEventListener('xp-updated', handleXpUpdate)
+      window.removeEventListener('tasks-overdue-penalty', handleOverduePenalty)
+    }
+  }, [loadProfile])
+
   // Auto-collapse sidebar logic for responsive behavior
   useEffect(() => {
     const handleResize = () => {
@@ -57,9 +92,6 @@ export default function App() {
         setSidebarCollapsed(true) // Ensure it's hidden on mobile initially
       }
     }
-
-    // Initial check
-    if (window.innerWidth < 1024) setSidebarCollapsed(true)
 
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
@@ -97,7 +129,127 @@ export default function App() {
   const PageComponent = config.component
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-(--color-surface)"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>
+    return (
+      <div className="min-h-screen bg-[#F5F7FA] dark:bg-(--color-surface) flex">
+        {/* Sidebar Skeleton */}
+        <div className="hidden lg:block w-20 bg-white dark:bg-[#1a1d27] border-r border-neutral-200 dark:border-neutral-700/50 p-4 space-y-6 shrink-0">
+          <Skeleton.Circle size="h-10 w-10 mx-auto" />
+          <div className="space-y-6 pt-10">
+            {[...Array(5)].map((_, i) => (
+              <Skeleton.Circle key={i} size="h-10 w-10 mx-auto" />
+            ))}
+          </div>
+        </div>
+
+        {/* Content Panel Skeleton */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Header Skeleton */}
+          <div className="h-20 bg-white dark:bg-[#1a1d27] border-b border-neutral-200 dark:border-neutral-700/50 px-4 sm:px-6 lg:px-8 flex items-center justify-between shrink-0">
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-5 w-48" />
+            </div>
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-5 w-32 hidden sm:block" />
+              <Skeleton.Circle size="h-10 w-10" />
+            </div>
+          </div>
+
+          {/* Main Area Skeleton */}
+          <div className="p-4 sm:p-6 lg:p-8 max-w-[1920px] w-full mx-auto flex-1 overflow-y-auto">
+            <div className="grid grid-cols-12 gap-6 lg:gap-8 h-full pb-10">
+              {/* Quick Action Button */}
+              <div className="col-span-12 flex justify-end">
+                <Skeleton className="h-10 w-48 rounded-xl" />
+              </div>
+
+              {/* LEFT COLUMN: banner, timeline & kanban */}
+              <div className="col-span-12 xl:col-span-9 flex flex-col gap-6 lg:gap-8">
+
+                {/* Timeline Card */}
+                <Skeleton.Card className="p-4 sm:p-6 lg:p-8 shadow-[0_2px_40px_-10px_rgba(0,0,0,0.05)] rounded-[24px] sm:rounded-[32px] lg:rounded-[40px]">
+                  <Skeleton className="h-5 w-36 mb-6" />
+                  <div className="space-y-5">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="flex justify-between">
+                          <Skeleton className="h-3.5 w-1/3" />
+                          <Skeleton className="h-3 w-12" />
+                        </div>
+                        <Skeleton className="h-2 w-full" />
+                      </div>
+                    ))}
+                  </div>
+                </Skeleton.Card>
+
+                {/* Kanban Columns (Preview) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
+                  {['A Fazer', 'Em Progresso', 'Feito'].map((status) => (
+                    <div key={status} className="flex flex-col gap-3">
+                      <Skeleton className="h-4 w-24 mx-auto lg:mx-0 mb-1" />
+                      {[...Array(2)].map((_, cardIndex) => (
+                        <Skeleton.Card key={cardIndex} className="p-5 shadow-[0_2px_20px_-5px_rgba(0,0,0,0.03)] rounded-[20px]">
+                          <div className="flex justify-between items-start mb-3">
+                            <Skeleton className="h-4 w-8 rounded-full" />
+                            <Skeleton className="h-3.5 w-12" />
+                          </div>
+                          <Skeleton.Text lines={2} className="mb-4" />
+                          <Skeleton className="h-1.5 w-full" />
+                        </Skeleton.Card>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* RIGHT COLUMN: stats */}
+              <div className="col-span-12 xl:col-span-3 flex flex-col sm:flex-row xl:flex-col gap-6 lg:pt-4">
+                {/* Overview Widget */}
+                <div className="flex-1 xl:flex-none w-full">
+                  <Skeleton className="h-4 w-24 mb-4 pl-2" />
+                  <Skeleton.Card className="p-6 shadow-[0_2px_30px_-5px_rgba(0,0,0,0.03)] rounded-[30px] space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Skeleton.Circle size="h-10 w-10" />
+                        <Skeleton className="h-4 w-12" />
+                      </div>
+                      <Skeleton className="h-6 w-6" />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Skeleton.Circle size="h-10 w-10" />
+                        <Skeleton className="h-4 w-16" />
+                      </div>
+                      <Skeleton className="h-6 w-6" />
+                    </div>
+                  </Skeleton.Card>
+                </div>
+
+                {/* Performance Widget */}
+                <div className="flex-1 xl:flex-none w-full">
+                  <Skeleton className="h-4 w-44 mb-4 pl-2" />
+                  <Skeleton.Card className="p-6 shadow-[0_2px_30px_-5px_rgba(0,0,0,0.03)] rounded-[30px] space-y-4">
+                    {[...Array(2)].map((_, i) => (
+                      <div key={i} className="space-y-2 border-b border-neutral-50 dark:border-neutral-700/20 pb-3 last:border-0 last:pb-0">
+                        <div className="flex justify-between">
+                          <Skeleton className="h-4 w-28" />
+                          <Skeleton className="h-4 w-12" />
+                        </div>
+                        <div className="flex justify-between">
+                          <Skeleton className="h-3 w-12" />
+                          <Skeleton className="h-3 w-10" />
+                        </div>
+                        <Skeleton className="h-1.5 w-full" />
+                      </div>
+                    ))}
+                  </Skeleton.Card>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (!session) {
@@ -113,10 +265,7 @@ export default function App() {
         onCollapse={setSidebarCollapsed}
       />
 
-      <div
-        className="transition-all duration-300 ease-in-out"
-        style={{ marginLeft: typeof window !== 'undefined' && window.innerWidth >= 1024 ? '80px' : '0px' }}
-      >
+      <div className="transition-all duration-300 ease-in-out lg:pl-20 pl-0">
         <DashboardHeader
           title={config.title}
           breadcrumb={config.breadcrumb}
@@ -124,10 +273,26 @@ export default function App() {
           profile={profile}
         />
 
-        <main className="px-4 sm:px-6 lg:px-8 pb-10 max-w-[1920px] mx-auto w-full">
-          <PageComponent profile={profile} onProfileUpdate={loadProfile} />
+        <main className="px-4 sm:px-6 lg:px-8 pb-20 lg:pb-10 max-w-[1920px] mx-auto w-full">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activePage}
+              initial={{ x: 20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -20, opacity: 0 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+            >
+              <PageComponent
+                profile={profile}
+                onProfileUpdate={loadProfile}
+                onNavigate={setActivePage}
+              />
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
+
+      <BottomNav activeTab={activePage} onTabChange={setActivePage} />
     </div>
   )
 }

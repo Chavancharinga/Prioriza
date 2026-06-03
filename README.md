@@ -10,7 +10,6 @@
   <a href="#sobre">Sobre</a> •
   <a href="#funcionalidades">Funcionalidades</a> •
   <a href="#tecnologias">Tecnologias</a> •
-  <a href="#como-comecar">Como Começar</a> •
   <a href="#documentacao-e-wiki">Wiki Oficial</a>
 </p>
 
@@ -48,39 +47,6 @@ Este projeto dispõe atualmente de integração perene com bases de dados em tem
 - **Engenharia de Interação:** Framer Motion (UX e transições de Estado Interativo)
 - **Gestão de Transição Operacional (Routing):** React Router v6
 - **Procedimentos de Implementação Progressiva (CI/CD):** Componente de entrega em Pipelines do GitHub Actions e GitHub Pages
-
----
-
-## Como Começar (Ambiente Local)
-
-### Requisitos Técnicos
-- Engine de JavaScript Node.js (versão atestada: 20 ou superior)
-- Um projeto limpo instanciado na plataforma do Supabase.
-
-### Instruções de Instalação
-
-1. Duplique o diretório localmente:
-   ```bash
-   git clone https://github.com/Chavancharinga/Prioriza.git
-   cd Prioriza/Code/Prioriza_pasta
-   ```
-
-2. Efetue o download das dependências subjacentes:
-   ```bash
-   npm install
-   ```
-
-3. Exponha as varíaveis locais fundamentais para a infraestrutura operar:
-   - Crie um ficheiro intitulado `.env.local` na raiz `/Prioriza_pasta`, fornecendo de seguida os acessos alocados pelo seu painel de API no Supabase:
-   ```env
-   VITE_SUPABASE_URL=url_de_api_reservado_no_supabase
-   VITE_SUPABASE_ANON_KEY=chave_anon_atestada_no_supabase
-   ```
-
-4. Dispare o servidor de desenvolvimento para depuração iterativa local:
-   ```bash
-   npm run dev
-   ```
 
 ---
 

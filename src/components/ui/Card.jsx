@@ -8,6 +8,7 @@ export default function Card({ title, subtitle, children, className = '' }) {
             transition={{ duration: 0.4, ease: "easeOut" }}
             className={`relative overflow-hidden rounded-[24px] border border-white dark:border-(--color-border) bg-white dark:bg-(--color-surface-card) p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-none ${className}`}
         >
+            {/* label placeholder aria-label */}
             {(title || subtitle) && (
                 <div className="mb-6">
                     {subtitle && (

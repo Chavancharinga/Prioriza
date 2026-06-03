@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 
-export default function EmptyState({ icon: Icon, title, description, action }) {
+export default function EmptyState({ icon, title, description, action }) {
+    const IconComponent = icon
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -15,8 +16,8 @@ export default function EmptyState({ icon: Icon, title, description, action }) {
                 className="relative mb-6"
             >
                 <div className="absolute inset-0 animate-ping rounded-full bg-primary-500/20" />
-                <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-linear-to-br from-primary-100 to-prioriza-purple/10 ring-4 ring-primary-500/10">
-                    <Icon className="h-10 w-10 text-primary-500" strokeWidth={1.5} />
+                <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-linear-to-br from-primary-100 to-prioriza-cyan/10 ring-4 ring-primary-500/10">
+                    <IconComponent className="h-10 w-10 text-primary-500" strokeWidth={1.5} />
                 </div>
             </motion.div>
 
