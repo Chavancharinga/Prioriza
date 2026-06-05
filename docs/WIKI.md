@@ -87,7 +87,31 @@ A aplicação suporta um sistema de escrita de notas baseado no conceito de *Zet
 
 ## 🎮 Gamificação, XP e Animação de Feedback
 
-O Prioriza incentiva a consistência no cumprimento de tarefas através de um ciclo de recompensa gamificado que alia gatilhos de motivação comportamental com hábitos reais de produtividade:
+O Prioriza incentiva a consistência no cumprimento de tarefas através de um ciclo de recompensa gamificado que alia gatilhos de motivação comportamental com hábitos reais de produtividade. 
+
+### 🧠 A Psicologia do Incentivo: Por que o XP sozinho não basta?
+
+Ganhos numéricos de XP isolados não sustentam a motivação de longo prazo. Por isso, a arquitetura de gamificação do Prioriza baseia-se em pilares de psicologia comportamental (inspirados no modelo de gamificação Octalysis) para criar um incentivo real para bater metas e cumprir prazos:
+
+1. **Aversão à Perda (Loss Aversion - O motor de cumprimento de prazos):** 
+   A psicologia humana é muito mais motivada pelo medo de perder do que pelo desejo de ganhar. No Prioriza, atrasar tarefas não é inócuo. O sistema deduz `-50 XP` na inicialização do aplicativo para cada tarefa vencida e `-100 XP` caso conclua com atraso. Se o XP do nível atual cair abaixo de zero, o utilizador **perde nível (Level Down) e a sua patente de produtividade é despromovida**. A dor de perder um título duramente conquistado (ex: cair de *Executor Consistente* para *Organizador Ágil*) é a principal força que atua contra o desleixo e a procrastinação dos prazos.
+
+2. **Progresso de Status e Identidade (Ranks e Patentes):**
+   Subir de nível não serve apenas para preencher uma barra. A evolução numérica está acoplada a patentes (Ranks) visíveis na interface. Isso transforma a atividade de fazer tarefas de uma obrigação administrativa numa jornada de mestria pessoal (Identity-based habits), onde o utilizador vê o seu perfil evoluir de um *Recruta da Procrastinação* (Lvl 1) a um *Deus da Eficiência* (Lvl 10).
+
+3. **Custo de Oportunidade e Hábitos (O Multiplicador de Streak):**
+   Ao manter a consistência diária, o utilizador ativa multiplicadores de XP (até **2.0x** com a Chama Azul). O streak gera uma urgência diária: quebrar a sequência significa reiniciar o multiplicador, tornando a subida de patente subsequente duas vezes mais lenta. O utilizador protege a sua sequência para não perder a vantagem acumulada, consolidando hábitos diários de planeamento.
+
+4. **Filtro de Integridade (Anti-Cheat - Recompensa Significativa):**
+   A recompensa perde o significado se o cérebro perceber que pode trapacear. Marcar tarefas complexas como concluídas apenas para obter XP rápido, enquanto itens na checklist ainda estão pendentes, resulta em **0 XP** atribuídos. Isso bloqueia a dopamina vazia de cliques fraudulentos e força o utilizador a encarar a checklist como a representação real do seu compromisso.
+
+5. **Recompensa de Prestígio Máxima (Licença de Descanso):**
+   Ao alcançar o nível 10 (*Deus da Eficiência*), a barra de XP bloqueia e o cabeçalho ativa o badge flutuante **"🏖️ Folga"**. Ele funciona como um "troféu de prestígio" permanente. Na mente do utilizador, esta medalha atua como uma autorização psicológica de que atingiu a excelência produtiva e que pode descansar com a satisfação do dever inteiramente cumprido.
+
+6. **Feedback Físico Dopaminérgico:**
+   Para fechar o loop do hábito, a conclusão da tarefa aciona uma física interativa e elástica de mola, com partículas de XP que voam de forma fluida até o troféu. Este efeito visual gratificante serve como uma micro-recompensa instantânea que estimula o cérebro a querer repetir a ação de concluir tarefas.
+
+---
 
 ### A. Ranks e Patentes de Produtividade
 A subida de nível atribui ao utilizador um título visível de **Patente de Produtividade**, que serve como representação de progresso e estatuto pessoal:
