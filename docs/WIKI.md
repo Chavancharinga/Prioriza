@@ -87,22 +87,41 @@ A aplicação suporta um sistema de escrita de notas baseado no conceito de *Zet
 
 ## 🎮 Gamificação, XP e Animação de Feedback
 
-O Prioriza incentiva a consistência no cumprimento de tarefas através de um ciclo de recompensa gamificado que torna o progresso diário tangível:
+O Prioriza incentiva a consistência no cumprimento de tarefas através de um ciclo de recompensa gamificado que alia gatilhos de motivação comportamental com hábitos reais de produtividade:
 
-### Nível e XP (Pontos de Experiência)
-* **Conclusão de Tarefas:** Cada tarefa concluída concede XP baseado no seu nível de prioridade (tarefas mais importantes, como P1, concedem mais XP do que tarefas P5).
-* **Conclusão de Checklists:** Completar subtarefas dentro de uma tarefa também atribui XP bónus.
-* **Temporizador de Foco:** Concluir ciclos de Pomodoro com sucesso recompensa o utilizador com XP de foco.
+### A. Ranks e Patentes de Produtividade
+A subida de nível atribui ao utilizador um título visível de **Patente de Produtividade**, que serve como representação de progresso e estatuto pessoal:
+* **Nível 1:** 🐣 *Recruta da Procrastinação* (fase inicial de inércia).
+* **Nível 2:** 🌱 *Iniciante Consciente* (primeiras tarefas organizadas).
+* **Nível 3:** ⏱️ *Praticante de Foco* (utilização do Pomodoro).
+* **Nível 4:** 🗂️ *Organizador Ágil* (divisão de checklists e datas).
+* **Nível 5:** 🚀 *Executor Consistente* (alto volume de conclusão).
+* **Nível 6:** 🦾 *Focado de Aço* (consistência diária sólida).
+* **Nível 7:** 🧭 *Estrategista de Matriz* (uso frequente da Matriz de Eisenhower).
+* **Nível 8:** 🎓 *Mestre da Produtividade* (agenda sob controle estrito).
+* **Nível 9:** 🌟 *Lenda do Foco* (gestão avançada em tarefas complexas).
+* **Nível 10:** 👑 *Deus da Eficiência* (estado de prestígio máximo, desbloqueia a badge flutuante **"🏖️ Folga"** no cabeçalho).
 
-### Feedback Visual Premium (XP Flight Animation)
-Ao concluir uma tarefa, um efeito de feedback dinâmico é despoletado para criar satisfação visual imediata:
-1. **Emissão de Partículas:** Partículas verdes representando pontos de XP surgem a partir das coordenadas exatas onde o utilizador clicou.
-2. **Física de Voo:** As partículas sobem em arco com velocidade progressiva em direção ao indicador de nível e troféu localizado no cabeçalho (*DashboardHeader*).
-3. **Feedback de Colisão:** Quando as partículas colidem com o troféu, este executa um pulso físico de mola (*spring scale pulse*) acompanhado por um brilho e explosão de 12 faíscas brilhantes (*sparkle burst*).
-4. **Atualização de Nível:** A barra de XP sobe de forma fluida a 60fps acompanhando a colisão, desencadeando um efeito de subida de nível (*Level Up*) caso o limite do nível atual seja ultrapassado.
+### B. Sequência Diária com Multiplicador de Fogo (Streaks)
+Para estimular o hábito diário de planeamento e execução, concluir tarefas em dias consecutivos ativa multiplicadores de XP representados por uma chama animada:
+* 🔥 **1 a 2 dias (Chama Brasa):** Multiplicador de 1.0x.
+* ☄️ **3 a 6 dias (Chama Fogo Ativo):** Multiplicador de 1.5x.
+* ⚡ **7+ dias (Chama Fogo Azul):** Multiplicador de 2.0x (todo o XP atribuído por conclusão é duplicado).
 
-### Disciplina: Penalidades por Atraso (Overdue Penalties)
-A gamificação também pune a inércia. Se uma tarefa com data de vencimento ultrapassar o prazo sem ser marcada como "Feito", a rotina de análise deduz automaticamente uma penalidade de XP do utilizador, alertando-o para acelerar as suas entregas.
+### C. Aversão à Perda (Loss Aversion) e Despromocão
+Deixar que as tarefas ativas ultrapassem a data de vencimento (due_date) sem serem concluídas resulta em penalizações que incentivam o respeito pelos prazos:
+* **Penalização automática:** O utilizador perde `−50 XP` por cada tarefa vencida (verificação feita ao abrir a aplicação).
+* **Conclusão atrasada:** Marcar uma tarefa vencida como "Feito" deduz `−100 XP`.
+* **Despromoção (Level Down):** Se o saldo de XP do nível atual cair abaixo de zero devido a penalizações de atraso, o utilizador **perde nível** e é despromovido de Patente, ativando alertas visuais de aviso.
+
+### D. Filtro de Integridade (Anti-Cheat)
+Para incentivar o cumprimento real do planeamento, marcar uma tarefa como concluída enquanto ela tem itens pendentes na sua checklist anula todo o ganho de XP correspondente, resultando em **0 XP** obtidos.
+
+### E. Feedback Visual Premiado (XP Flight Animation)
+Ao marcar uma tarefa como concluída, o utilizador recebe satisfação sensorial e visual instantânea:
+1. Partículas de XP verdes são geradas a partir das coordenadas exatas de clique do cursor.
+2. As partículas voam a 60fps em arco em direção ao troféu de Nível no cabeçalho.
+3. Ao colidir, o troféu executa um pulso elástico com física de mola e explode em 12 faíscas verdes/douradas, enquanto a barra de progresso da XP sobe de forma fluida.
 
 ---
 
