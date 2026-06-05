@@ -1,89 +1,133 @@
 # WIKI do Prioriza
 
-Bem-vindo à Wiki oficial do Prioriza, uma aplicação moderna de gestão de tarefas baseada na Matriz de Eisenhower, com suporte para visualizações avançadas de produtividade.
+Bem-vindo à Wiki oficial do Prioriza, uma aplicação de gestão de tarefas de alta performance baseada na Matriz de Eisenhower, com foco em produtividade cromática, escrita associativa e dinâmicas de ludificação (gamification).
 
 ---
 
-## Arquitetura e Stack Tecnológico
+## 🎯 Filosofia de Produtividade: Como Decidir o que é Prioridade?
 
-O projeto foi construído com recurso a tecnologias modernas, focadas em otimização de desempenho e facilidade de manutenção (Developer Experience):
-- **Core do Frontend:** React 18, Vite (para compilação de alta performance)
-- **Estilização:** Tailwind CSS v4 (com variáveis CSS *CSS-first* para o Tema Escuro)
-- **Animações e Interatividade:** Framer Motion (para transições fluidas) e bibliotecas de drag-and-drop (dnd-kit)
-- **Ícones:** Lucide React
-- **BaaS (Backend as a Service):** Supabase (Autenticação via Email/Palavra-passe, Gestão de Base de Dados Postgres com Row-Level Security)
-- **CI/CD:** GitHub Actions (Implementação automatizada para o GitHub Pages)
+O Prioriza baseia-se na **Matriz de Eisenhower** para filtrar a sobrecarga diária. O princípio divide qualquer atividade com base em dois eixos lógicos: **Importância** (impacto a longo prazo) e **Urgência** (sensibilidade ao tempo).
 
----
+```
+                      URGENTE                    NÃO URGENTE
+            ┌───────────────────────────┬───────────────────────────┐
+            │       QUADRANTE I         │       QUADRANTE II        │
+ IMPORTANTE │         FAZER JÁ          │          AGENDAR          │
+            │  Urgente + Importante     │  Importante + Não Urgente │
+            ├───────────────────────────┼───────────────────────────┤
+    NÃO     │       QUADRANTE III       │       QUADRANTE IV        │
+ IMPORTANTE │         DELEGAR           │         ELIMINAR          │
+            │  Urgente + Não Importante │ Nem Urgente, Nem Import.  │
+            └───────────────────────────┴───────────────────────────┘
+```
 
-## Funcionalidades Atuais Implementadas
-
-A versão atual da aplicação abrange todos os pilares essenciais delineados nos documentos iniciais do projeto (PAP):
-
-1. **Autenticação Segura:**
-   - Registo e entrada no sistema integrados diretamente com o Supabase Auth.
-   - Proteção estrita de rotas da aplicação contra utilizadores não autenticados.
-
-2. **Dashboard principal (Visão Geral):**
-   - Cartões de Indicadores-Chave de Desempenho (KPI) com estatísticas essenciais (Total, Pendentes, Concluídas).
-   - Linha do tempo (Timeline) para as próximas entregas ou prazos.
-   - Pré-visualização do quadro Kanban.
-
-3. **Gestão Multiview de Tarefas:**
-   - **Vista de Lista:** Visualização clássica, otimizada para leitura rápida.
-   - **Vista Kanban:** Interface baseada em arrastar e largar (Drag & Drop), organizada por estados operacionais ("A Fazer", "Em Progresso" e "Feito").
-   - **Vista em Árvore (Hierárquica):** Tarefas agrupadas com indicadores visuais baseados num sistema de prioridade numérica (escala de 1 a 5).
-
-4. **Planeamento e Análise:**
-   - **Planeamento:** Calendário mensal interativo, com sinalização de tarefas agendadas por dia.
-   - **Análise (Analytics):** Painel detalhado de KPIs, incluindo gráficos de anéis com a taxa de conclusão, tempo médio de execução e distribuição das tarefas por níveis de prioridade.
-
-5. **Interface de Utilizador e Experiência (UI/UX):**
-   - Alternância entre Tema Claro e Tema Escuro (Dark Mode) de forma adaptativa ou manual via componente dedicado, com persistência no armazenamento local (`localStorage`) e respeito pela preferência do sistema operativo do utilizador.
-   - Menu lateral (Sidebar) retrátil em ecrãs de mesa e oculto de forma adaptativa em dispositivos móveis.
-   - Saudações contextuais dinâmicas no cabeçalho, ajustadas de acordo com o fuso horário local.
+### Triagem Automática de Tarefas
+Para evitar a fadiga de decisão, o sistema auxilia o utilizador classificando as tarefas nos quatro quadrantes:
+1. **Fazer Já (Q1):** Tarefas com prioridade máxima (P1 ou P2) cujo prazo de conclusão expira em menos de 48 horas, ou que estejam com o estado de execução marcado como "Em Progresso".
+2. **Agendar (Q2):** Tarefas importantes (P1 ou P2) com prazos longos ou sem data limite definida. Devem ser calendarizadas para evitar que se tornem urgências críticas.
+3. **Delegar (Q3):** Tarefas de baixa relevância (P3, P4 ou P5) com prazos curtos (menos de 48 horas). Devem ser automatizadas, simplificadas ou passadas a terceiros.
+4. **Eliminar (Q4):** Tarefas de baixa relevância e sem prazo estrito. Devem ser arquivadas ou limpas para desanuviar a mente.
 
 ---
 
-## Desafios Técnicos Superados
+## 🎨 O Sistema de Cores e Produtividade Cromática
 
-Durante a fase de desenvolvimento e implementação arquitetural, foram mitigados diversos constrangimentos técnicos, com especial foco na gestão de estado e segurança de implementação:
+A cor não é apenas estética; é um atalho cognitivo. O cérebro humano processa cores muito mais rápido do que texto, permitindo uma triagem subconsciente instantânea. O Prioriza adota uma paleta adaptativa de tons de destaque (*neon accents*) sobre um fundo escuro premium para guiar a atenção do utilizador:
+
+| Nível | Cor de Destaque | Significado Lógico | Impacto na Produtividade |
+| :--- | :--- | :--- | :--- |
+| **P1** | 🔴 `Rose-600` | **Crítico / Emergência** | Atração visual imediata. O utilizador deve focar-se nestas tarefas antes de qualquer outra. |
+| **P2** | 🟠 `Red-500` | **Alta Relevância** | Requer atenção no mesmo dia. Indica entregas principais. |
+| **P3** | 🟡 `Orange-500` | **Média Relevância** | Tarefas rotineiras ou operacionais de suporte. |
+| **P4** | 🟢 `Yellow-500` | **Baixa Relevância** | Tarefas opcionais ou de menor impacto. |
+| **P5** | 🔵 `Blue-500` | **Exploratório / Ideias** | Leituras, pesquisas ou tarefas sem pressa. |
+
+### Integração Cromática na Interface
+* **TaskModal**: O seletor de prioridade foi substituído por pontos de cor interativos, permitindo ao utilizador escolher a prioridade de forma visual direta.
+* **Kanban**: Cada cartão possui um indicador cromático vertical no lado esquerdo correspondente ao nível de prioridade, permitindo organizar a execução ordenando visualmente as tarefas da cor mais quente para a mais fria.
+* **TreeView**: A prioridade é renderizada de forma elegante com marcadores de bolha cromática de alto contraste.
+* **Matriz de Eisenhower**: Segmentação por quadrantes de cor (Vermelho para Q1, Laranja para Q2, Azul para Q3, Cinzento para Q4) para foco compartimentado.
+
+---
+
+## 💻 Visualizações de Trabalho (Multiview)
+
+A aplicação permite ao utilizador alternar entre quatro perspectivas complementares de acordo com o seu momento de foco:
+
+### 1. Vista de Lista
+* **Foco:** Produtividade tática e edição rápida.
+* **Estrutura:** Tabela minimalista com pesquisa rápida, ordenação por prioridade e filtros de estado. Ideal para rever pendências no início do dia.
+
+### 2. Quadro Kanban (Arrastar e Soltar)
+* **Foco:** Fluxo de trabalho em progresso (WIP).
+* **Estrutura:** Colunas operacionais ("A Fazer", "Em Progresso" e "Feito") com suporte a gestos móveis. Permite arrastar os cartões para atualizar o estado de execução instantaneamente.
+
+### 3. Vista em Árvore
+* **Foco:** Gestão de dependências e estrutura de projeto.
+* **Estrutura:** Relação hierárquica entre tarefas-mãe e subtarefas, com indicadores visuais de progresso dinâmicos que mostram a percentagem de conclusão de cada ramo do projeto.
+
+### 4. Matriz de Eisenhower
+* **Foco:** Planeamento estratégico e triagem de urgência.
+* **Estrutura:** Divisão em grelha 2x2 baseada na urgência e importância. Ideal para limpar e filtrar a lista de tarefas semanalmente.
+
+---
+
+## ⏱️ Ferramentas de Foco & Escrita Associativa
+
+### Temporizador Pomodoro
+Dentro do espaço de trabalho (Workspace) de cada tarefa, o utilizador pode ativar um temporizador integrado de foco e pausa (ex: 25 minutos de foco por 5 minutos de descanso). O temporizador opera em segundo plano, registando o progresso da tarefa e atualizando os cartões visuais.
+
+### Notas com Links Bidirecionais
+A aplicação suporta um sistema de escrita de notas baseado no conceito de *Zettelkasten* (rede de conhecimento associativa):
+* **Escrita de Notas:** Editor de texto rico (*Rich Text Editor*) incorporado no Workspace da tarefa.
+* **Criação de Links:** Ao digitar `[[` no editor, abre-se um menu de sugestões dinâmico listando as outras tarefas do utilizador.
+* **Mapeamento de Ligações:** Criar um link como `[[Revisão de Código]]` estabelece uma ligação bidirecional direta. A tarefa referenciada exibirá automaticamente uma secção de *Backlinks* (Tarefas que ligam a esta), criando um grafo lógico entre tarefas interrelacionadas.
+
+---
+
+## 🎮 Gamificação, XP e Animação de Feedback
+
+O Prioriza incentiva a consistência no cumprimento de tarefas através de um ciclo de recompensa gamificado que torna o progresso diário tangível:
+
+### Nível e XP (Pontos de Experiência)
+* **Conclusão de Tarefas:** Cada tarefa concluída concede XP baseado no seu nível de prioridade (tarefas mais importantes, como P1, concedem mais XP do que tarefas P5).
+* **Conclusão de Checklists:** Completar subtarefas dentro de uma tarefa também atribui XP bónus.
+* **Temporizador de Foco:** Concluir ciclos de Pomodoro com sucesso recompensa o utilizador com XP de foco.
+
+### Feedback Visual Premium (XP Flight Animation)
+Ao concluir uma tarefa, um efeito de feedback dinâmico é despoletado para criar satisfação visual imediata:
+1. **Emissão de Partículas:** Partículas verdes representando pontos de XP surgem a partir das coordenadas exatas onde o utilizador clicou.
+2. **Física de Voo:** As partículas sobem em arco com velocidade progressiva em direção ao indicador de nível e troféu localizado no cabeçalho (*DashboardHeader*).
+3. **Feedback de Colisão:** Quando as partículas colidem com o troféu, este executa um pulso físico de mola (*spring scale pulse*) acompanhado por um brilho e explosão de 12 faíscas brilhantes (*sparkle burst*).
+4. **Atualização de Nível:** A barra de XP sobe de forma fluida a 60fps acompanhando a colisão, desencadeando um efeito de subida de nível (*Level Up*) caso o limite do nível atual seja ultrapassado.
+
+### Disciplina: Penalidades por Atraso (Overdue Penalties)
+A gamificação também pune a inércia. Se uma tarefa com data de vencimento ultrapassar o prazo sem ser marcada como "Feito", a rotina de análise deduz automaticamente uma penalidade de XP do utilizador, alertando-o para acelerar as suas entregas.
+
+---
+
+## 🛠️ Desafios Técnicos Superados
 
 ### 1. Injeção de Variáveis Vazias pelo GitHub Actions
-Durante a configuração inicial do pipeline de CI/CD (`deploy.yml`), o processo tentou injetar chaves de ambiente (Secrets) do Supabase que ainda não existiam no repositório. 
-- **O Problema:** O processo de compilação (Vite) substituiu as variáveis de produção válidas por valores nulos, causando um erro fatal aquando da instanciação do cliente `supabase-js`, o que resultou na falha de carregamento da aplicação em ambiente de produção (ecrã em branco).
-- **A Solução:** Removeu-se a predefinição explícita de variáveis de ambiente do ficheiro de fluxo (workflow) e instruiu-se a configuração segura através do painel de *Secrets* do GitHub, garantindo uma compilação estável e segura.
+* **O Problema:** O processo de compilação (Vite) em CI/CD tentou ler variáveis de ambiente do repositório que ainda não estavam expostas no pipeline, substituindo as chaves válidas de produção por strings vazias, o que causou falhas fatais no cliente Supabase.
+* **A Solução:** Ajustou-se a configuração de leitura das variáveis para ler de forma segura das *Secrets* configuradas no painel do GitHub, prevenindo a injeção de valores nulos.
 
-### 2. Resolução do Caminho de Base (Base Path) no GitHub Pages
-Devido à natureza do alojamento do GitHub Pages (que aloca o projeto num subdiretório em vez da raiz do domínio), as hiperligações de imagem com caminhos absolutos (ex: `/logo.png`) resultaram em erros HTTP 404.
-- **A Solução:** Todos os recursos visuais foram reestruturados para invocar dinamicamente a variável de ambiente `import.meta.env.BASE_URL` providenciada pelo Vite. Este método garante que os ficheiros estáticos sejam servidos corretamente, independentemente do ambiente de alojamento.
+### 2. Resolução do Base Path no GitHub Pages
+* **O Problema:** Como o GitHub Pages aloja projetos sob caminhos relativos (ex: `/Prioriza/`), as referências estáticas e imagens absolutas (como `/logo.png`) quebravam com erro HTTP 404.
+* **A Solução:** Adotou-se o uso de caminhos dinâmicos prependendo `import.meta.env.BASE_URL` a todos os ficheiros de recursos de imagem e links de rotas.
 
 ### 3. Tailwind v4 e Classes Dinâmicas
-Na iteração inicial de desenvolvimento, certas cores condicionais de cartões dependiam de sintaxe de classes dinâmicas. 
-- **O Problema:** O compilador *Just-In-Time* (JIT) do framework Tailwind não consegue inferir classes geradas em tempo de execução de forma determinística.
-- **A Solução:** Adotou-se um mapeamento estático (dicionário lógico pré-compilado) para associar cada grau de prioridade à sua respetiva classe tipográfica e de cor de fundo, assegurando a robustez da interface.
+* **O Problema:** A compilação Just-In-Time do Tailwind CSS v4 não consegue mapear classes geradas por concatenação de strings dinâmicas em tempo de execução (ex: `bg-${priorityColor}-500`).
+* **A Solução:** Criaram-se dicionários estáticos explícitos que associam cada número de prioridade (1 a 5) às classes Tailwind literais completas (ex: `1: 'bg-rose-600'`), garantindo que o compilador preserve os estilos.
 
-### 4. Gestão e Exposição de Ficheiros Físicos de Ambiente
-No primeiro commit, um ficheiro contendo varíaveis de ambiente propensas a ser compiladas (`.env.production`) encontrava-se rastreado pelo sistema de controlo de versões, arriscando a exposição da Chave Pública da API e do URL do projeto Supabase.
-- **A Solução:** Aplicaram-se diretivas restritas ao ficheiro `.gitignore` para a omissão de extensões e prefixos `.env`, seguidas da purga do respetivo ficheiro através da anulação de rastreio da cache do Git.
+### 4. Gestão e Exposição de Ficheiros de Ambiente
+* **O Problema:** Ficheiros `.env` locais foram acidentalmente adicionados ao controlo de versões inicial, arriscando a partilha pública de chaves de base de dados.
+* **A Solução:** Adicionaram-se exclusões estritas ao ficheiro `.gitignore` para omitir extensões `.env.*` e purgou-se a cache de rastreio do repositório remoto.
 
----
-
-## Roadmap: Fases Futuras de Implementação
-
-Com base no planeamento original descrito nos documentos submetidos, as seguintes etapas constituem os objetivos a longo prazo da plataforma Prioriza:
-
-1. **Inteligência Artificial (Integração Gemini LLM):**
-   - **Estimador Inteligente:** Sistema focado no Processamento de Linguagem Natural capaz de inferir e sugerir automaticamente o esforço de tempo previsto e a prioridade de uma tarefa baseando-se no seu corpo descritivo.
-   - **Assistente Analítico:** Um módulo projetado para analisar o histórico de ação do utilizador e propor o fecho e reagendamento de tarefas latentes no Kanban.
-
-2. **Sistema em Tempo Real e Lembretes (Reminders):**
-   - Estabilização do `NotificationService` operando atualmente sob rotinas em segundo plano.
-   - Lançamento progressivo de notificações *in-browser* com base em gatilhos e metadados de alarme configuráveis pelo utilizador dentro das definições da Tarefa.
-
-3. **Ludificação de Sistema (Gamification):**
-   - Estruturação de um painel de Conquistas focado na atribuição de distinções meritocráticas mediante a consistência das rotinas de produtividade prolongada e a utilização continuada de ferramentas de Gestão de Foco.
+### 5. Incompatibilidade de Lockfile em Ambiente CI (EPERM & npm ci)
+* **O Problema:** A execução de instalações locais no ambiente Windows gerou bloqueios de escrita e alertas de permissão (EPERM) em pacotes nativos e compilados (como o `lightningcss`). Isto resultou num ficheiro `package-lock.json` incompleto, fazendo com que o comando de integração contínua (`npm ci`) falhasse no GitHub Actions devido à ausência de subdependências.
+* **A Solução:** Gerou-se uma árvore de dependências limpa através de `npm install --package-lock-only` (evitando tocar no `node_modules` local travado) e atualizou-se o ficheiro de fluxo `.github/workflows/deploy.yml` para correr sobre **Node 22** e executar `npm install` para obter uma resolução adaptável de dependências nativas no ambiente da nuvem.
 
 ---
 
-> _A presente documentação é mantida de forma iterativa, servindo como documento técnico central enquanto o projeto transita pelas próximas fases do planeamento estratégico._
+> _Esta documentação é mantida em sincronia com as atualizações arquiteturais do projeto Prioriza para apoiar tanto os utilizadores finais na sua produtividade como os programadores na manutenção do código._
