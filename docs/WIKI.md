@@ -137,6 +137,7 @@ Deixar que as tarefas ativas ultrapassem a data de vencimento (due_date) sem ser
 * **Penalização automática:** O utilizador perde `−50 XP` por cada tarefa vencida (verificação feita ao abrir a aplicação).
 * **Conclusão atrasada:** Marcar uma tarefa vencida como "Feito" deduz `−100 XP`.
 * **Despromoção (Level Down):** Se o saldo de XP do nível atual cair abaixo de zero devido a penalizações de atraso, o utilizador **perde nível** e é despromovido de Patente, ativando alertas visuais de aviso.
+* **Limite Mínimo Absoluto:** O valor de XP e Nível mais baixo possível na aplicação é **0 XP no Nível 1**. O saldo de XP do utilizador **nunca assume valores negativos**.
 
 ### D. Filtro de Integridade (Anti-Cheat)
 Para incentivar o cumprimento real do planeamento, marcar uma tarefa como concluída enquanto ela tem itens pendentes na sua checklist anula todo o ganho de XP correspondente, resultando em **0 XP** obtidos.
