@@ -337,7 +337,15 @@ export default function App() {
         onCollapse={setSidebarCollapsed}
       />
 
-      <div className="transition-all duration-300 ease-in-out lg:pl-20 pl-0">
+      <div
+        className="transition-all duration-300 ease-in-out lg:pl-20 pl-0"
+        style={{
+          backgroundImage: `url("${encodeURI(`${import.meta.env.BASE_URL}fundo do login e site.png`)}")`,
+          backgroundSize: '100% auto',
+          backgroundPosition: 'top center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
         <DashboardHeader
           title={config.title}
           breadcrumb={config.breadcrumb}
@@ -345,15 +353,7 @@ export default function App() {
           profile={profile}
         />
 
-        <main
-          className="px-4 sm:px-6 lg:px-8 pb-20 lg:pb-10 max-w-[1920px] mx-auto w-full"
-          style={{
-            backgroundImage: `url("${encodeURI(`${import.meta.env.BASE_URL}fundo do login e site.png`)}")`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-          }}
-        >
+        <main className="px-4 sm:px-6 lg:px-8 pb-20 lg:pb-10 max-w-[1920px] mx-auto w-full">
           <AnimatePresence mode="wait">
             <motion.div
               key={activePage}
