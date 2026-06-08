@@ -29,10 +29,6 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
     const [stats, setStats] = useState({ total: 0, done: 0 })
     const fileInputRef = useRef(null)
 
-    useEffect(() => {
-        loadProfile()
-    }, [loadProfile]) // Update internal state if app-wide profile changed
-
     const loadProfile = useCallback(async () => {
         try {
             setLoading(true)
@@ -59,6 +55,10 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
             setLoading(false)
         }
     }, [appProfile])
+
+    useEffect(() => {
+        loadProfile()
+    }, [loadProfile]) // Update internal state if app-wide profile changed
 
     async function handleUpdateProfile(e) {
         e.preventDefault()
