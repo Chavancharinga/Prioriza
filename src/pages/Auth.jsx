@@ -63,7 +63,15 @@ export default function Auth({ onLogin }) {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#0AB1D7' }}>
+        <div
+            className="min-h-screen flex items-center justify-center p-4"
+            style={{
+                backgroundImage: `url("${encodeURI(`${import.meta.env.BASE_URL}fundo do login e site.png`)}")`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+            }}
+        >
             <div className="max-w-lg w-full">
                 <Card className="p-8 sm:p-10 md:p-12 min-h-[680px] flex flex-col justify-between">
                     <div className="text-center mb-8">
