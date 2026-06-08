@@ -65,7 +65,7 @@ export default function Auth({ onLogin }) {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#0AB1D7' }}>
             <div className="max-w-md w-full">
                 <div className="text-center mb-8">
                     <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Prioriza" className="w-[68px] h-auto mx-auto mb-5 object-contain scale-[1.25]" />
