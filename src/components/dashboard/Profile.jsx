@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
-import { User, Mail, Globe, Save, Upload, Loader2, Camera, Calendar, CheckCircle2, Trash2, Plus } from 'lucide-react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { User, Mail, Globe, Save, Upload, Loader2, Camera, Calendar, CheckCircle2, Trash2, Plus, LogOut } from 'lucide-react'
+import { supabase } from '../../lib/supabase'
 import { ProfileService } from '../../services/ProfileService'
 import { TaskService } from '../../services/TaskService'
 import Button from '../ui/Button'
@@ -30,9 +31,9 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
 
     useEffect(() => {
         loadProfile()
-    }, [appProfile]) // Update internal state if app-wide profile changed
+    }, [loadProfile]) // Update internal state if app-wide profile changed
 
-    async function loadProfile() {
+    const loadProfile = useCallback(async () => {
         try {
             setLoading(true)
 
@@ -57,7 +58,7 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
         } finally {
             setLoading(false)
         }
-    }
+    }, [appProfile])
 
     async function handleUpdateProfile(e) {
         e.preventDefault()
@@ -158,6 +159,32 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
         } finally {
             setGeneratingMocks(false)
         }
+    }
+
+    async function handleLogout() {
+        setConfirmation({
+            isOpen: true,
+            type: 'danger',
+            title: 'Sair da conta',
+            message: 'Tem certeza que deseja sair da sua conta agora?',
+            confirmText: 'Sair da conta',
+            cancelText: 'Cancelar',
+            onConfirm: async () => {
+                try {
+                    setConfirmation(prev => ({ ...prev, isOpen: false }))
+                    await supabase.auth.signOut()
+                } catch (error) {
+                    console.error('Error logging out:', error)
+                    setConfirmation({
+                        isOpen: true,
+                        type: 'error',
+                        title: 'Erro ao sair',
+                        message: 'Não foi possível encerrar a sessão. Tente novamente.',
+                        onConfirm: () => setConfirmation(prev => ({ ...prev, isOpen: false }))
+                    })
+                }
+            }
+        })
     }
 
     async function handleAvatarUpload(event) {
@@ -335,6 +362,15 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
                         >
                             {generatingMocks ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                             Gerar Tarefas de Teste
+                        </Button>
+                        <Button
+                            onClick={handleLogout}
+                            variant="danger"
+                            className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold"
+                            type="button"
+                        >
+                            <LogOut className="w-4 h-4" />
+                            Sair da conta
                         </Button>
                     </Card>
                 </div>
