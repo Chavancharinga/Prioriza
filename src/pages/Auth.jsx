@@ -70,7 +70,7 @@ export default function Auth({ onLogin }) {
                         <img
                             src={`${import.meta.env.BASE_URL}logo.png`}
                             alt="Prioriza"
-                            className="w-[252px] max-w-full h-auto mx-auto object-contain"
+                            className="w-[168px] max-w-full h-auto mx-auto object-contain"
                         />
                         <p className="mt-4 text-sm text-gray-600">
                             Gerencie suas tarefas com eficiência
