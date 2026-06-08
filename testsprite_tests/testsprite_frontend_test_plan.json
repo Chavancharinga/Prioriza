@@ -1,0 +1,1832 @@
+[
+  {
+    "id": "TC001",
+    "title": "Access the dashboard after signing in",
+    "description": "An authenticated user can sign in and reach the main dashboard home page.",
+    "category": "Authentication entry and session persistence",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the authenticated dashboard is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Complete a task only after finishing checklist items",
+    "description": "A user can add checklist items in a task workspace and complete the task only after all checklist items are finished.",
+    "category": "Task Views and Organization",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /tasks"
+      },
+      {
+        "type": "action",
+        "description": "Create a new task with a unique title and valid details"
+      },
+      {
+        "type": "action",
+        "description": "Open the newly created task workspace"
+      },
+      {
+        "type": "action",
+        "description": "Add checklist items to the task"
+      },
+      {
+        "type": "action",
+        "description": "Mark all checklist items as complete"
+      },
+      {
+        "type": "action",
+        "description": "Complete the task"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task is marked as completed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Sign in to reach the authenticated dashboard",
+    "description": "A returning user can sign in from the auth page and reach the authenticated dashboard.",
+    "category": "User Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the authenticated dashboard is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Create a task from the task list",
+    "description": "A user can create a new task from the task page and see it appear in the task list.",
+    "category": "Task Views and Organization",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /tasks"
+      },
+      {
+        "type": "action",
+        "description": "Create a new task with a unique title and valid details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new task appears in the task list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Create a task from the tasks page",
+    "description": "A user can create a task from /tasks and see the new task appear in the task list.",
+    "category": "Task Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open tasks"
+      },
+      {
+        "type": "action",
+        "description": "Open the task creation modal"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the task title field with a unique task name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the task description field with a task description"
+      },
+      {
+        "type": "action",
+        "description": "Select a priority level"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid due date into the due date field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the task form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new task is displayed in the task list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Create a new account and land on the dashboard",
+    "description": "A new user can sign up from the auth page and reach the authenticated dashboard after submitting the form.",
+    "category": "User Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign up form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the authenticated dashboard is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Edit an existing task from the task list",
+    "description": "A user can update an existing task from the task page and see the changes saved in the list.",
+    "category": "Task Views and Organization",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /tasks"
+      },
+      {
+        "type": "action",
+        "description": "Create a new task with a unique title and valid details"
+      },
+      {
+        "type": "action",
+        "description": "Edit the newly created task with updated valid details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated task appears in the task list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Edit an existing task from the tasks page",
+    "description": "A user can open an existing task, update its details, and see the updated task information in the list.",
+    "category": "Task Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open tasks"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing task for editing"
+      },
+      {
+        "type": "action",
+        "description": "Update the task title with a unique value"
+      },
+      {
+        "type": "action",
+        "description": "Update the task description"
+      },
+      {
+        "type": "action",
+        "description": "Select a different priority level"
+      },
+      {
+        "type": "action",
+        "description": "Submit the task form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated task information is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Delete a task from the task list",
+    "description": "A user can delete a task from the task page and remove it from the list after confirming the action.",
+    "category": "Task Views and Organization",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /tasks"
+      },
+      {
+        "type": "action",
+        "description": "Create a new task with a unique title and valid details"
+      },
+      {
+        "type": "action",
+        "description": "Delete the newly created task and confirm the action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the deleted task no longer appears in the task list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Delete a task from the tasks page",
+    "description": "A user can delete an existing task from /tasks and see it removed from the list.",
+    "category": "Task Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open tasks"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing task for deletion"
+      },
+      {
+        "type": "action",
+        "description": "Confirm removal"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task is removed from the list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Prevent completing a task when checklist items remain open",
+    "description": "A user cannot finish a task while checklist items are still unfinished, and the task remains blocked from completion.",
+    "category": "Task Workspace with Checklist and Focus Timer",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open tasks"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing task"
+      },
+      {
+        "type": "action",
+        "description": "Add a new checklist item"
+      },
+      {
+        "type": "action",
+        "description": "Try to complete the task"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task remains incomplete"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a completion blocking message is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Open a task workspace from the list view",
+    "description": "A user can open a task workspace from the list view and see the task detail workspace.",
+    "category": "Task Views and Organization",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /tasks"
+      },
+      {
+        "type": "action",
+        "description": "Create a new task with a unique title and valid details"
+      },
+      {
+        "type": "action",
+        "description": "Open the newly created task workspace from the list view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task workspace is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Open a task workspace and add checklist items",
+    "description": "A user can open a task workspace, add checklist items, and see the checklist update.",
+    "category": "Task Workspace with Checklist and Focus Timer",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open tasks"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing task"
+      },
+      {
+        "type": "action",
+        "description": "Add a new checklist item"
+      },
+      {
+        "type": "action",
+        "description": "Add another checklist item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the checklist items are displayed in the task workspace"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Save profile details and weekly availability",
+    "description": "Verifies that an authenticated user can update their profile information and weekly work-hour availability and see the saved profile state reflected afterward.",
+    "category": "User Profile and Work Hours",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /profile"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with a unique username"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the full name field with a unique full name"
+      },
+      {
+        "type": "action",
+        "description": "Add a work hour interval for a weekday"
+      },
+      {
+        "type": "action",
+        "description": "Add a work hour interval for another weekday"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated profile information is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved weekly availability is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Start focus timer from a task workspace",
+    "description": "A user can start the focus timer from a task workspace and see the timer begin running.",
+    "category": "Task Workspace with Checklist and Focus Timer",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open tasks"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing task"
+      },
+      {
+        "type": "action",
+        "description": "Start the focus timer"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the focus timer is running"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Review tasks in Kanban view and open a workspace",
+    "description": "A user can switch to Kanban view, review tasks by status, and open a task workspace from a column.",
+    "category": "Task Views and Organization",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /tasks"
+      },
+      {
+        "type": "action",
+        "description": "Switch to Kanban view"
+      },
+      {
+        "type": "action",
+        "description": "Open a task workspace from a Kanban column"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task workspace is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Open a scheduled task from the planning calendar",
+    "description": "A user can open a task from the planning calendar and reach the task workspace.",
+    "category": "Calendar Planning",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open planning"
+      },
+      {
+        "type": "action",
+        "description": "Open a scheduled task from the calendar"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task workspace is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "Switch between task list, Kanban, and tree views",
+    "description": "A user can switch between the available task views on /tasks and still see tasks in each view.",
+    "category": "Task Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open tasks"
+      },
+      {
+        "type": "action",
+        "description": "Switch to list view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify tasks are displayed in list view"
+      },
+      {
+        "type": "action",
+        "description": "Switch to Kanban view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify tasks are displayed in Kanban view"
+      },
+      {
+        "type": "action",
+        "description": "Switch to tree view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify tasks are displayed in tree view"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "Review tasks in the month calendar and open a scheduled task",
+    "description": "A user can view scheduled work in the month calendar and open a task from a calendar entry.",
+    "category": "Planning Calendar",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /planning"
+      },
+      {
+        "type": "action",
+        "description": "Review the month calendar"
+      },
+      {
+        "type": "action",
+        "description": "Open a scheduled task from the calendar"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task workspace is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC020",
+    "title": "Start focus time from a task workspace",
+    "description": "A user can start the focus timer from a task workspace and see focus timing begin.",
+    "category": "Planning Calendar",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /tasks"
+      },
+      {
+        "type": "action",
+        "description": "Create a new task with a unique title and valid details"
+      },
+      {
+        "type": "action",
+        "description": "Open the newly created task workspace"
+      },
+      {
+        "type": "action",
+        "description": "Start the focus timer"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the focus timer is running"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC021",
+    "title": "Review task planning in month, week, and day views",
+    "description": "A user can switch planning views and see scheduled items across month, week, and day layouts.",
+    "category": "Calendar Planning",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open planning"
+      },
+      {
+        "type": "action",
+        "description": "Switch to month view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify scheduled items are displayed in month view"
+      },
+      {
+        "type": "action",
+        "description": "Switch to week view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify scheduled items are displayed in week view"
+      },
+      {
+        "type": "action",
+        "description": "Switch to day view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify scheduled items are displayed in day view"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC022",
+    "title": "Save profile details and weekly work hours",
+    "description": "A user can update profile information and weekly work-hour availability and see the saved profile settings.",
+    "category": "Productivity Analytics",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /profile"
+      },
+      {
+        "type": "action",
+        "description": "Update the username and full name"
+      },
+      {
+        "type": "action",
+        "description": "Set valid weekly work-hour availability"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated profile details are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the weekly work-hour availability is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC023",
+    "title": "Review the day agenda and open a task from day view",
+    "description": "A user can switch to day view, review scheduled work for the day, and open a task from the agenda.",
+    "category": "Planning Calendar",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /planning"
+      },
+      {
+        "type": "action",
+        "description": "Switch to day view"
+      },
+      {
+        "type": "action",
+        "description": "Review the day agenda"
+      },
+      {
+        "type": "action",
+        "description": "Open a task from the day schedule"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task workspace is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC024",
+    "title": "Update profile name and weekly work hours",
+    "description": "A user can update profile identity details and weekly availability, then see the saved profile information.",
+    "category": "Profile Setup",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open profile"
+      },
+      {
+        "type": "action",
+        "description": "Update the username field with a unique value"
+      },
+      {
+        "type": "action",
+        "description": "Update the full name field with a unique value"
+      },
+      {
+        "type": "action",
+        "description": "Set weekly work-hour availability"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved profile information is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC025",
+    "title": "Review nested subtasks in tree view and open a workspace",
+    "description": "A user can switch to tree view, expand a parent task to review nested subtasks, and open a task workspace from the tree.",
+    "category": "Task Views and Organization",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /tasks"
+      },
+      {
+        "type": "action",
+        "description": "Switch to tree view"
+      },
+      {
+        "type": "action",
+        "description": "Expand a parent task"
+      },
+      {
+        "type": "action",
+        "description": "Open a task workspace from the tree view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task workspace is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC026",
+    "title": "Review productivity analytics and effort metrics",
+    "description": "A user can review analytics for task priority distribution, completion timing, and planned versus actual effort.",
+    "category": "Productivity Analytics",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /analytics"
+      },
+      {
+        "type": "action",
+        "description": "Review task priority distribution"
+      },
+      {
+        "type": "action",
+        "description": "Review completion and timing metrics"
+      },
+      {
+        "type": "action",
+        "description": "Review planned versus actual effort"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify productivity analytics are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify effort metrics are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC027",
+    "title": "Update only profile name details",
+    "description": "Verifies that an authenticated user can change profile name fields without altering the rest of the availability setup and see the updated identity information saved.",
+    "category": "User Profile and Work Hours",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /profile"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with a unique username"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the full name field with a unique full name"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated profile information is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC028",
+    "title": "Move through planning dates and return to today",
+    "description": "A user can move to adjacent planning periods and return to today from the planning page.",
+    "category": "Calendar Planning",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open planning"
+      },
+      {
+        "type": "action",
+        "description": "Move to the next planning period"
+      },
+      {
+        "type": "action",
+        "description": "Move to the previous planning period"
+      },
+      {
+        "type": "action",
+        "description": "Return to today"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the current date is displayed in planning"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC029",
+    "title": "Move through week planning periods and return to today",
+    "description": "A user can navigate adjacent week planning periods and return to the current date from the planning calendar.",
+    "category": "Planning Calendar",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /planning"
+      },
+      {
+        "type": "action",
+        "description": "Switch to week view"
+      },
+      {
+        "type": "action",
+        "description": "Move to the next planning period"
+      },
+      {
+        "type": "action",
+        "description": "Move to the previous planning period"
+      },
+      {
+        "type": "action",
+        "description": "Return to today"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the current week is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC030",
+    "title": "Expand nested subtasks in tree view",
+    "description": "A user can expand nested subtasks in the tree view and see deeper task hierarchy.",
+    "category": "Task Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open tasks"
+      },
+      {
+        "type": "action",
+        "description": "Switch to tree view"
+      },
+      {
+        "type": "action",
+        "description": "Expand a nested subtask branch"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify nested subtasks are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC031",
+    "title": "Add multiple work-hour intervals across the week",
+    "description": "Verifies that an authenticated user can define availability on more than one day and see all entered intervals preserved after saving.",
+    "category": "User Profile and Work Hours",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /profile"
+      },
+      {
+        "type": "action",
+        "description": "Add a work hour interval for one weekday"
+      },
+      {
+        "type": "action",
+        "description": "Add a work hour interval for a second weekday"
+      },
+      {
+        "type": "action",
+        "description": "Add a work hour interval for a third weekday"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved weekly availability is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC032",
+    "title": "Review productivity analytics after setup",
+    "description": "A user can open analytics after setting up profile hours and see productivity and effort metrics.",
+    "category": "Productivity Analytics",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open profile"
+      },
+      {
+        "type": "action",
+        "description": "Update the username field with a unique value"
+      },
+      {
+        "type": "action",
+        "description": "Update the full name field with a unique value"
+      },
+      {
+        "type": "action",
+        "description": "Set weekly work-hour availability"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open analytics"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify productivity analytics are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify effort metrics are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC033",
+    "title": "Validate malformed weekly work-hour intervals",
+    "description": "A user sees validation feedback when saving an invalid weekly work-hour interval in the profile form.",
+    "category": "Profile Setup",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open profile"
+      },
+      {
+        "type": "action",
+        "description": "Set an invalid weekly work-hour interval"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a work-hour validation error is visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC034",
+    "title": "Keep unsaved profile changes before leaving",
+    "description": "Verifies that an authenticated user can make profile edits and still see them reflected before saving is completed or after returning to the page within the same session state.",
+    "category": "User Profile and Work Hours",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /profile"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with a unique username"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the full name field with a unique full name"
+      },
+      {
+        "type": "action",
+        "description": "Verify the profile form reflects the edited details"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC035",
+    "title": "View an empty tasks state when no tasks exist",
+    "description": "A user with no tasks sees an empty state on the tasks page instead of a task list.",
+    "category": "Task Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open tasks"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state message is visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC036",
+    "title": "See empty task state when no tasks exist",
+    "description": "A user with no tasks sees an empty state on the task page instead of a populated list.",
+    "category": "Task Views and Organization",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /tasks"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state message is visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC037",
+    "title": "View an empty planning state when no items are scheduled",
+    "description": "A user with no scheduled items sees an empty state on the planning page instead of a populated calendar.",
+    "category": "Calendar Planning",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open planning"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state message is visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC038",
+    "title": "See validation when work hours are incomplete",
+    "description": "Verifies that an authenticated user cannot save profile availability when a work-hour interval is incomplete and sees a validation message instead.",
+    "category": "User Profile and Work Hours",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /profile"
+      },
+      {
+        "type": "action",
+        "description": "Add a work hour interval for a weekday"
+      },
+      {
+        "type": "action",
+        "description": "Leave part of the interval incomplete"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a validation error is visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC039",
+    "title": "See validation when profile fields are empty",
+    "description": "Verifies that an authenticated user sees validation feedback when required profile details are not provided before saving.",
+    "category": "User Profile and Work Hours",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /profile"
+      },
+      {
+        "type": "action",
+        "description": "Clear the username field"
+      },
+      {
+        "type": "action",
+        "description": "Clear the full name field"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a validation error is visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC040",
+    "title": "Cancel a task deletion and keep the task",
+    "description": "A user can cancel the delete confirmation flow and leave the task in place.",
+    "category": "Task Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the sign in form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open tasks"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing task for deletion"
+      },
+      {
+        "type": "action",
+        "description": "Cancel the deletion"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the task remains in the list"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC041",
+    "title": "See profile validation when required information is missing",
+    "description": "A user sees validation feedback when attempting to save profile settings without valid required information.",
+    "category": "Productivity Analytics",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /profile"
+      },
+      {
+        "type": "action",
+        "description": "Clear required profile fields"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a profile validation error is visible"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC042",
+    "title": "See task validation when required details are missing",
+    "description": "A user sees validation feedback when attempting to create a task without the required details.",
+    "category": "Task Views and Organization",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /tasks"
+      },
+      {
+        "type": "action",
+        "description": "Open the task creation form"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form without filling required task details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a task validation error is visible"
+      }
+    ],
+    "priority": "Low"
+  }
+]

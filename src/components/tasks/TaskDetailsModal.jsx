@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { TaskService } from '../../services/TaskService'
 import { GamificationService } from '../../services/GamificationService'
+import { AIService } from '../../services/AIService'
 import Button from '../ui/Button'
 import ConfirmationModal from '../ui/ConfirmationModal'
 import RichTextEditor from '../ui/RichTextEditor'
@@ -45,6 +46,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
     // AI Suggestions Panel states
     const [aiLoading, setAiLoading] = useState(false)
     const [aiResponse, setAiResponse] = useState(null)
+    const [aiError, setAiError] = useState('')
 
     // Toast notification state
     const [showToast, setShowToast] = useState(false)
@@ -81,6 +83,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
             setSessionTimeSpent(0)
             setAiResponse(null)
             setAiLoading(false)
+            setAiError('')
         }
         return () => setIsPomodoroActive(false)
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -428,64 +431,29 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
     async function handleSuggestSubtasks() {
         setAiLoading(true)
         setAiResponse(null)
-        setTimeout(() => {
-            const taskTitleLower = (task?.title || '').toLowerCase()
-            let suggestions = [
-                'Definir requisitos e escopo inicial',
-                'Implementar lógica central e testes unitários',
-                'Revisar código e validar com usuário final'
-            ]
-            if (taskTitleLower.includes('estud') || taskTitleLower.includes('ler') || taskTitleLower.includes('pesquis')) {
-                suggestions = [
-                    'Levantar fontes e referências principais',
-                    'Fazer leitura detalhada e fichamento',
-                    'Elaborar resumo ou mapa mental dos aprendizados'
-                ]
-            } else if (taskTitleLower.includes('code') || taskTitleLower.includes('program') || taskTitleLower.includes('desenvolv') || taskTitleLower.includes('bug') || taskTitleLower.includes('erro')) {
-                suggestions = [
-                    'Identificar causa raiz e isolar o ambiente',
-                    'Implementar a correção/funcionalidade',
-                    'Rodar testes locais e fazer deploy em staging'
-                ]
-            } else if (taskTitleLower.includes('design') || taskTitleLower.includes('layout') || taskTitleLower.includes('tela') || taskTitleLower.includes('interface')) {
-                suggestions = [
-                    'Pesquisar referências e criar wireframes',
-                    'Definir paleta de cores e tipografia (sem roxo!)',
-                    'Prototipar fluxo e exportar assets'
-                ]
-            }
-            setAiResponse({
-                type: 'subtasks',
-                title: 'Sub-tarefas Sugeridas',
-                items: suggestions
-            })
+        setAiError('')
+        try {
+            const response = await AIService.suggestSubtasks(task.id)
+            setAiResponse(response)
+        } catch (error) {
+            setAiError(error.message || 'Falha ao gerar sugestões com a IA.')
+        } finally {
             setAiLoading(false)
-        }, 1500)
+        }
     }
 
     async function handleSummarizeNotes() {
         setAiLoading(true)
         setAiResponse(null)
-        setTimeout(() => {
-            const notesText = task?.task_notes?.map(n => n.content).join('\n') || ''
-            const descText = descriptionHtml ? descriptionHtml.replace(/<[^>]*>/g, '') : ''
-            const totalText = `${descText}\n${notesText}`.trim()
-            let summary = ''
-            if (!totalText) {
-                summary = 'Esta tarefa ainda não possui descrição ou notas registradas. Adicione mais informações no diário de bordo ou bloco de notas para que eu possa gerar um resumo!'
-            } else {
-                summary = `Com base no contexto atual da tarefa "${task?.title}":\n\n` +
-                          `• **Foco principal:** Desenvolvimento contínuo com base nas anotações da tarefa.\n` +
-                          `• **Status:** Em progresso com progresso do cronômetro ativo.\n` +
-                          `• **Pontos de ação:** Focar em concluir os itens pendentes do checklist e documentar as novidades.`
-            }
-            setAiResponse({
-                type: 'summary',
-                title: 'Resumo do Contexto',
-                text: summary
-            })
+        setAiError('')
+        try {
+            const response = await AIService.summarizeNotes(task.id)
+            setAiResponse(response)
+        } catch (error) {
+            setAiError(error.message || 'Falha ao resumir as anotações com a IA.')
+        } finally {
             setAiLoading(false)
-        }, 1200)
+        }
     }
 
     async function handleAddSuggestedSubtask(content) {
@@ -1203,6 +1171,12 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                             Resumir anotações
                                         </button>
                                     </div>
+
+                                    {aiError && (
+                                        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
+                                            {aiError}
+                                        </div>
+                                    )}
 
                                     {/* AI Response Display */}
                                     {aiLoading && (

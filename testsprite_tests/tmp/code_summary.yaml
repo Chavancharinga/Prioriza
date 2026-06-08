@@ -1,0 +1,82 @@
+version: "2"
+type: frontend
+tech_stack:
+  - javascript
+  - react
+  - tailwindcss
+  - supabase
+  - framer_motion
+routes:
+  - path: /
+    file: src/pages/Home.jsx
+    auth_required: true
+    description: Main dashboard home page
+  - path: /tasks
+    file: src/pages/Tasks.jsx
+    auth_required: true
+    description: Task list page with Kanban, List, and Tree views
+  - path: /planning
+    file: src/pages/Planning.jsx
+    auth_required: true
+    description: Calendar planning page
+  - path: /analytics
+    file: src/pages/Analytics.jsx
+    auth_required: true
+    description: Productivity analytics page
+  - path: /profile
+    file: src/components/dashboard/Profile.jsx
+    auth_required: true
+    description: User profile and availability hours setup page
+  - path: /auth
+    file: src/pages/Auth.jsx
+    auth_required: false
+    description: Login and signup page
+features:
+  - name: User Authentication
+    description: Authentication using Supabase Auth
+    files:
+      - src/pages/Auth.jsx
+    entry_route: /auth
+    user_interactions:
+      - Enter email address
+      - Enter password
+      - Click Sign In or Sign Up button
+    api_calls: []
+    auth_required: false
+  - name: Task Management
+    description: CRUD actions and listing for tasks
+    files:
+      - src/pages/Tasks.jsx
+      - src/components/tasks/TaskModal.jsx
+    entry_route: /tasks
+    user_interactions:
+      - Click Nova to open creation modal
+      - Fill task title, description, priority, and due date
+      - Click submit to save task
+      - Click delete icon to remove task
+    api_calls: []
+    auth_required: true
+  - name: Interactive Checklist and Timer
+    description: Manage subtasks and track focus time
+    files:
+      - src/components/tasks/TaskDetailsModal.jsx
+    entry_route: /tasks
+    user_interactions:
+      - Click on task to open details modal
+      - Toggle checklist checkbox items
+      - Add new checklist item
+      - Click start focus timer to count time
+    api_calls: []
+    auth_required: true
+  - name: User Profile and Work Hours
+    description: Setup profile info and work slots
+    files:
+      - src/components/dashboard/Profile.jsx
+    entry_route: /profile
+    user_interactions:
+      - Input username and full name
+      - Add work hour intervals for each day of the week
+      - Click save changes
+    api_calls: []
+    auth_required: true
+known_limitations: []

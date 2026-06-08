@@ -1,0 +1,19 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:5173/Prioriza",
+  "loginUser": "danieloliveiradasilva261623@gmail.com",
+  "loginPassword": "261623ruth",
+  "executionArgs": {
+    "projectName": "Prioriza_pasta",
+    "projectPath": "c:\\Users\\danie\\Videos\\Prioriza\\Code\\Prioriza_pasta",
+    "testIds": [],
+    "additionalInstruction": "",
+    "serverMode": "development",
+    "envs": {
+      "API_KEY": "sk-user-Xgj5wxgVGYgaYCZygalLOGKfKIGEqIB2cFw1hwwlFGnc7QRCiaDoxZHVosHP27Ko8UdqiSuu4JWFjXXzfhoi_OcObztwGyPpBUXSxaKbSadyWmzYifhCOUie2UiqW7hFUuw"
+    }
+  },
+  "serverPort": 53059
+}
