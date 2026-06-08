@@ -10,7 +10,7 @@ const tabs = [
 
 export default function BottomNav({ activeTab, onTabChange }) {
     return (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-neutral-200 dark:border-neutral-800 bg-white/95 dark:bg-[#1a1d27]/95 pb-safe backdrop-blur-xl lg:hidden shadow-[0_-4px_24px_rgba(0,0,0,0.04)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.2)]">
+        <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-(--color-border) bg-(--color-surface-card)/95 pb-safe backdrop-blur-xl lg:hidden shadow-[0_-4px_24px_rgba(0,0,0,0.04)]">
             <div className="grid grid-cols-5 h-16">
                 {tabs.map((tab) => {
                     const Icon = tab.icon
@@ -29,11 +29,11 @@ export default function BottomNav({ activeTab, onTabChange }) {
 
                             {/* Icon */}
                             <div className={`relative transition-all duration-200 ${isActive ? 'scale-110' : ''}`}>
-                                <Icon className={`h-5 w-5 transition-all duration-200 ${isActive ? 'stroke-[2.5] text-blue-600 dark:text-blue-400' : 'stroke-2 text-neutral-400 dark:text-neutral-500'}`} />
+                                <Icon className={`h-5 w-5 transition-all duration-200 ${isActive ? 'stroke-[2.5] text-(--color-prioriza-blue)' : 'stroke-2 text-(--color-text-muted)'}`} />
                             </div>
 
                             {/* Label */}
-                            <span className={`text-[10px] tracking-tight transition-all duration-200 ${isActive ? 'font-black text-blue-600 dark:text-blue-400' : 'font-bold text-neutral-400 dark:text-neutral-500'}`}>
+                            <span className={`text-[10px] tracking-tight transition-all duration-200 ${isActive ? 'font-black text-(--color-prioriza-blue)' : 'font-bold text-(--color-text-muted)'}`}>
                                 {tab.label}
                             </span>
                         </button>

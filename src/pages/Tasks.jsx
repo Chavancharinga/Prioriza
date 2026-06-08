@@ -9,6 +9,7 @@ import KanbanBoard from '../components/tasks/KanbanBoard'
 import TreeView from '../components/tasks/TreeView'
 import TaskModal from '../components/tasks/TaskModal'
 import TaskDetailsModal from '../components/tasks/TaskDetailsModal'
+import ConfirmationModal from '../components/ui/ConfirmationModal'
 
 const views = [
     { id: 'list', label: 'Lista', icon: LayoutList },
@@ -30,6 +31,7 @@ export default function Tasks({ profile, onNavigate }) {
     // Details Modal
     const [isDetailsOpen, setIsDetailsOpen] = useState(false)
     const [selectedTaskId, setSelectedTaskId] = useState(null)
+    const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, taskId: null })
 
     useEffect(() => {
         loadTasks()
@@ -71,14 +73,21 @@ export default function Tasks({ profile, onNavigate }) {
         }
     }
 
-    async function handleDeleteTask(taskId) {
-        if (!window.confirm('Tem certeza que deseja excluir esta tarefa?')) return
+    function handleDeleteTask(taskId) {
+        setDeleteConfirm({ isOpen: true, taskId })
+    }
+
+    async function handleConfirmDelete() {
+        const taskId = deleteConfirm.taskId
+        if (!taskId) return
         try {
             await TaskService.deleteTask(taskId)
             setTasks(tasks.filter(t => t.id !== taskId))
         } catch (err) {
             console.error('Error deleting task:', err)
             alert('Falha ao excluir tarefa')
+        } finally {
+            setDeleteConfirm({ isOpen: false, taskId: null })
         }
     }
 
@@ -115,7 +124,7 @@ export default function Tasks({ profile, onNavigate }) {
             <Card>
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     {/* View Switcher */}
-                    <div className="flex gap-1 rounded-lg border border-neutral-200 bg-neutral-50 p-1 overflow-x-auto">
+                    <div className="flex gap-1.5 rounded-2xl border-2 border-slate-200 bg-slate-100 p-1 overflow-x-auto shrink-0">
                         {views.map((view) => {
                             const Icon = view.icon
                             const isActive = activeView === view.id
@@ -124,12 +133,12 @@ export default function Tasks({ profile, onNavigate }) {
                                 <button
                                     key={view.id}
                                     onClick={() => setActiveView(view.id)}
-                                    className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-all ${isActive
-                                        ? 'bg-white text-neutral-900 shadow-sm'
-                                        : 'text-neutral-600 hover:text-neutral-900'
+                                    className={`flex items-center gap-2 rounded-xl px-4 py-1.5 text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${isActive
+                                        ? 'bg-white text-slate-800 border-b-[3px] border-slate-300'
+                                        : 'text-slate-500 hover:text-slate-800'
                                         }`}
                                 >
-                                    <Icon className="h-4 w-4" />
+                                    <Icon className="h-4.5 w-4.5" />
                                     <span className="hidden sm:inline">{view.label}</span>
                                 </button>
                             )
@@ -137,7 +146,7 @@ export default function Tasks({ profile, onNavigate }) {
                     </div>
 
                     {/* Actions */}
-                    <div className="grid grid-cols-12 gap-2 w-full sm:flex sm:w-auto sm:items-center">
+                    <div className="grid grid-cols-12 gap-2.5 w-full sm:flex sm:w-auto sm:items-center">
                         {/* Search */}
                         <div className="relative col-span-6 sm:w-64">
                             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
@@ -147,7 +156,7 @@ export default function Tasks({ profile, onNavigate }) {
                                 value={searchQuery}
                                 onClick={(e) => e.stopPropagation()}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="h-9 w-full rounded-lg border border-neutral-200 bg-white pl-9 pr-3 text-sm outline-none transition-all placeholder:text-neutral-400 hover:border-neutral-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                                className="h-10 w-full rounded-2xl border-2 border-slate-200 bg-white pl-9 pr-3 text-sm font-bold text-slate-700 outline-none transition-all placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500"
                             />
                         </div>
 
@@ -156,7 +165,7 @@ export default function Tasks({ profile, onNavigate }) {
                             value={statusFilter}
                             onClick={(e) => e.stopPropagation()}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="h-9 col-span-3 rounded-lg border border-neutral-200 bg-white px-2 text-xs font-semibold text-neutral-700 outline-none transition-all hover:border-neutral-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="h-10 col-span-3 rounded-2xl border-2 border-slate-200 bg-white px-3 text-xs font-black uppercase tracking-wider text-slate-600 outline-none transition-all hover:border-slate-300 focus:border-blue-500 cursor-pointer"
                         >
                             <option value="all">Todas</option>
                             <option value="pending">A Fazer</option>
@@ -165,8 +174,8 @@ export default function Tasks({ profile, onNavigate }) {
                         </select>
 
                         {/* Add Button */}
-                        <Button variant="primary" onClick={openCreateModal} className="h-9 col-span-3 flex items-center justify-center gap-1.5 px-2 text-xs sm:text-sm font-semibold whitespace-nowrap">
-                            <Plus className="w-4 h-4" />
+                        <Button variant="primary" onClick={openCreateModal} className="h-10 col-span-3 flex items-center justify-center gap-1.5 px-3 text-xs sm:text-sm">
+                            <Plus className="w-4.5 h-4.5" />
                             <span>Nova</span>
                         </Button>
                     </div>
@@ -256,6 +265,17 @@ export default function Tasks({ profile, onNavigate }) {
                 onUpdate={loadTasks} // Reload tasks in background to keep data fresh
                 onNavigate={onNavigate}
                 profile={profile}
+            />
+
+            <ConfirmationModal
+                isOpen={deleteConfirm.isOpen}
+                onClose={() => setDeleteConfirm({ isOpen: false, taskId: null })}
+                onConfirm={handleConfirmDelete}
+                title="Excluir Tarefa"
+                message="Tem certeza de que deseja excluir esta tarefa? Esta ação não pode ser desfeita."
+                confirmText="Excluir"
+                cancelText="Cancelar"
+                type="danger"
             />
         </div>
     )

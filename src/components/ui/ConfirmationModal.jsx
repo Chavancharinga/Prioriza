@@ -42,19 +42,19 @@ export default function ConfirmationModal({
             icon: Info,
             color: 'text-blue-600',
             bg: 'bg-blue-50',
-            button: 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/20'
+            button: 'btn-3d-primary'
         },
         success: {
             icon: CheckCircle2,
             color: 'text-emerald-600',
             bg: 'bg-emerald-50',
-            button: 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-emerald-500/25'
+            button: 'bg-emerald-500 text-white border-2 border-emerald-600 border-b-[5px] border-b-emerald-700 cursor-pointer active:translate-y-[2px] active:border-b-[2px]'
         },
         danger: {
             icon: AlertTriangle,
             color: 'text-red-600',
             bg: 'bg-red-50',
-            button: 'bg-red-600 hover:bg-red-700 shadow-red-500/20'
+            button: 'btn-3d-danger'
         }
     }
 
@@ -73,7 +73,7 @@ export default function ConfirmationModal({
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                 transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                className={`bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 border border-gray-100 dark:border-neutral-800 scale-100 relative overflow-hidden z-10
+                className={`bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 border-2 border-slate-200 scale-100 relative overflow-hidden z-10
                     ${isSuccess ? 'ring-2 ring-amber-400/40 dark:ring-amber-400/20 shadow-amber-500/10' : ''}`}
             >
                 {/* Decorative Sunburst for Success */}
@@ -176,16 +176,18 @@ export default function ConfirmationModal({
                 </div>
 
                 {/* Footer buttons */}
-                <div className="relative z-10 grid grid-cols-2 gap-3 mt-2">
+                <div className={`relative z-10 grid gap-3 mt-4 ${cancelText ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                    {cancelText && (
+                        <button
+                            onClick={onClose}
+                            className="btn-3d-secondary w-full py-3 text-sm font-black flex items-center justify-center cursor-pointer"
+                        >
+                            <span>{cancelText}</span>
+                        </button>
+                    )}
                     <button
-                        onClick={onClose}
-                        className="w-full py-3 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-neutral-700 rounded-2xl font-bold text-sm hover:bg-gray-50 dark:hover:bg-neutral-700/60 transition-colors active:scale-98"
-                    >
-                        {cancelText}
-                    </button>
-                    <button
-                        onClick={onConfirm}
-                        className={`w-full py-3 text-white rounded-2xl font-bold text-sm transition-all shadow-md active:scale-98 flex items-center justify-center gap-1.5 cursor-pointer ${style.button}`}
+                        onClick={onConfirm || onClose}
+                        className={`w-full py-3 rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer ${style.button}`}
                     >
                         {isSuccess && <Sparkles className="w-4 h-4 fill-current shrink-0" />}
                         <span>{confirmText}</span>

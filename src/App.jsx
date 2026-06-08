@@ -13,6 +13,7 @@ import Profile from './components/dashboard/Profile'
 import { ProfileService } from './services/ProfileService'
 import { GamificationService } from './services/GamificationService'
 import Skeleton from './components/ui/Skeleton'
+import ConfirmationModal from './components/ui/ConfirmationModal'
 
 export default function App() {
   const [session, setSession] = useState(null)
@@ -26,12 +27,83 @@ export default function App() {
   })
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 1024 : true) // Start collapsed (desktop) or hidden (mobile)
   const [profile, setProfile] = useState(null)
+  const [alertConfig, setAlertConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info',
+    confirmText: 'Entendido',
+    cancelText: null,
+    onConfirm: null
+  })
+
+  // Force clean slate theme, disable dark mode
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      document.documentElement.classList.remove('dark')
+      localStorage.removeItem('prioriza-theme')
+    }
+  }, [])
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('prioriza_active_page', activePage)
     }
   }, [activePage])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    // Intercept native browser alert
+    const originalAlert = window.alert
+    window.alert = (message) => {
+      let type = 'info'
+      let title = 'Alerta'
+      let finalMessage = String(message || '')
+
+      if (finalMessage.includes('\n')) {
+        const parts = finalMessage.split('\n')
+        title = parts[0].trim()
+        finalMessage = parts.slice(1).join('\n').trim()
+      }
+
+      const searchStr = (title + ' ' + finalMessage).toLowerCase()
+      if (searchStr.includes('erro') || searchStr.includes('falha') || searchStr.includes('expirado') || searchStr.includes('penalidade') || searchStr.includes('atraso')) {
+        type = 'danger'
+      } else if (searchStr.includes('subiu de nível') || searchStr.includes('sucesso') || searchStr.includes('parabéns') || searchStr.includes('vitória')) {
+        type = 'success'
+      }
+
+      window.dispatchEvent(new CustomEvent('app-alert', {
+        detail: {
+          title: title || (type === 'danger' ? 'Ops!' : 'Alerta'),
+          message: finalMessage,
+          type,
+          confirmText: 'Entendido',
+          cancelText: null
+        }
+      }))
+    }
+
+    const handleAppAlert = (e) => {
+      const { title, message, type, confirmText, cancelText, onConfirm } = e.detail || {}
+      setAlertConfig({
+        isOpen: true,
+        title: title || 'Alerta',
+        message: message || '',
+        type: type || 'info',
+        confirmText: confirmText || 'Entendido',
+        cancelText: cancelText || null,
+        onConfirm: onConfirm || null
+      })
+    }
+
+    window.addEventListener('app-alert', handleAppAlert)
+    return () => {
+      window.alert = originalAlert
+      window.removeEventListener('app-alert', handleAppAlert)
+    }
+  }, [])
 
 
   const loadProfile = useCallback(async () => {
@@ -130,9 +202,9 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA] dark:bg-(--color-surface) flex">
+      <div className="min-h-screen bg-(--color-surface) flex">
         {/* Sidebar Skeleton */}
-        <div className="hidden lg:block w-20 bg-white dark:bg-[#1a1d27] border-r border-neutral-200 dark:border-neutral-700/50 p-4 space-y-6 shrink-0">
+        <div className="hidden lg:block w-20 border-r border-white/5 p-4 space-y-6 shrink-0" style={{ backgroundColor: 'var(--color-sidebar-bg)' }}>
           <Skeleton.Circle size="h-10 w-10 mx-auto" />
           <div className="space-y-6 pt-10">
             {[...Array(5)].map((_, i) => (
@@ -144,7 +216,7 @@ export default function App() {
         {/* Content Panel Skeleton */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Header Skeleton */}
-          <div className="h-20 bg-white dark:bg-[#1a1d27] border-b border-neutral-200 dark:border-neutral-700/50 px-4 sm:px-6 lg:px-8 flex items-center justify-between shrink-0">
+          <div className="h-20 bg-(--color-surface-card) border-b border-(--color-border) px-4 sm:px-6 lg:px-8 flex items-center justify-between shrink-0">
             <div className="space-y-2">
               <Skeleton className="h-3 w-16" />
               <Skeleton className="h-5 w-48" />
@@ -230,7 +302,7 @@ export default function App() {
                   <Skeleton className="h-4 w-44 mb-4 pl-2" />
                   <Skeleton.Card className="p-6 shadow-[0_2px_30px_-5px_rgba(0,0,0,0.03)] rounded-[30px] space-y-4">
                     {[...Array(2)].map((_, i) => (
-                      <div key={i} className="space-y-2 border-b border-neutral-50 dark:border-neutral-700/20 pb-3 last:border-0 last:pb-0">
+                      <div key={i} className="space-y-2 border-b border-(--color-border-light) pb-3 last:border-0 last:pb-0">
                         <div className="flex justify-between">
                           <Skeleton className="h-4 w-28" />
                           <Skeleton className="h-4 w-12" />
@@ -257,7 +329,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] dark:bg-(--color-surface) font-sans text-gray-900 dark:text-gray-100 overflow-x-hidden selection:bg-blue-100 dark:selection:bg-blue-900 transition-colors duration-300">
+    <div className="min-h-screen bg-(--color-surface) font-sans text-(--color-text-primary) overflow-x-hidden selection:bg-blue-100 transition-colors duration-300">
       <Sidebar
         activeItem={activePage}
         onItemChange={setActivePage}
@@ -293,6 +365,20 @@ export default function App() {
       </div>
 
       <BottomNav activeTab={activePage} onTabChange={setActivePage} />
+
+      <ConfirmationModal
+        isOpen={alertConfig.isOpen}
+        onClose={() => setAlertConfig(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={() => {
+          setAlertConfig(prev => ({ ...prev, isOpen: false }))
+          if (alertConfig.onConfirm) alertConfig.onConfirm()
+        }}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        confirmText={alertConfig.confirmText}
+        cancelText={alertConfig.cancelText}
+      />
     </div>
   )
 }

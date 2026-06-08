@@ -30,9 +30,9 @@ const quadrants = [
         label: 'FAZER JÁ',
         description: 'Urgente + Importante',
         icon: AlertTriangle,
-        color: 'text-red-600 dark:text-red-400',
-        bgColor: 'bg-red-50 dark:bg-red-900/10',
-        borderColor: 'border-red-200 dark:border-red-800/30',
+        color: 'text-red-600',
+        bgColor: 'bg-red-50',
+        borderColor: 'border-red-200',
         headerBg: 'bg-red-500',
         dotColor: 'bg-red-500',
     },
@@ -41,9 +41,9 @@ const quadrants = [
         label: 'AGENDAR',
         description: 'Importante, sem pressa',
         icon: Calendar,
-        color: 'text-amber-600 dark:text-amber-400',
-        bgColor: 'bg-amber-50 dark:bg-amber-900/10',
-        borderColor: 'border-amber-200 dark:border-amber-800/30',
+        color: 'text-amber-600',
+        bgColor: 'bg-amber-50',
+        borderColor: 'border-amber-200',
         headerBg: 'bg-amber-500',
         dotColor: 'bg-amber-500',
     },
@@ -52,9 +52,9 @@ const quadrants = [
         label: 'DELEGAR',
         description: 'Urgente, pouca importância',
         icon: ArrowDown,
-        color: 'text-blue-600 dark:text-blue-400',
-        bgColor: 'bg-blue-50 dark:bg-blue-900/10',
-        borderColor: 'border-blue-200 dark:border-blue-800/30',
+        color: 'text-blue-600',
+        bgColor: 'bg-blue-50',
+        borderColor: 'border-blue-200',
         headerBg: 'bg-blue-500',
         dotColor: 'bg-blue-500',
     },
@@ -63,9 +63,9 @@ const quadrants = [
         label: 'ELIMINAR',
         description: 'Nem urgente, nem importante',
         icon: Trash2,
-        color: 'text-slate-400 dark:text-gray-400',
-        bgColor: 'bg-gray-50 dark:bg-gray-800/30',
-        borderColor: 'border-white/5 dark:border-gray-700/30',
+        color: 'text-slate-400',
+        bgColor: 'bg-gray-50',
+        borderColor: 'border-(--color-border)',
         headerBg: 'bg-gray-400',
         dotColor: 'bg-gray-400',
     },
@@ -110,11 +110,11 @@ export default function EisenhowerMatrix({ tasks, onTaskClick }) {
     return (
         <div className="space-y-4">
             {/* Legend bar */}
-            <div className="flex flex-wrap gap-3 items-center text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">
+            <div className="flex flex-wrap gap-3 items-center text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                 <span>Eixo Vertical: Importância (P1-P2 = Alta)</span>
-                <span className="text-gray-300 dark:text-slate-400">|</span>
+                <span className="text-gray-300">|</span>
                 <span>Eixo Horizontal: Urgência (prazo ≤ 48h = Urgente)</span>
-                <span className="text-gray-300 dark:text-slate-400">|</span>
+                <span className="text-gray-300">|</span>
                 <span>{totalActive} tarefas ativas</span>
             </div>
 
@@ -140,7 +140,7 @@ export default function EisenhowerMatrix({ tasks, onTaskClick }) {
                                     </div>
                                     <div>
                                         <h3 className={`text-xs font-black tracking-wider ${q.color}`}>{q.label}</h3>
-                                        <p className="text-[9px] text-gray-400 dark:text-slate-400 font-medium">{q.description}</p>
+                                        <p className="text-[9px] text-gray-400 font-medium">{q.description}</p>
                                     </div>
                                 </div>
                                 <span className={`text-xs font-black ${q.color} opacity-60`}>{items.length}</span>
@@ -149,7 +149,7 @@ export default function EisenhowerMatrix({ tasks, onTaskClick }) {
                             {/* Tasks */}
                             <div className="flex-1 px-3 pb-3 space-y-1.5 overflow-y-auto max-h-[300px]">
                                 {items.length === 0 ? (
-                                    <div className="flex items-center justify-center h-20 text-[10px] text-gray-400 dark:text-slate-400 font-medium">
+                                    <div className="flex items-center justify-center h-20 text-[10px] text-gray-400 font-medium">
                                         Nenhuma tarefa
                                     </div>
                                 ) : (
@@ -167,16 +167,16 @@ export default function EisenhowerMatrix({ tasks, onTaskClick }) {
                                                     animate={{ opacity: 1, y: 0 }}
                                                     transition={{ delay: i * 0.02 }}
                                                     onClick={() => onTaskClick?.(task)}
-                                                    className={`flex items-center gap-3 bg-[#111A2C]/80 backdrop-blur-xl/80 dark:bg-[#111A2C]/80 backdrop-blur-md rounded-xl px-3 py-2.5 cursor-pointer shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/5/50 dark:border-white/5 transition-all hover:shadow-md hover:-translate-y-px ${isOverdue ? 'ring-1 ring-red-300 dark:ring-red-700/50' : ''}`}
+                                                    className={`flex items-center gap-3 bg-[#111A2C]/80 backdrop-blur-xl/80 backdrop-blur-md rounded-xl px-3 py-2.5 cursor-pointer shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/5/50 transition-all hover:shadow-md hover:-translate-y-px ${isOverdue ? 'ring-1 ring-red-300' : ''}`}
                                                 >
                                                     <div className={`w-2 h-2 rounded-full shrink-0 ${priorityColors[task.priority] || 'bg-gray-400'}`} />
                                                     
                                                     <div className="flex-1 min-w-0">
-                                                        <p className="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate">{task.title}</p>
+                                                        <p className="text-xs font-semibold text-gray-800 truncate">{task.title}</p>
                                                         <div className="flex items-center gap-2 mt-0.5">
-                                                            <span className="text-[9px] font-bold text-gray-400 dark:text-slate-400">{priorityLabels[task.priority]}</span>
+                                                            <span className="text-[9px] font-bold text-gray-400">{priorityLabels[task.priority]}</span>
                                                             {task.estimated_minutes > 0 && (
-                                                                <span className="text-[9px] text-gray-400 dark:text-slate-400 flex items-center gap-0.5">
+                                                                <span className="text-[9px] text-gray-400 flex items-center gap-0.5">
                                                                     <Clock className="w-2.5 h-2.5" />{task.estimated_minutes}m
                                                                 </span>
                                                             )}
@@ -186,9 +186,9 @@ export default function EisenhowerMatrix({ tasks, onTaskClick }) {
                                                     {daysLeft !== null && (
                                                         <span className={`text-[9px] font-bold shrink-0 ${
                                                             isOverdue ? 'text-red-500' :
-                                                            daysLeft === 0 ? 'text-amber-600 dark:text-amber-400' :
+                                                            daysLeft === 0 ? 'text-amber-600' :
                                                             daysLeft <= 3 ? 'text-orange-500' :
-                                                            'text-gray-400 dark:text-slate-400'
+                                                            'text-gray-400'
                                                         }`}>
                                                             {isOverdue ? `${Math.abs(daysLeft)}d atrás` :
                                                              daysLeft === 0 ? 'Hoje' :

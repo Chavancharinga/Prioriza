@@ -2,16 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { User, Flame, Trophy, Star, Zap, Palmtree } from 'lucide-react'
 
-function getGreeting() {
-    const hour = new Date().getHours()
-    if (hour < 12) return 'Bom dia'
-    if (hour < 18) return 'Boa tarde'
-    return 'Boa noite'
-}
-
 export default function DashboardHeader({ title, breadcrumb, onNavigate, profile }) {
-    const greeting = getGreeting()
-    
     // Store coordinates of the user's last click to spawn particles
     const lastClickRef = useRef({ x: typeof window !== 'undefined' ? window.innerWidth / 2 : 500, y: typeof window !== 'undefined' ? window.innerHeight / 2 : 500 })
 
@@ -207,119 +198,139 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
             <div className="flex justify-between items-center">
                 {/* Logo / Menu Mobile */}
                 <div className="flex items-center gap-3 lg:hidden">
-                    <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Prioriza" className="h-14 sm:h-16 w-auto object-contain" />
+                    <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Prioriza" className="h-16 sm:h-20 w-auto object-contain drop-shadow-[0_2px_8px_rgba(37,99,235,0.12)]" />
                 </div>
 
                 {/* Greeting & Gamification Section (Desktop) */}
-                <div className="hidden lg:flex ml-auto items-center gap-4 text-sm text-gray-400 dark:text-gray-500 font-medium">
-                    <div>
-                        {greeting}, <span className="text-gray-700 dark:text-gray-200 font-bold ml-1">{profile?.full_name?.split(' ')[0] || 'Usuário'}</span>
-                    </div>
-
-                    {/* Gamification Widget */}
-                    <div className="relative flex items-center gap-3 bg-white dark:bg-neutral-800/80 border border-gray-100 dark:border-neutral-700/60 shadow-xs rounded-xl px-3.5 py-1.5">
-                        <div className="flex items-center gap-1.5 text-orange-600 dark:text-orange-500" title="Sua Ofensiva (Dias seguidos)">
-                            <Flame className="h-4 w-4 fill-current animate-pulse text-red-500" />
-                            <span className="text-xs font-black">{profile?.streak || 0}d</span>
-                        </div>
-                        <div className="h-4 w-px bg-gray-200 dark:bg-neutral-700" />
+                <div className="hidden lg:flex ml-auto items-center gap-4 text-sm text-(--color-text-muted) font-medium">
+                    {/* Duolingo Gamification Widget */}
+                    <div className="flex items-center gap-3">
+                        {/* Streak Pill */}
+                        <motion.div 
+                            whileHover={{ y: -2 }}
+                            whileTap={{ y: 1 }}
+                            className="flex items-center gap-2 bg-orange-50 border-2 border-orange-300 border-b-[5px] border-b-orange-400 px-4 py-2 rounded-2xl text-orange-600 font-black shadow-sm cursor-pointer" 
+                            title="Sua Ofensiva (Dias seguidos)"
+                        >
+                            <Flame className="h-5 w-5 fill-orange-500 text-orange-500 animate-pulse drop-shadow-[0_1.5px_0_rgba(194,65,12,0.3)]" />
+                            <span className="text-sm font-black tracking-tight">{profile?.streak || 0}d</span>
+                        </motion.div>
                         
-                        <div className="flex items-center gap-2" title={`Nível ${displayedLevel !== null ? displayedLevel : (profile?.level || 1)} - ${displayedXp !== null ? displayedXp : (profile?.xp || 0)}/1000 XP`}>
+                        {/* XP Progress Pill */}
+                        <motion.div 
+                            whileHover={{ y: -2 }}
+                            whileTap={{ y: 1 }}
+                            className="flex items-center gap-3 bg-blue-50 border-2 border-blue-300 border-b-[5px] border-b-blue-400 px-4 py-2 rounded-2xl text-blue-600 font-black shadow-sm cursor-pointer" 
+                            title={`XP do Nível: ${displayedXp !== null ? displayedXp : (profile?.xp || 0)}/1000`}
+                        >
                             <motion.div 
                                 id="level-bar-trophy-desktop" 
                                 animate={{ scale: desktopTrophyScale }} 
                                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
                                 className="shrink-0"
                             >
-                                <Trophy className="h-4 w-4 text-amber-500 fill-current" />
+                                <Trophy className="h-5 w-5 text-amber-500 fill-amber-500 drop-shadow-[0_1.5px_0_rgba(180,83,9,0.3)]" />
                             </motion.div>
-                            <div className="flex flex-col">
-                                <span className="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase leading-none">
+                            <div className="flex flex-col justify-center">
+                                <span className="text-[10px] font-black uppercase text-blue-700 leading-none tracking-wider">
                                     Nível {displayedLevel !== null ? displayedLevel : (profile?.level || 1)}
                                 </span>
-                                <div className="mt-1 h-1.5 w-16 bg-gray-100 dark:bg-neutral-700 rounded-full overflow-hidden">
+                                <div className="mt-1 h-3 w-32 bg-blue-100 border border-blue-200 rounded-full overflow-hidden shadow-inner flex items-center">
                                     <div
-                                        className="h-full bg-linear-to-r from-amber-400 to-amber-500 transition-all duration-300"
+                                        className="h-full bg-blue-500 border-r-2 border-black/10 transition-all duration-300 rounded-full"
                                         style={{ width: `${Math.min(100, (((displayedXp !== null ? displayedXp : (profile?.xp || 0)) / 1000) * 100))}%` }}
                                     />
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
 
+                        {/* Rest Reward Pill */}
                         {(displayedLevel !== null ? displayedLevel : (profile?.level || 1)) >= 10 && (displayedXp !== null ? displayedXp : (profile?.xp || 0)) >= 1000 && (
-                            <>
-                                <div className="h-4 w-px bg-gray-200 dark:bg-neutral-700" />
-                                <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-500 text-xs font-bold animate-bounce" title="Você está com tudo em dia! Recompensa de folga ativada.">
-                                    <Palmtree className="w-4 h-4 text-emerald-600 fill-current shrink-0" />
-                                    <span className="text-[10px] uppercase font-black tracking-wider">Folga</span>
-                                </div>
-                            </>
+                            <motion.div 
+                                whileHover={{ y: -2 }}
+                                whileTap={{ y: 1 }}
+                                className="flex items-center gap-2 bg-emerald-50 border-2 border-emerald-300 border-b-[5px] border-b-emerald-400 px-4 py-2 rounded-2xl text-emerald-600 font-black shadow-sm cursor-pointer animate-bounce" 
+                                title="Você está com tudo em dia! Recompensa de folga ativada."
+                            >
+                                <Palmtree className="w-5 h-5 text-emerald-600 fill-emerald-600 shrink-0 drop-shadow-[0_1.5px_0_rgba(4,120,87,0.3)]" />
+                                <span className="text-[10px] uppercase font-black tracking-wider">Folga</span>
+                            </motion.div>
                         )}
                     </div>
                 </div>
 
                 {/* User Profile */}
-                <div
+                <motion.div
+                    whileHover={{ y: -2 }}
+                    whileTap={{ y: 1 }}
                     onClick={() => onNavigate?.('profile')}
-                    className="flex items-center gap-3 lg:ml-6 lg:pl-6 lg:border-l lg:border-gray-200 dark:lg:border-gray-700 cursor-pointer group"
+                    className="flex items-center gap-3.5 lg:ml-6 lg:pl-6 lg:border-l lg:border-slate-200 cursor-pointer group"
                 >
                     <div className="text-right hidden sm:block">
-                        <div className="text-sm font-extrabold text-gray-900 dark:text-gray-100 leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        <div className="text-sm font-black text-slate-700 leading-tight group-hover:text-blue-600 transition-colors">
                             {profile?.full_name || 'Usuário'}
                         </div>
-                        <div className="text-[10px] text-gray-400 font-medium truncate max-w-[120px]">
+                        <div className="text-[10px] text-slate-400 font-bold tracking-tight">
                             {profile?.username ? `@${profile.username}` : (profile?.email || 'Organize seu dia')}
                         </div>
                     </div>
-                    <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-linear-to-tr from-[#00C6FB] to-[#005BEA] flex items-center justify-center text-white font-bold relative overflow-hidden shadow-lg shadow-blue-200 shrink-0 group-hover:scale-105 transition-transform">
-                        {profile?.avatar_url ? (
-                            <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                        ) : (
-                            <span className="relative z-10">{profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : <User className="w-5 h-5" />}</span>
-                        )}
-                        <div className="absolute top-0 right-0 w-4 h-4 bg-white/20 rounded-bl-full"></div>
+                    {/* Profile Frame */}
+                    <div className="border-2 border-slate-200 rounded-full p-[3px] bg-white shadow-sm transition-all duration-200 group-hover:border-blue-300 group-hover:shadow-md shrink-0">
+                        <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-linear-to-tr from-[#00C6FB] to-[#005BEA] flex items-center justify-center text-white font-black relative overflow-hidden shadow-inner">
+                            {profile?.avatar_url ? (
+                                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                            ) : (
+                                <span className="relative z-10 text-sm">{profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : <User className="w-4 h-4" />}</span>
+                            )}
+                            <div className="absolute top-0 right-0 w-3.5 h-3.5 bg-white/25 rounded-bl-full"></div>
+                        </div>
                     </div>
-                </div>
+                </motion.div>
             </div>
 
             {/* Mobile Gamification Widget */}
-            <div className="relative flex lg:hidden items-center justify-between gap-3 bg-white dark:bg-(--color-surface-card) border border-neutral-100 dark:border-(--color-border) shadow-xs rounded-2xl px-4 py-2.5 mt-1">
-                <div className="flex items-center gap-1.5 text-orange-600 dark:text-orange-500" title="Sua Ofensiva (Dias seguidos)">
-                    <Flame className="h-4 w-4 fill-current animate-pulse text-red-500" />
-                    <span className="text-xs font-black">{profile?.streak || 0}d ofensiva</span>
+            <div className="flex lg:hidden items-center justify-center gap-3 px-1 mt-1">
+                {/* Streak Pill */}
+                <div 
+                    className="flex items-center gap-1.5 bg-orange-50 border-2 border-orange-300 border-b-[5px] border-b-orange-400 px-3 py-1.5 rounded-2xl text-orange-600 font-black flex-1 justify-center shadow-xs" 
+                    title="Sua Ofensiva (Dias seguidos)"
+                >
+                    <Flame className="h-4.5 w-4.5 fill-orange-500 text-orange-500 animate-pulse drop-shadow-[0_1.5px_0_rgba(194,65,12,0.3)]" />
+                    <span className="text-xs font-black">{profile?.streak || 0}d</span>
                 </div>
-                <div className="h-4 w-px bg-gray-200 dark:bg-neutral-700" />
                 
-                <div className="flex items-center gap-2 flex-1 justify-end" title={`Nível ${displayedLevel !== null ? displayedLevel : (profile?.level || 1)} - ${displayedXp !== null ? displayedXp : (profile?.xp || 0)}/1000 XP`}>
+                {/* XP Progress Pill */}
+                <div 
+                    className="flex items-center gap-2 bg-blue-50 border-2 border-blue-300 border-b-[5px] border-b-blue-400 px-3 py-1.5 rounded-2xl text-blue-600 font-black flex-2 justify-center shadow-xs" 
+                    title={`XP do Nível: ${displayedXp !== null ? displayedXp : (profile?.xp || 0)}/1000`}
+                >
                     <motion.div 
                         id="level-bar-trophy-mobile" 
                         animate={{ scale: mobileTrophyScale }} 
                         transition={{ type: "spring", stiffness: 400, damping: 10 }}
                         className="shrink-0"
                     >
-                        <Trophy className="h-4 w-4 text-amber-500 fill-current" />
+                        <Trophy className="h-4 w-4 text-amber-500 fill-amber-500 drop-shadow-[0_1.5px_0_rgba(180,83,9,0.3)]" />
                     </motion.div>
                     <div className="flex flex-col flex-1 max-w-[120px]">
-                        <span className="text-[9px] font-extrabold text-gray-500 dark:text-gray-400 uppercase leading-none">
+                        <span className="text-[8px] font-black uppercase text-blue-700 leading-none">
                             Nível {displayedLevel !== null ? displayedLevel : (profile?.level || 1)}
                         </span>
-                        <div className="mt-1 h-1 w-full bg-gray-100 dark:bg-neutral-700 rounded-full overflow-hidden">
+                        <div className="mt-1 h-2 w-full bg-blue-100 border border-blue-200/50 rounded-full overflow-hidden shadow-inner flex items-center">
                             <div
-                                className="h-full bg-linear-to-r from-amber-400 to-amber-500 transition-all duration-300"
+                                className="h-full bg-blue-500 border-r-2 border-black/10 transition-all duration-300 rounded-full"
                                 style={{ width: `${Math.min(100, (((displayedXp !== null ? displayedXp : (profile?.xp || 0)) / 1000) * 100))}%` }}
                             />
                         </div>
                     </div>
                 </div>
                 
+                {/* Rest Reward Pill */}
                 {(displayedLevel !== null ? displayedLevel : (profile?.level || 1)) >= 10 && (displayedXp !== null ? displayedXp : (profile?.xp || 0)) >= 1000 && (
-                    <>
-                        <div className="h-4 w-px bg-gray-200 dark:bg-neutral-700" />
-                        <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-500 text-[10px] font-bold animate-bounce" title="Você está com tudo em dia! Recompensa de folga ativada.">
-                            <Palmtree className="w-3.5 h-3.5 text-emerald-600 fill-current shrink-0" />
-                            <span className="text-[8px] font-black uppercase tracking-wider">Folga</span>
-                        </div>
-                    </>
+                    <div className="flex items-center gap-1 bg-emerald-50 border-2 border-emerald-300 border-b-[5px] border-b-emerald-400 px-2.5 py-1.5 rounded-2xl text-emerald-600 font-black shadow-xs animate-bounce" title="Você está com tudo em dia! Recompensa de folga ativada.">
+                        <Palmtree className="w-4 h-4 text-emerald-600 fill-emerald-600 shrink-0 drop-shadow-[0_1.5px_0_rgba(4,120,87,0.3)]" />
+                        <span className="text-[8px] font-black uppercase tracking-wider">Folga</span>
+                    </div>
                 )}
             </div>
 
@@ -334,7 +345,7 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                     ))}
                 </div>
 
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#111827] dark:text-white tracking-tight mt-1">{title}</h1>
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-(--color-text-primary) tracking-tight mt-1">{title}</h1>
             </div>
 
             {/* Flying XP Particles */}
@@ -355,7 +366,7 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                             ease: [0.19, 1, 0.22, 1]
                         }}
                         onAnimationComplete={() => handleParticleReach(p)}
-                        className="fixed z-200 pointer-events-none flex items-center gap-1.5 bg-linear-to-r from-emerald-500 to-teal-500 text-white font-extrabold px-3.5 py-1.5 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.4)] border border-emerald-400/30 text-xs"
+                        className="fixed z-200 pointer-events-none flex items-center gap-1.5 bg-linear-to-r from-emerald-500 to-teal-500 text-white font-extrabold px-3.5 py-1.5 rounded-full shadow-[0_4px_12px_rgba(16,185,129,0.2)] border border-emerald-500/20 text-xs"
                     >
                         <Star className="w-3.5 h-3.5 fill-white text-emerald-400 animate-spin-slow animate-pulse" />
                         <span>+{p.amount} XP</span>

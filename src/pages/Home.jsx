@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Calendar, CheckCircle2, Plus, Lightbulb } from 'lucide-react'
+import { Calendar, CheckCircle2, Plus, Lightbulb, Star, Trophy } from 'lucide-react'
 import { TaskService } from '../services/TaskService'
 import Button from '../components/ui/Button'
 import TaskModal from '../components/tasks/TaskModal'
@@ -61,11 +61,20 @@ export default function Home({ profile, onNavigate }) {
         setIsDetailsOpen(true)
     }
 
-    // Get upcoming tasks for timeline (sorted by due date)
-    const upcomingTasks = tasks
-        .filter(t => t.due_date && t.status !== 'Feito')
-        .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
-        .slice(0, 5)
+    // Get tasks that are due today or overdue and not completed
+    const todayTasks = tasks.filter(t => {
+        if (!t.due_date) return false
+        const d = new Date(t.due_date)
+        const today = new Date()
+        d.setHours(0, 0, 0, 0)
+        today.setHours(0, 0, 0, 0)
+        return d.getTime() === today.getTime() || (d.getTime() < today.getTime() && t.status !== 'Feito')
+    })
+
+    // Get upcoming tasks for today (sorted by priority)
+    const upcomingTasks = todayTasks
+        .filter(t => t.status !== 'Feito')
+        .sort((a, b) => a.priority - b.priority)
 
     const priorityColors = {
         1: { bg: 'bg-rose-600', text: 'text-rose-600', border: 'border-rose-600' },
@@ -150,7 +159,7 @@ export default function Home({ profile, onNavigate }) {
                         <Skeleton className="h-4 w-44 mb-4 pl-2" />
                         <Skeleton.Card className="p-6 shadow-[0_2px_30px_-5px_rgba(0,0,0,0.03)] rounded-[30px] space-y-4">
                             {[...Array(2)].map((_, i) => (
-                                <div key={i} className="space-y-2 border-b border-neutral-50 dark:border-neutral-700/20 pb-3 last:border-0 last:pb-0">
+                                <div key={i} className="space-y-2 border-b border-(--color-border-light) pb-3 last:border-0 last:pb-0">
                                     <div className="flex justify-between">
                                         <Skeleton className="h-4 w-28" />
                                         <Skeleton className="h-4 w-12" />
@@ -172,72 +181,102 @@ export default function Home({ profile, onNavigate }) {
 
     return (
         <div className="grid grid-cols-12 gap-6 lg:gap-8 h-full pb-10 relative">
-            {/* Quick Action - Floating or Top Right */}
+            {/* Header / Quick Action Row */}
             <div className="col-span-12 flex justify-end">
-                <Button variant="primary" onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 shadow-xl shadow-blue-500/20">
+                <Button variant="primary" onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 shrink-0">
                     <Plus className="w-5 h-5" />
-                    <span>Nova Tarefa Rápida</span>
+                    <span>Nova Tarefa</span>
                 </Button>
             </div>
 
-            {/* LEFT COLUMN: Main Chart & Kanban */}
+            {/* LEFT COLUMN: Daily Quests & Kanban */}
             <div className="col-span-12 xl:col-span-9 flex flex-col gap-6 lg:gap-8">
 
-                {/* Timeline Section */}
-                <div className="bg-white rounded-[24px] sm:rounded-[32px] lg:rounded-[40px] p-4 sm:p-6 lg:p-8 shadow-[0_2px_40px_-10px_rgba(0,0,0,0.05)] relative overflow-hidden">
-                    <div>
-                        <h3 className="text-lg font-bold text-gray-900 mb-6">Próximas Entregas</h3>
+                {/* Missões Diárias (XP & Progresso) */}
+                <div className="card-3d p-5 sm:p-6 lg:p-8 relative overflow-hidden">
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-2.5">
+                            <Trophy className="w-5.5 h-5.5 text-blue-500" />
+                            <h3 className="text-lg font-black text-(--color-text-primary)">Missões de Hoje</h3>
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-100 border-2 border-slate-200 px-3 py-1 rounded-xl">
+                            {upcomingTasks.length} Pendentes
+                        </span>
+                    </div>
 
-                        {upcomingTasks.length === 0 ? (
-                            <p className="text-center text-gray-400 py-10">Nenhuma tarefa agendada</p>
-                        ) : (
-                            <div className="space-y-4">
-                                {upcomingTasks.map((task) => {
-                                    const progress = task.progress || 0
-                                    const barColor = priorityColors[task.priority]?.bg || 'bg-blue-500'
+                    {upcomingTasks.length === 0 ? (
+                        <div className="text-center py-10 flex flex-col items-center gap-3">
+                            <CheckCircle2 className="w-12 h-12 text-emerald-500 animate-bounce" />
+                            <p className="font-black text-slate-500 text-sm">Todas as missões concluídas por hoje! Bom trabalho!</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-3.5">
+                            {upcomingTasks.map((task) => {
+                                const xpReward = (6 - (task.priority || 3)) * 20
+                                const shieldColor = {
+                                    1: 'bg-rose-50 text-rose-600 border-rose-200',
+                                    2: 'bg-red-50 text-red-600 border-red-200',
+                                    3: 'bg-orange-50 text-orange-600 border-orange-200',
+                                    4: 'bg-yellow-50 text-yellow-600 border-yellow-200',
+                                    5: 'bg-blue-50 text-blue-600 border-blue-200',
+                                }[task.priority] || 'bg-slate-50 text-slate-600 border-slate-200'
 
-                                    return (
-                                        <div
-                                            key={task.id}
-                                            className="relative cursor-pointer hover:opacity-80 transition-opacity"
-                                            onClick={() => handleTaskClick(task)}
-                                        >
-                                            <div className="flex justify-between text-xs font-bold text-gray-500 mb-1">
-                                                <span className="truncate pr-4">{task.title}</span>
-                                                <span className="shrink-0">{new Date(task.due_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>
+                                return (
+                                    <div
+                                        key={task.id}
+                                        onClick={() => handleTaskClick(task)}
+                                        className="flex items-center justify-between p-3.5 bg-white border-2 border-slate-100 hover:border-slate-300 rounded-2xl cursor-pointer transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 shadow-2xs"
+                                    >
+                                        <div className="flex items-center gap-3.5 min-w-0">
+                                            {/* Checkbox Icon */}
+                                            <div className="w-5 h-5 rounded-lg border-2 border-slate-300 flex items-center justify-center shrink-0 hover:border-blue-500 transition-colors">
+                                                <div className="w-2.5 h-2.5 rounded-sm bg-transparent" />
                                             </div>
-                                            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                                                <div
-                                                    className={`h-full rounded-full ${barColor}`}
-                                                    style={{ width: `${Math.max(5, progress)}%` }}
-                                                ></div>
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-black text-slate-700 truncate">{task.title}</p>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-lg border ${shieldColor}`}>
+                                                        P{task.priority}
+                                                    </span>
+                                                    {task.due_date && (
+                                                        <span className="text-[10px] text-slate-400 font-bold">
+                                                            {new Date(task.due_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-                                    )
-                                })}
-                            </div>
-                        )}
-                    </div>
+
+                                        {/* XP reward badge */}
+                                        <div className="flex items-center gap-1 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-xl text-amber-600 font-black text-xs shrink-0 shadow-3xs">
+                                            <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                                            <span>+{xpReward} XP</span>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    )}
                 </div>
 
                 {/* Kanban Section (Preview) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
                     {['A Fazer', 'Em Progresso', 'Feito'].map((status) => {
-                        const statusTasks = tasks.filter(t => t.status === status).slice(0, 3)
+                        const statusTasks = todayTasks.filter(t => t.status === status)
 
                         return (
                             <div key={status} className="flex flex-col gap-3">
-                                <h4 className="text-[10px] font-extrabold text-gray-300 uppercase tracking-[0.2em] text-center lg:text-left pl-1">{status}</h4>
+                                <h4 className="text-[9px] font-black text-(--color-text-muted) uppercase tracking-widest text-center lg:text-left pl-1">{status}</h4>
 
                                 {statusTasks.map((task) => (
                                     <div
                                         key={task.id}
                                         onClick={() => handleTaskClick(task)}
-                                        className="bg-white rounded-[20px] p-5 shadow-[0_2px_20px_-5px_rgba(0,0,0,0.03)] hover:-translate-y-1 transition-transform duration-300 cursor-pointer"
+                                        className="card-3d p-5 cursor-pointer hover:-translate-y-1 transition-all duration-300"
                                         title="Clique para abrir o espaço de trabalho (Pomodoro, Notas, Checklists)"
                                     >
                                         <div className="flex justify-between items-start mb-3">
-                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 ${priorityColors[task.priority]?.text || 'text-gray-500'}`}>
+                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-(--color-surface-elevated) ${priorityColors[task.priority]?.text || 'text-(--color-text-muted)'}`}>
                                                 P{task.priority}
                                             </span>
                                             {task.due_date && (
@@ -247,10 +286,10 @@ export default function Home({ profile, onNavigate }) {
                                             )}
                                         </div>
 
-                                        <p className="text-[11px] font-bold text-gray-700 mb-4 line-clamp-2">{task.title}</p>
+                                        <p className="text-[11px] font-bold text-(--color-text-secondary) mb-4 line-clamp-2">{task.title}</p>
 
-                                        <div className="flex items-center gap-3 text-gray-300">
-                                            <div className="h-1 flex-1 bg-gray-100 rounded-full overflow-hidden">
+                                        <div className="flex items-center gap-3 text-(--color-text-muted)">
+                                            <div className="h-1.5 flex-1 bg-(--color-surface-elevated) rounded-full overflow-hidden">
                                                 <div
                                                     className={`h-full rounded-full ${task.status === 'Feito' ? 'bg-green-400' : 'bg-blue-400'}`}
                                                     style={{ width: `${task.status === 'Feito' ? 100 : (task.progress || 0)}%` }}
@@ -260,7 +299,7 @@ export default function Home({ profile, onNavigate }) {
                                     </div>
                                 ))}
                                 {statusTasks.length === 0 && (
-                                    <div className="text-center py-4 text-xs text-gray-300 border-2 border-dashed border-gray-100 rounded-xl">
+                                    <div className="text-center py-5 text-xs font-bold text-(--color-text-muted) border-2 border-dashed border-(--color-border) rounded-2xl bg-white/50">
                                         Vazio
                                     </div>
                                 )}
@@ -273,75 +312,59 @@ export default function Home({ profile, onNavigate }) {
             {/* RIGHT COLUMN: Stats */}
             <div className="col-span-12 xl:col-span-3 flex flex-col sm:flex-row xl:flex-col gap-6 pt-0 lg:pt-4">
 
-                {/* 1. Overview Widget */}
+                {/* 2. Overview Widget */}
                 <div className="flex-1 xl:flex-none">
-                    <h3 className="text-sm font-bold text-gray-900 mb-4 pl-2">Visão Geral</h3>
-                    <div className="bg-white rounded-[30px] p-6 shadow-[0_2px_30px_-5px_rgba(0,0,0,0.03)] space-y-4">
+                    <h3 className="text-sm font-bold text-(--color-text-primary) mb-4 pl-2">Progresso de Tarefas</h3>
+                    <div className="card-3d p-6 space-y-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                                <div className="w-10 h-10 rounded-2xl bg-blue-50 border-2 border-blue-100 flex items-center justify-center text-blue-600">
                                     <Calendar className="w-5 h-5" />
                                 </div>
-                                <span className="text-sm font-medium text-gray-600">Total</span>
+                                <span className="text-xs font-black text-slate-500 uppercase tracking-wide">Total</span>
                             </div>
-                            <span className="text-xl font-bold text-gray-900">{stats.total}</span>
+                            <span className="text-lg font-black text-(--color-text-primary)">{stats.total}</span>
                         </div>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                                <div className="w-10 h-10 rounded-2xl bg-emerald-50 border-2 border-emerald-100 flex items-center justify-center text-emerald-600">
                                     <CheckCircle2 className="w-5 h-5" />
                                 </div>
-                                <span className="text-sm font-medium text-gray-600">Concluídas</span>
+                                <span className="text-xs font-black text-slate-500 uppercase tracking-wide">Concluídas</span>
                             </div>
-                            <span className="text-xl font-bold text-gray-900">{stats.done}</span>
+                            <span className="text-lg font-black text-(--color-text-primary)">{stats.done}</span>
                         </div>
                     </div>
                 </div>
 
-                {/* 2. Performance Widget (NEW) */}
+                {/* 3. Performance Widget */}
                 <div className="flex-1 xl:flex-none">
-                    <h3 className="text-sm font-bold text-gray-900 mb-4 pl-2">Desempenho (Últimas 5)</h3>
-                    <div className="bg-white rounded-[30px] p-6 shadow-[0_2px_30px_-5px_rgba(0,0,0,0.03)]">
-                        {tasks.filter(t => t.status === 'Feito').slice(0, 5).length === 0 ? (
-                            <p className="text-xs text-center text-gray-400 py-4">Nenhuma tarefa concluída ainda.</p>
+                    <h3 className="text-sm font-bold text-(--color-text-primary) mb-4 pl-2">Últimas Conquistas</h3>
+                    <div className="card-3d p-6">
+                        {tasks.filter(t => t.status === 'Feito').slice(0, 3).length === 0 ? (
+                            <p className="text-xs text-center text-gray-400 py-4 font-bold">Nenhuma tarefa concluída ainda.</p>
                         ) : (
                             <div className="space-y-4">
-                                {tasks.filter(t => t.status === 'Feito').slice(0, 5).map(task => {
+                                {tasks.filter(t => t.status === 'Feito').slice(0, 3).map(task => {
                                     const estimated = (task.estimated_minutes || 0) * 60
                                     const actual = task.time_spent || 0
                                     const diff = estimated > 0 ? ((actual - estimated) / estimated) * 100 : 0
-                                    const isLate = diff > 10 // >10% over
-                                    const isFast = diff < -10 // >10% under
-
-                                    // Duration (Days)
-                                    const start = new Date(task.created_at)
-                                    const end = task.completed_at ? new Date(task.completed_at) : new Date()
-                                    const days = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)))
+                                    const isLate = diff > 10
+                                    const isFast = diff < -10
 
                                     return (
-                                        <div key={task.id} className="border-b border-gray-50 last:border-0 pb-3 last:pb-0">
-                                            <div className="flex justify-between items-start mb-1">
-                                                <span className="text-xs font-bold text-gray-700 truncate max-w-[120px]" title={task.title}>{task.title}</span>
-                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isLate ? 'bg-red-50 text-red-600' : isFast ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-600'}`}>
-                                                    {isLate ? 'Atrasado' : isFast ? 'Rápido' : 'No Prazo'}
+                                        <div key={task.id} className="border-b border-gray-100 last:border-0 pb-3 last:pb-0">
+                                            <div className="flex justify-between items-start mb-1 min-w-0">
+                                                <span className="text-xs font-black text-slate-700 truncate pr-2" title={task.title}>{task.title}</span>
+                                                <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded border shrink-0 ${
+                                                    isLate ? 'bg-red-50 text-red-600 border-red-200' : isFast ? 'bg-green-50 text-green-600 border-green-200' : 'bg-blue-50 text-blue-600 border-blue-200'
+                                                }`}>
+                                                    {isLate ? 'Atrasado' : isFast ? 'Rápido' : 'No Alvo'}
                                                 </span>
                                             </div>
-
-                                            <div className="flex justify-between text-[10px] text-gray-400 mb-1">
-                                                <span>Est: {task.estimated_minutes || 0}m</span>
-                                                <span>Real: {Math.round(actual / 60)}m</span>
-                                            </div>
-
-                                            {/* Mini Bar Comparison */}
-                                            <div className="h-1.5 bg-gray-100 dark:bg-neutral-800 rounded-full overflow-hidden">
-                                                <div
-                                                    className={`h-full rounded-full transition-all duration-500 ${isLate ? 'bg-red-500' : 'bg-green-500'}`}
-                                                    style={{ width: `${estimated > 0 ? Math.min(100, (actual / estimated) * 100) : 0}%` }}
-                                                />
-                                            </div>
-
-                                            <div className="text-[9px] text-gray-300 mt-1 text-right">
-                                                Duração: {days} dia(s)
+                                            <div className="flex justify-between text-[10px] font-bold text-slate-400 mt-1">
+                                                <span>Foco: {Math.round(actual / 60)}m</span>
+                                                <span className="text-amber-500 font-extrabold">+{(6 - (task.priority || 3)) * 20} XP</span>
                                             </div>
                                         </div>
                                     )
@@ -349,11 +372,6 @@ export default function Home({ profile, onNavigate }) {
                             </div>
                         )}
                     </div>
-                </div>
-
-                {/* 3. Efficiency Widget (Simplified) */}
-                <div className="flex-1 xl:flex-none">
-                    {/* ... keep existing circular chart if desired, or replace ... */}
                 </div>
             </div>
 

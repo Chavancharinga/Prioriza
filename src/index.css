@@ -5,55 +5,49 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Colors */
+  /* Brand Colors (from the Prioriza logo) */
+  --color-prioriza-navy: #0A1128;
+  --color-prioriza-blue: #2563EB;
+  --color-prioriza-coral: #F43F5E;
+  --color-prioriza-orange: #F97316;
+  --color-prioriza-cyan: #06B6D4;
+
+  /* Primary Color Scale */
   --color-primary-50: #EFF6FF;
   --color-primary-100: #DBEAFE;
   --color-primary-500: #3B82F6;
   --color-primary-600: #2563EB;
   --color-primary-700: #1D4ED8;
 
-  --color-prioriza-navy: #1E3A8A;
-  --color-prioriza-blue: #3B82F6;
-  --color-prioriza-coral: #F87171;
-  --color-prioriza-orange: #FB923C;
-  --color-prioriza-cyan: #06B6D4;
-
   /* Gamification Colors */
-  --color-prioriza-gold: #F59E0B;
+  --color-prioriza-gold: #EAB308;
   --color-prioriza-xp: #10B981;
-  --color-prioriza-focus: #3B82F6;
+  --color-prioriza-focus: #2563EB;
   --color-prioriza-danger: #EF4444;
 
-  /* Surface Colors (Light) */
-  --color-surface: #F5F7FA;
-  --color-surface-card: #FFFFFF;
-  --color-surface-elevated: #FFFFFF;
+  /* ── Duolingo-Inspired Gamified Theme ─────────────────────────── */
+  /* Canvas (page background) */
+  --color-surface: #F3F4F6;           /* Very friendly light grey canvas */
+  --color-surface-card: #FFFFFF;     /* White cards/panels for high contrast */
+  --color-surface-elevated: #E5E7EB; /* Subtle grey for secondary surfaces */
 
-  /* Text Colors (Light) */
-  --color-text-primary: #111827;
-  --color-text-secondary: #6B7280;
-  --color-text-muted: #9CA3AF;
+  /* Sidebar (Duolingo Style: Clean White & Bold Accents) */
+  --color-sidebar-bg: #FFFFFF;       /* Pure white sidebar */
+  --color-sidebar-text: #777777;     /* Dark grey for inactive icons/text */
+  --color-sidebar-active: #2563EB;   /* Logo blue for active navigation */
+  --color-sidebar-hover: #F3F4F6;     /* Light grey hover background */
 
-  /* Border (Light) */
-  --color-border: #E5E7EB;
-  --color-border-light: #F3F4F6;
+  /* Text */
+  --color-text-primary: #3C3C3C;     /* Slate-800 for high-readability text */
+  --color-text-secondary: #4B4B4B;   /* Slate-700 secondary text */
+  --color-text-muted: #777777;       /* Slate-500 muted text */
+
+  /* Borders */
+  --color-border: #E5E7EB;           /* Clean 2px borders */
+  --color-border-light: #F3F4F6;     /* Very subtle dividers */
 
   /* Font Family */
   --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-/* Dark Mode Overrides */
-.dark {
-  --color-surface: #06080F;
-  --color-surface-card: rgba(20, 25, 40, 0.45);
-  --color-surface-elevated: rgba(30, 41, 59, 0.55);
-
-  --color-text-primary: #F9FAFB;
-  --color-text-secondary: #9CA3AF;
-  --color-text-muted: #6B7280;
-
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-light: rgba(255, 255, 255, 0.04);
 }
 
 /* Base Styles */
@@ -77,7 +71,6 @@
     line-height: 1.5;
     color: var(--color-text-primary);
     background-color: var(--color-surface);
-    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   /* Accessibility */
@@ -93,7 +86,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid #3B82F6;
+    outline: 2px solid var(--color-prioriza-blue);
     outline-offset: 2px;
     border-radius: 0.5rem;
   }
@@ -111,61 +104,22 @@
 
   /* Hide scrollbars globally */
   * {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
   *::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
+    display: none;
   }
 
   .card-shadow {
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 6px 16px -4px rgba(0, 0, 0, 0.08);
   }
-}
-
-/* label placeholder aria-label */
-
-/* Tiptap / ProseMirror Dark Mode Overrides */
-.dark .ProseMirror {
-  color: #e2e8f0; /* slate-200 */
-}
-
-.dark .ProseMirror strong,
-.dark .ProseMirror b {
-  color: #f1f5f9; /* slate-100 - visible bold in dark mode */
-  font-weight: 700;
-}
-
-.dark .ProseMirror em {
-  color: #cbd5e1; /* slate-300 */
-}
-
-.dark .ProseMirror h1,
-.dark .ProseMirror h2,
-.dark .ProseMirror h3 {
-  color: #f8fafc; /* slate-50 */
-}
-
-.dark .ProseMirror span[data-heading-inline] {
-  color: #f8fafc;
-}
-
-.dark .ProseMirror blockquote {
-  border-left-color: #475569;
-  color: #94a3b8;
-}
-
-.dark .ProseMirror p.is-editor-empty::before {
-  color: #475569; /* slate-600 placeholder in dark */
 }
 
 /* Scrollbar fix for custom-scrollbar class */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
-}
-.dark .custom-scrollbar {
-  scrollbar-color: rgba(75, 85, 99, 0.4) transparent;
+  scrollbar-color: rgba(100, 116, 139, 0.35) transparent;
 }
 .custom-scrollbar::-webkit-scrollbar {
   display: block !important;
@@ -176,11 +130,8 @@
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(156, 163, 175, 0.4);
+  background-color: rgba(100, 116, 139, 0.35);
   border-radius: 9999px;
-}
-.dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(75, 85, 99, 0.4);
 }
 
 @keyframes prioriza-rotation {
@@ -201,7 +152,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Keep essential loading spinners running even if reduced motion is requested */
   .animate-spin {
     animation: prioriza-rotation 1s linear infinite !important;
   }
@@ -223,68 +173,97 @@
 .skeleton {
   position: relative;
   overflow: hidden;
-  background-color: #e5e7eb; /* tailwind-gray-200 */
+  background-color: #E5E7EB; /* Softer, lighter grey */
   background-image: linear-gradient(
     90deg,
-    #e5e7eb 0px,
-    #f3f4f6 40px,
-    #e5e7eb 80px
+    #E5E7EB 0px,
+    #F3F4F6 40px,
+    #E5E7EB 80px
   );
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s infinite linear;
 }
 
-.dark .skeleton {
-  background-color: #232633; /* dark mode surface-elevated */
-  background-image: linear-gradient(
-    90deg,
-    #232633 0px,
-    #2d3040 40px,
-    #232633 80px
-  );
+/* Subtle blue radial glow at top of the page */
+body {
+  background-image: radial-gradient(ellipse at 50% -10%, rgba(37, 99, 235, 0.07), transparent 60%);
 }
 
-/* Premium Gamified Dark Mode Overrides */
-.dark body {
-  background-color: var(--color-surface);
-  background-image: radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.07), transparent 70%);
-}
-
-/* Premium Glassmorphic Cards & Panels in Dark Mode */
-.dark .bg-white.dark\:bg-\(--color-surface-card\),
-.dark [class*="bg-(--color-surface-card)"] {
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.05) !important;
-}
-
-/* Custom interactive spring clicks on buttons and active tabs */
-.dark button:active,
-.dark a:active,
-.dark [role="button"]:active {
+/* Interactive spring press */
+button:active,
+a:active,
+[role="button"]:active {
   transform: scale(0.97);
 }
 
-.dark button,
-.dark a,
-.dark [role="button"] {
+button,
+a,
+[role="button"] {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Level Up / XP Progression Subtle Shadows */
 .xp-progress-bar-glow {
-  box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.12);
 }
 
 .gold-stat-badge-glow {
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.15);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.12);
 }
 
-/* Ensure clean border styles in dark mode */
-.dark .border-gray-100,
-.dark .border-neutral-100 {
-  border-color: var(--color-border);
+/* ── Duolingo 3D Styles ── */
+.btn-3d-primary {
+  background-color: var(--color-prioriza-blue) !important;
+  border: 2px solid #1D4ED8 !important;
+  border-bottom: 5px solid #1D4ED8 !important;
+  color: #FFFFFF !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+.btn-3d-primary:active {
+  transform: translateY(2px) !important;
+  border-bottom-width: 2px !important;
+  margin-bottom: 2px !important;
 }
 
+.btn-3d-secondary {
+  background-color: #FFFFFF !important;
+  border: 2px solid #E5E7EB !important;
+  border-bottom: 5px solid #D1D5DB !important;
+  color: #4B5563 !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+.btn-3d-secondary:active {
+  transform: translateY(2px) !important;
+  border-bottom-width: 2px !important;
+  margin-bottom: 2px !important;
+}
 
+.btn-3d-danger {
+  background-color: var(--color-prioriza-coral) !important;
+  border: 2px solid #E11D48 !important;
+  border-bottom: 5px solid #BE123C !important;
+  color: #FFFFFF !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+.btn-3d-danger:active {
+  transform: translateY(2px) !important;
+  border-bottom-width: 2px !important;
+  margin-bottom: 2px !important;
+}
+
+.card-3d {
+  background-color: #FFFFFF !important;
+  border: 2px solid #E5E7EB !important;
+  border-bottom: 6px solid #E5E7EB !important;
+  border-radius: 24px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) !important;
+  transition: transform 0.2s ease, border-color 0.2s ease !important;
+}
+.card-3d:hover {
+  border-color: #CBD5E1 !important;
+  border-bottom-color: #CBD5E1 !important;
+}
 

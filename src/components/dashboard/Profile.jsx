@@ -147,7 +147,14 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
             })
         } catch (err) {
             console.error('Error generating mock tasks:', err)
-            alert('Erro ao gerar tarefas: ' + err.message)
+            setConfirmation({
+                isOpen: true,
+                type: 'danger',
+                title: 'Erro ao Gerar Tarefas',
+                message: err.message,
+                onConfirm: () => setConfirmation(prev => ({ ...prev, isOpen: false })),
+                cancelText: null
+            })
         } finally {
             setGeneratingMocks(false)
         }
@@ -455,6 +462,7 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
                 message={confirmation.message}
                 onConfirm={confirmation.onConfirm}
                 onCancel={() => setConfirmation(prev => ({ ...prev, isOpen: false }))}
+                cancelText={confirmation.cancelText === undefined ? null : confirmation.cancelText}
             />
         </div>
     )

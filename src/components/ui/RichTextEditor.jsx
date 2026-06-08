@@ -50,8 +50,8 @@ const ToolbarButton = ({ onClick, isActive, disabled, children, title, className
         title={title}
         className={`p-1.5 md:p-2 rounded-lg transition-colors flex items-center justify-center shrink-0 ${className} ${
             isActive
-                ? 'bg-blue-100/50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400'
-                : 'text-slate-600 hover:bg-gray-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-slate-200'
+                ? 'bg-blue-100/50 text-blue-600'
+                : 'text-slate-600 hover:bg-gray-100 hover:text-slate-900'
         } ${disabled ? 'opacity-30 cursor-not-allowed hidden md:flex' : ''}`}
     >
         {children}
@@ -100,7 +100,7 @@ const MenuBar = ({ editor }) => {
     }
 
     return (
-        <div className="flex items-center gap-1 p-2 flex-wrap border-b border-gray-200 dark:border-slate-700/50 bg-gray-50 dark:bg-[#0f172a]/50 border-t border-x rounded-t-xl shrink-0 relative z-50">
+        <div className="flex items-center gap-1 p-2 flex-wrap border-b border-gray-200 bg-gray-50 border-t border-x rounded-t-xl shrink-0 relative z-50">
             <ToolbarButton
                 onClick={() => editor.chain().focus().toggleBold().run()}
                 isActive={editor.isActive('bold')}
@@ -123,7 +123,7 @@ const MenuBar = ({ editor }) => {
                 <Strikethrough className="w-4 h-4" />
             </ToolbarButton>
 
-            <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
+            <div className="w-px h-6 bg-slate-200 mx-1"></div>
 
             <ToolbarButton
                 onClick={() => toggleHeading(1)}
@@ -140,7 +140,7 @@ const MenuBar = ({ editor }) => {
                 <Heading2 className="w-4 h-4" />
             </ToolbarButton>
 
-            <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
+            <div className="w-px h-6 bg-slate-200 mx-1"></div>
 
             <ToolbarButton
                 onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -164,7 +164,7 @@ const MenuBar = ({ editor }) => {
                 <Quote className="w-4 h-4" />
             </ToolbarButton>
 
-            <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1"></div>
+            <div className="w-px h-6 bg-slate-200 mx-1"></div>
 
             {/* Highlight / Marca Texto */}
             <ToolbarButton
@@ -180,7 +180,7 @@ const MenuBar = ({ editor }) => {
                     key={color}
                     type="button"
                     onClick={() => applyColor(color)}
-                    className="w-5 h-5 rounded-full border-2 border-white/10 dark:border-slate-600 hover:scale-125 hover:border-blue-400 transition-all  cursor-pointer shrink-0"
+                    className="w-5 h-5 rounded-full border-2 border-white/10 hover:scale-125 hover:border-blue-400 transition-all  cursor-pointer shrink-0"
                     style={{ backgroundColor: color }}
                     title="Aplicar Cor"
                 />
@@ -189,14 +189,14 @@ const MenuBar = ({ editor }) => {
                 <button
                     type="button"
                     onClick={removeHighlight}
-                    className="w-5 h-5 rounded-full border-2 border-white/10 dark:border-slate-600 flex items-center justify-center text-slate-400 hover:text-red-500 hover:border-red-400 hover:scale-125 transition-all bg-[#0A101A] dark:bg-slate-900 cursor-pointer shrink-0"
+                    className="w-5 h-5 rounded-full border-2 border-white/10 flex items-center justify-center text-slate-400 hover:text-red-500 hover:border-red-400 hover:scale-125 transition-all bg-[#0A101A] cursor-pointer shrink-0"
                     title="Remover Marca Texto"
                 >
                     <Undo className="w-3 h-3" />
                 </button>
             )}
 
-            <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1 hidden md:block"></div>
+            <div className="w-px h-6 bg-slate-200 mx-1 hidden md:block"></div>
 
             <div className="hidden md:flex ml-auto items-center gap-1">
                 <ToolbarButton
@@ -251,7 +251,7 @@ export default function RichTextEditor({ content, onChange, readOnly = false, pl
         },
         editorProps: {
             attributes: {
-                class: 'prose dark:prose-invert prose-sm sm:prose-base max-w-none focus:outline-none p-4 w-full h-full min-h-[300px] text-slate-800 dark:text-slate-100',
+                class: 'prose prose-sm sm:prose-base max-w-none focus:outline-none p-4 w-full h-full min-h-[300px] text-slate-800',
             },
         },
     })
@@ -274,21 +274,21 @@ export default function RichTextEditor({ content, onChange, readOnly = false, pl
     return (
         <div className={`flex flex-col w-full h-full relative group ${readOnly ? 'opacity-80' : ''}`}>
             {!readOnly && <MenuBar editor={editor} />}
-            <div className={`flex-1 bg-white dark:bg-[#0B1324] overflow-y-auto custom-scrollbar 
-                 ${!readOnly ? 'border-x border-gray-200 dark:border-slate-700/50 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/50 transition-all' : 'bg-transparent dark:bg-transparent'}
+            <div className={`flex-1 bg-(--color-surface-card) overflow-y-auto custom-scrollbar 
+                 ${!readOnly ? 'border-x border-gray-200 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/50 transition-all' : 'bg-transparent'}
             `}>
                 <EditorContent editor={editor} className="h-full flex flex-col" />
             </div>
             {/* Word Count Status Bar */}
             {!readOnly && (
-                <div className="flex items-center justify-between px-3 py-1.5 bg-gray-50 dark:bg-slate-900/50 border border-t-0 border-gray-200 dark:border-slate-700/50 rounded-b-xl text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                <div className="flex items-center justify-between px-3 py-1.5 bg-gray-50 border border-t-0 border-gray-200 rounded-b-xl text-[10px] text-slate-500 font-medium">
                     <div className="flex items-center gap-3">
                         <span>{wordCount.words} palavras</span>
-                        <span className="text-slate-300 dark:text-slate-300">•</span>
+                        <span className="text-slate-300">•</span>
                         <span>{wordCount.chars} caracteres</span>
                     </div>
                     {readingTime && (
-                        <span className="text-slate-400 dark:text-slate-500">{readingTime}</span>
+                        <span className="text-slate-400">{readingTime}</span>
                     )}
                 </div>
             )}

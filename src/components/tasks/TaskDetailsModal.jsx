@@ -353,7 +353,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
         } else {
             setConfirmation({
                 isOpen: true,
-                type: 'success',
+                type: 'info',
                 title: 'Concluir Tarefa',
                 message: 'Tem certeza que deseja marcar esta tarefa como concluída? O cronômetro será parado.',
                 confirmText: 'Concluir Tarefa',
@@ -410,7 +410,15 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                     })
                 } catch (error) {
                     console.error('Error reactivating task:', error)
-                    alert(`Erro ao reativar tarefa: ${error.message || 'Erro desconhecido'}`)
+                    setConfirmation({
+                        isOpen: true,
+                        type: 'danger',
+                        title: 'Erro ao Reativar Tarefa',
+                        message: error.message || 'Erro desconhecido',
+                        confirmText: 'Ok',
+                        cancelText: null,
+                        onConfirm: () => setConfirmation(prev => ({ ...prev, isOpen: false }))
+                    })
                 }
             }
         })
@@ -684,7 +692,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
 
     return (
         // Full-screen workspace with dark mode support
-        <div className="fixed inset-0 z-50 bg-gray-50 dark:bg-neutral-900 flex flex-col animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-(--color-surface) flex flex-col animate-in fade-in zoom-in-95 duration-200">
 
             {/* Custom Exit Alert Modal */}
             {showExitAlert && (
@@ -731,30 +739,31 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
             <ConfirmationModal
                 isOpen={confirmation.isOpen}
                 onClose={() => setConfirmation(prev => ({ ...prev, isOpen: false }))}
-                onConfirm={confirmation.onConfirm}
+                onConfirm={confirmation.onConfirm || (() => setConfirmation(prev => ({ ...prev, isOpen: false })))}
                 title={confirmation.title}
                 message={confirmation.message}
                 type={confirmation.type}
                 confirmText={confirmation.confirmText}
+                cancelText={confirmation.cancelText === undefined ? null : confirmation.cancelText}
             />
 
             {/* Header - Full Width */}
-            <div className="bg-white dark:bg-neutral-800 border-b border-gray-200 dark:border-neutral-700 shadow-sm shrink-0 z-10">
+            <div className="bg-white border-b-2 border-slate-200 shadow-sm shrink-0 z-10">
                 <div className="max-w-[1600px] mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-4 flex-1 min-w-0">
                         <button
                             onClick={handleBack}
-                            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors mr-2 shrink-0"
+                            className="p-2 text-slate-600 bg-white border-2 border-slate-200 border-b-[4px] border-b-slate-350 active:translate-y-[2px] active:border-b-[2px] rounded-xl mr-2 shrink-0 flex items-center justify-center transition-all"
                         >
-                            <ArrowLeft className="w-6 h-6" />
+                            <ArrowLeft className="w-5 h-5" />
                         </button>
  
                         {loading ? (
                             <div className="h-6 w-64 bg-gray-200 rounded animate-pulse"></div>
                         ) : task ? (
                             <div className="flex items-center gap-4 min-w-0">
-                                <h2 className="text-sm sm:text-base md:text-xl font-bold text-gray-900 dark:text-gray-100 truncate max-w-[100px] sm:max-w-xs md:max-w-md" title={task.title}>{task.title}</h2>
-                                <span className={`hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold shrink-0 
+                                <h2 className="text-sm sm:text-base md:text-xl font-black text-slate-800 truncate max-w-[100px] sm:max-w-xs md:max-w-md" title={task.title}>{task.title}</h2>
+                                <span className={`hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold shrink-0 
                                     ${task.status === 'Feito' ? 'bg-green-100 text-green-700' :
                                         task.status === 'Em Progresso' ? 'bg-blue-100 text-blue-700' :
                                             'bg-gray-100 text-gray-700'}`}>
@@ -770,7 +779,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                         {task && task.status !== 'Feito' && (
                             <button
                                 onClick={handleComplete}
-                                className="px-3 py-2 sm:px-5 sm:py-2.5 bg-emerald-600 text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-emerald-500 flex items-center gap-2 shadow-lg shadow-emerald-100 transition-all active:scale-95"
+                                className="px-3.5 py-2 sm:px-5 sm:py-2 bg-emerald-500 text-white rounded-2xl text-xs sm:text-sm font-black border-2 border-emerald-600 border-b-[5px] border-b-emerald-700 flex items-center gap-2 transition-all cursor-pointer active:translate-y-[2px] active:border-b-[2px]"
                             >
                                 <CheckCircle className="w-4 h-4" />
                                 <span className="hidden md:inline">Concluir</span>
@@ -779,7 +788,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                         {task && task.status === 'Feito' && (!task.due_date || new Date() <= new Date(task.due_date)) && (
                             <button
                                 onClick={handleReactivate}
-                                className="px-3 py-2 sm:px-5 sm:py-2.5 bg-blue-600 text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-blue-500 flex items-center gap-2 shadow-lg shadow-blue-100 transition-all active:scale-95"
+                                className="px-3.5 py-2 sm:px-5 sm:py-2 bg-blue-500 text-white rounded-2xl text-xs sm:text-sm font-black border-2 border-blue-600 border-b-[5px] border-b-blue-700 flex items-center gap-2 transition-all cursor-pointer active:translate-y-[2px] active:border-b-[2px]"
                             >
                                 <RotateCcw className="w-4 h-4" />
                                 <span className="hidden md:inline">Ativar</span>
@@ -788,7 +797,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                         <button
                             onClick={handleSave}
                             disabled={!task}
-                            className="px-3 py-2 sm:px-5 sm:py-2.5 bg-gray-900 text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-gray-800 flex items-center gap-2 shadow-lg shadow-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+                            className="px-3.5 py-2 sm:px-5 sm:py-2 bg-slate-900 text-white rounded-2xl text-xs sm:text-sm font-black border-2 border-slate-950 border-b-[5px] border-b-slate-950 flex items-center gap-2 transition-all cursor-pointer active:translate-y-[2px] active:border-b-[2px] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <Save className="w-4 h-4" />
                             <span className="hidden md:inline">Salvar</span>
@@ -809,18 +818,22 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                             {/* Left Column: Timer & Metadata (Sticky on Desktop) */}
                             <div className="lg:col-span-3 space-y-6 order-2 lg:order-none">
                                 {/* Timer Widget - Hero Style */}
-                                <div className={`bg-linear-to-br rounded-2xl p-8 text-white shadow-2xl shadow-blue-900/20 relative overflow-hidden transition-all duration-500 ${pomodoroMode === 'focus' ? 'from-rose-600 to-red-700' : 'from-emerald-600 to-green-700'}`}>
+                                <div className={`bg-linear-to-br rounded-3xl p-8 text-white relative overflow-hidden transition-all duration-500 border-2 border-b-[6px] shadow-sm ${
+                                    pomodoroMode === 'focus' 
+                                        ? 'from-rose-500 to-red-600 border-red-700 border-b-red-800' 
+                                        : 'from-emerald-500 to-green-600 border-green-700 border-b-green-800'
+                                }`}>
                                     <div className="absolute top-0 right-0 p-8 opacity-10">
                                         <Clock className="w-32 h-32" />
                                     </div>
 
                                     <div className="relative z-10 flex flex-col items-center text-center">
-                                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-bold uppercase tracking-wider mb-2 backdrop-blur-sm">
+                                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-black uppercase tracking-wider mb-2 backdrop-blur-sm">
                                             <Clock className="w-3 h-3" />
-                                            {pomodoroMode === 'focus' ? '🍅 Foco Pomodoro' : '☕ Intervalo'}
+                                            {pomodoroMode === 'focus' ? 'Foco Pomodoro' : 'Intervalo'}
                                         </div>
 
-                                        <div className="text-[10px] font-bold text-white/60 uppercase mb-3 tracking-widest">
+                                        <div className="text-[10px] font-bold text-white/70 uppercase mb-3 tracking-widest">
                                             Ciclos concluídos: {completedCycles}
                                         </div>
 
@@ -831,12 +844,15 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                         <button
                                             onClick={handleToggleTimer}
                                             disabled={task.status === 'Feito'}
-                                            className={`w-full py-3.5 rounded-xl font-bold text-base flex items-center justify-center gap-3 transition-all transform active:scale-95 shadow-xl ${task.status === 'Feito'
-                                                ? 'bg-white/20 text-white/50 cursor-not-allowed shadow-none'
-                                                : isPomodoroActive
-                                                    ? 'bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/20'
-                                                    : 'bg-white text-red-600 hover:bg-red-50 hover:shadow-2xl'
-                                                }`}
+                                            className={`w-full py-3.5 rounded-xl font-black text-base flex items-center justify-center gap-3 transition-all ${
+                                                task.status === 'Feito'
+                                                    ? 'bg-white/20 text-white/50 cursor-not-allowed shadow-none'
+                                                    : isPomodoroActive
+                                                        ? 'bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md active:translate-y-[1px]'
+                                                        : pomodoroMode === 'focus'
+                                                            ? 'bg-white text-red-600 border-2 border-red-100 border-b-[5px] border-b-red-200 hover:bg-red-50 cursor-pointer active:translate-y-[2px] active:border-b-[2px]'
+                                                            : 'bg-white text-emerald-600 border-2 border-emerald-100 border-b-[5px] border-b-emerald-200 hover:bg-emerald-50 cursor-pointer active:translate-y-[2px] active:border-b-[2px]'
+                                            }`}
                                         >
                                             {task.status === 'Feito' ? (
                                                 <>
@@ -854,16 +870,16 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                         </button>
 
                                         {task.status !== 'Feito' && (
-                                            <div className="flex gap-2 w-full mt-3">
+                                            <div className="flex gap-2 w-full mt-4">
                                                 <button
                                                     onClick={handleResetTimer}
-                                                    className="flex-1 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-bold transition-all border border-white/10"
+                                                    className="flex-1 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition-all border-2 border-white/10 border-b-[4px] border-b-white/20 active:translate-y-[1px] active:border-b-[2px]"
                                                 >
                                                     Reiniciar
                                                 </button>
                                                 <button
                                                     onClick={handleSkipTimer}
-                                                    className="flex-1 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-bold transition-all border border-white/10"
+                                                    className="flex-1 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition-all border-2 border-white/10 border-b-[4px] border-b-white/20 active:translate-y-[1px] active:border-b-[2px]"
                                                 >
                                                     Pular
                                                 </button>
@@ -873,7 +889,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                 </div>
 
                                 {/* Progresso de Foco Real (Stopwatch) */}
-                                <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all space-y-4">
+                                <div className="card-3d p-5 space-y-4">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <div className="p-1 bg-amber-50 rounded text-amber-600">
@@ -891,14 +907,14 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                         )}
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4 border-b border-gray-50 pb-3">
+                                    <div className="grid grid-cols-2 gap-4 border-b border-gray-150 pb-3">
                                         <div>
                                             <p className="text-[10px] text-gray-400 uppercase font-bold">Nesta Sessão</p>
-                                            <p className="text-lg font-black text-gray-800 font-mono">{formatTime(sessionTimeSpent)}</p>
+                                            <p className="text-lg font-black text-slate-800 font-mono">{formatTime(sessionTimeSpent)}</p>
                                         </div>
                                         <div>
                                             <p className="text-[10px] text-gray-400 uppercase font-bold">Tempo Total</p>
-                                            <p className="text-lg font-black text-gray-800 font-mono">{formatSeconds((task.time_spent || 0) + sessionTimeSpent)}</p>
+                                            <p className="text-lg font-black text-slate-800 font-mono">{formatSeconds((task.time_spent || 0) + sessionTimeSpent)}</p>
                                         </div>
                                     </div>
 
@@ -918,9 +934,9 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                                 const isOver = totalSeconds > estimatedSeconds
                                                 return (
                                                     <div className="space-y-1.5">
-                                                        <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                                                        <div className="h-2.5 w-full bg-slate-100 border border-slate-200 rounded-full overflow-hidden flex items-center p-[0.5px] shadow-inner">
                                                             <div
-                                                                className={`h-full rounded-full transition-all duration-300 ${isOver ? 'bg-orange-500' : 'bg-blue-600'}`}
+                                                                className={`h-full rounded-full transition-all duration-300 ${isOver ? 'bg-linear-to-r from-orange-400 to-amber-500' : 'bg-linear-to-r from-blue-400 to-indigo-500'}`}
                                                                 style={{ width: `${percent}%` }}
                                                             />
                                                         </div>
@@ -941,24 +957,24 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
 
                                 {/* Smart Metadata Grid */}
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="card-3d p-5">
                                         <p className="text-xs text-gray-500 uppercase font-bold mb-2">Estimativa Total</p>
-                                        <div className="flex items-center gap-2 text-gray-900">
+                                        <div className="flex items-center gap-2 text-(--color-text-primary)">
                                             <Clock className="w-5 h-5 text-gray-400" />
                                             <span className="text-xl font-bold">{task.estimated_minutes || 0}m</span>
                                         </div>
                                     </div>
-                                    <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="card-3d p-5">
                                         <p className="text-xs text-gray-500 uppercase font-bold mb-2">Prioridade</p>
                                         <div className="flex items-center gap-2">
-                                        <div className={`w-3 h-3 rounded-full ${
+                                            <div className={`w-3 h-3 rounded-full ${
                                                 task.priority === 1 ? 'bg-rose-600' :
                                                 task.priority === 2 ? 'bg-red-500' :
                                                 task.priority === 3 ? 'bg-orange-500' :
                                                 task.priority === 4 ? 'bg-yellow-500' :
                                                 'bg-blue-500'
                                             }`}></div>
-                                            <span className="text-sm font-bold text-gray-900 dark:text-white">
+                                            <span className="text-sm font-bold text-(--color-text-primary)">
                                                 {task.priority === 1 ? 'Crítica' :
                                                     task.priority === 2 ? 'Alta' :
                                                         task.priority === 3 ? 'Média' :
@@ -966,12 +982,12 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                             </span>
                                         </div>
                                     </div>
-                                    <div className="col-span-2 bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="col-span-2 card-3d p-5">
                                         <div className="flex items-center gap-3">
                                             <Calendar className={`w-5 h-5 ${task.due_date ? 'text-blue-500' : 'text-gray-400'}`} />
                                             <div>
                                                 <p className="text-xs text-gray-500 uppercase font-bold">Prazo Final</p>
-                                                <p className="text-sm font-medium text-gray-900">
+                                                <p className="text-sm font-medium text-(--color-text-primary)">
                                                     {task.due_date ? new Date(task.due_date).toLocaleDateString() : 'Sem prazo definido'}
                                                 </p>
                                             </div>
@@ -980,7 +996,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                 </div>
 
                                 {/* Bidirectional Links Widget */}
-                                <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow space-y-4">
+                                <div className="card-3d p-5 space-y-4">
                                     <div className="flex items-center gap-2">
                                         <div className="p-1 bg-blue-50 rounded text-blue-500">
                                             <Activity className="w-4 h-4" />
@@ -1034,11 +1050,15 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                             <div className="lg:col-span-5 space-y-8 order-1 lg:order-none">
                                 {/* Rich Text Notes Notepad */}
                                 <div>
-                                    <h3 className="text-sm font-medium text-gray-600 mb-4 flex items-center gap-2">
-                                        <div className="p-1.5 bg-gray-100 rounded-lg text-gray-500"><MessageSquare className="w-4 h-4" /></div>
-                                        Bloco de Notas
-                                    </h3>
-                                    <div className="rounded-2xl overflow-hidden border border-gray-200 dark:border-slate-700 bg-white dark:bg-[#0B1324] h-[400px] flex flex-col">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
+                                            <MessageSquare className="w-4 h-4" />
+                                        </div>
+                                        <h4 className="text-xs text-slate-500 uppercase font-bold tracking-wider">
+                                            Bloco de Notas
+                                        </h4>
+                                    </div>
+                                    <div className="card-3d overflow-hidden h-[400px] flex flex-col">
                                         <RichTextEditor
                                             content={descriptionHtml}
                                             onChange={(html) => {
@@ -1049,34 +1069,38 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                         />
                                     </div>
                                 </div>
-
+ 
                                 {/* Interactive Checklist */}
                                 <div>
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h3 className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                                            <div className="p-1.5 bg-gray-100 rounded-lg text-gray-500"><CheckSquare className="w-4 h-4" /></div>
-                                            Checklist
-                                        </h3>
-                                        <span className="text-xs font-bold px-3 py-1 bg-gray-100 rounded-full text-gray-600">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-2">
+                                            <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg">
+                                                <CheckSquare className="w-4 h-4" />
+                                            </div>
+                                            <h4 className="text-xs text-slate-500 uppercase font-bold tracking-wider">
+                                                Checklist
+                                            </h4>
+                                        </div>
+                                        <span className="text-xs font-bold px-3 py-1 bg-slate-100 border border-slate-200 rounded-full text-slate-600 shadow-inner">
                                             {task.checklist_items?.filter(i => i.is_completed).length}/{task.checklist_items?.length || 0}
                                         </span>
                                     </div>
 
-                                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[380px]">
+                                    <div className="card-3d overflow-hidden flex flex-col h-[380px]">
                                         {/* Always-visible Clean Progress Bar */}
-                                        <div className="p-4 bg-gray-50/50 border-b border-gray-100 shrink-0">
-                                            <div className="flex items-center justify-between mb-1.5">
-                                                <span className="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider">Progresso da Checklist</span>
-                                                <span className="text-xs font-black text-gray-700">
+                                        <div className="p-4 bg-slate-50/50 border-b border-slate-100 shrink-0">
+                                            <div className="flex items-center justify-between mb-1.5 text-[10px]">
+                                                <span className="text-slate-400 font-extrabold uppercase tracking-wider">Progresso da Checklist</span>
+                                                <span className="text-slate-600 font-black">
                                                     {task.checklist_items?.length > 0
                                                         ? `${Math.round((task.checklist_items.filter(i => i.is_completed).length / task.checklist_items.length) * 100)}%`
                                                         : '0%'
                                                     }
                                                 </span>
                                             </div>
-                                            <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                                            <div className="h-3.5 w-full bg-slate-100 border border-slate-200 rounded-full overflow-hidden flex items-center p-[0.5px] shadow-inner">
                                                 <div
-                                                    className="h-full bg-green-500 transition-all duration-300 rounded-full"
+                                                    className="h-full bg-linear-to-r from-emerald-400 to-green-500 rounded-full transition-all duration-300"
                                                     style={{
                                                         width: `${task.checklist_items?.length > 0
                                                             ? (task.checklist_items.filter(i => i.is_completed).length / task.checklist_items.length) * 100
@@ -1085,7 +1109,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                                 />
                                             </div>
                                             {task.checklist_items?.length === 0 && (
-                                                <p className="text-[10px] text-gray-400 italic mt-1.5">Nenhum item adicionado ainda.</p>
+                                                <p className="text-[10px] text-slate-400 italic mt-1.5">Nenhum item adicionado ainda.</p>
                                             )}
                                         </div>
 
@@ -1097,9 +1121,9 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                                         type="checkbox"
                                                         checked={item.is_completed}
                                                         onChange={() => handleToggleCheckitem(item.id, item.is_completed)}
-                                                        className="mt-1 w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                                        className="mt-1 w-5 h-5 rounded-lg border-2 border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer transition-all active:scale-90"
                                                     />
-                                                    <span className={`text-sm flex-1 wrap-break-word transition-all ${item.is_completed ? 'text-gray-400 line-through decoration-gray-300' : 'text-gray-700 font-medium'}`}>
+                                                    <span className={`text-sm flex-1 wrap-break-word transition-all ${item.is_completed ? 'text-gray-400 line-through decoration-gray-300' : 'text-slate-700 font-bold'}`}>
                                                         {item.content}
                                                     </span>
                                                     <button
@@ -1118,7 +1142,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                         </div>
 
                                         {/* Fixed input form at bottom */}
-                                        <div className="p-4 border-t border-gray-100 bg-white shrink-0">
+                                        <div className="p-4 border-t border-slate-100 bg-white shrink-0">
                                             <form onSubmit={handleAddCheckitem} className="flex gap-2">
                                                 <div className="relative flex-1">
                                                     <div className="absolute left-3 top-3 w-4 h-4 text-gray-400">
@@ -1130,13 +1154,13 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                                         onChange={(e) => setNewItem(e.target.value)}
                                                         disabled={task.status === 'Feito'}
                                                         placeholder={task.status === 'Feito' ? "Tarefa concluída" : "Adicionar sub-tarefa..."}
-                                                        className="w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all focus:bg-white disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                                                        className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all focus:bg-white disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                                                     />
                                                 </div>
                                                 <button
                                                     type="submit"
                                                     disabled={!newItem.trim() || task.status === 'Feito'}
-                                                    className="p-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all shadow-sm active:scale-95 flex items-center justify-center"
+                                                    className="px-4 py-2 bg-blue-500 text-white rounded-xl text-sm font-black border-2 border-blue-600 border-b-[4px] border-b-blue-700 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-y-0 disabled:active:border-b-[4px] transition-all cursor-pointer active:translate-y-[2px] active:border-b-[2px] flex items-center justify-center"
                                                 >
                                                     <Plus className="w-5 h-5" />
                                                 </button>
@@ -1149,15 +1173,15 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                             {/* Right Column: AI Copilot & Diário de Bordo */}
                             <div className="lg:col-span-4 space-y-6 order-3 lg:order-none">
                                 {/* AI Copilot Card */}
-                                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4 hover:shadow-md transition-shadow">
+                                <div className="card-3d p-5 space-y-4">
                                     <div className="flex items-center gap-2">
                                         <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
                                             <Sparkles className="w-4 h-4" />
                                         </div>
-                                        <h4 className="text-sm font-semibold text-gray-900">Copiloto de IA</h4>
+                                        <h4 className="text-xs text-slate-500 uppercase font-bold tracking-wider">Copiloto de IA</h4>
                                     </div>
 
-                                    <p className="text-[11px] text-gray-500 leading-relaxed">
+                                    <p className="text-[11px] text-gray-550 leading-relaxed">
                                         Olá! Sou o seu assistente de produtividade. Posso analisar suas anotações e propor sub-tarefas para você focar.
                                     </p>
 
@@ -1165,7 +1189,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                         <button
                                             onClick={handleSuggestSubtasks}
                                             disabled={aiLoading || task.status === 'Feito'}
-                                            className="w-full py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                                            className="w-full py-2.5 bg-slate-900 text-white rounded-xl text-xs font-black border-2 border-slate-950 border-b-[4px] border-b-slate-950 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-y-0 disabled:active:border-b-[4px] transition-all cursor-pointer active:translate-y-[2px] active:border-b-[2px] flex items-center justify-center gap-1.5"
                                         >
                                             {aiLoading && aiResponse === null ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
                                             Sugerir sub-tarefas
@@ -1173,7 +1197,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                         <button
                                             onClick={handleSummarizeNotes}
                                             disabled={aiLoading || task.status === 'Feito'}
-                                            className="w-full py-2 bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-1.5"
+                                            className="w-full py-2.5 bg-white text-slate-700 border-2 border-slate-200 border-b-[4px] border-b-slate-300 rounded-xl text-xs font-black hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-y-0 disabled:active:border-b-[4px] transition-all cursor-pointer active:translate-y-[2px] active:border-b-[2px] flex items-center justify-center gap-1.5"
                                         >
                                             {aiLoading && aiResponse === null ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MessageSquare className="w-3.5 h-3.5" />}
                                             Resumir anotações
@@ -1189,7 +1213,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                     )}
 
                                     {aiResponse && (
-                                        <div className="bg-slate-50/50 rounded-xl p-3 border border-slate-100 text-xs animate-in fade-in duration-300 max-h-[220px] overflow-y-auto">
+                                        <div className="bg-slate-50/50 rounded-2xl p-4 border-2 border-slate-150 text-xs animate-in fade-in duration-300 max-h-[220px] overflow-y-auto">
                                             <h5 className="font-bold text-slate-800 mb-2 flex items-center gap-1">
                                                 <Sparkles className="w-3 h-3 text-blue-500" />
                                                 {aiResponse.title}
@@ -1222,12 +1246,12 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                 </div>
 
                                 {/* Diário de Bordo */}
-                                <div className="flex flex-col h-[400px] bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden sticky top-6">
-                                    <div className="p-4 border-b border-gray-50 dark:border-neutral-700 flex items-center justify-between shrink-0">
-                                        <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300 flex items-center gap-2">
-                                            <div className="p-1.5 bg-gray-100 dark:bg-neutral-700 rounded-lg text-gray-500 dark:text-gray-400"><MoreVertical className="w-4 h-4" /></div>
+                                <div className="card-3d flex flex-col h-[400px] overflow-hidden sticky top-6">
+                                    <div className="p-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+                                        <h4 className="text-xs text-slate-500 uppercase font-bold tracking-wider flex items-center gap-2">
+                                            <MessageSquare className="w-4 h-4 text-blue-500" />
                                             Diário de Bordo
-                                        </h3>
+                                        </h4>
                                     </div>
 
                                     {/* History */}
@@ -1243,12 +1267,12 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
 
                                         {task.task_notes?.map(note => (
                                             <div key={note.id} className="flex gap-3 animate-in slide-in-from-bottom-2 duration-300">
-                                                <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-[10px] font-bold shrink-0 mt-1 shadow-sm">
+                                                <div className="w-6 h-6 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-600 text-[10px] font-black shrink-0 mt-1 shadow-xs">
                                                     U
                                                 </div>
                                                 <div className="flex-1">
-                                                    <div className="bg-white p-3 rounded-2xl rounded-tl-none border border-gray-100 shadow-sm relative group hover:shadow-md transition-all">
-                                                        <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">{note.content}</p>
+                                                    <div className="bg-white p-3.5 rounded-2xl rounded-tl-none border-2 border-slate-100 shadow-xs relative group hover:border-slate-200 transition-all">
+                                                        <p className="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">{note.content}</p>
                                                         <span className="text-[10px] text-gray-400 mt-2 block font-medium">
                                                             {new Date(note.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}
                                                         </span>
@@ -1265,14 +1289,14 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                     </div>
 
                                     {/* Input Area */}
-                                    <div className="p-3 bg-white border-t border-gray-100 relative shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] shrink-0">
+                                    <div className="p-3.5 bg-white border-t border-slate-100 relative shrink-0">
                                         <form onSubmit={handleAddNote} className="relative">
                                             <textarea
                                                 value={newNote}
                                                 onChange={handleNoteChange}
                                                 disabled={task.status === 'Feito'}
                                                 placeholder={task.status === 'Feito' ? "Tarefa concluída. Não é possível adicionar notas." : "Registrar atividade (use [[ para linkar)..."}
-                                                className="w-full pl-4 pr-12 py-3 text-sm bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none h-24 focus:bg-white transition-all shadow-inner disabled:opacity-60 disabled:cursor-not-allowed"
+                                                className="w-full pl-4 pr-12 py-3 text-sm bg-slate-50 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 resize-none h-24 focus:bg-white transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                                                 onKeyDown={(e) => {
                                                     if (e.key === 'Enter' && !e.shiftKey) {
                                                         e.preventDefault();
@@ -1298,7 +1322,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                             <button
                                                 type="submit"
                                                 disabled={!newNote.trim() || task.status === 'Feito'}
-                                                className="absolute bottom-3 right-3 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-all shadow-md shadow-blue-500/20 active:scale-90"
+                                                className="absolute bottom-3 right-3 p-2.5 bg-blue-500 text-white rounded-xl font-black border-2 border-blue-600 border-b-[4px] border-b-blue-700 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-y-0 disabled:active:border-b-[4px] transition-all cursor-pointer active:translate-y-[2px] active:border-b-[2px] flex items-center justify-center"
                                             >
                                                 <Send className="w-4 h-4" />
                                             </button>
@@ -1323,14 +1347,14 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                         animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95, x: 10 }}
                         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                        className="fixed bottom-6 right-6 z-100 flex items-center gap-3 bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-800 dark:border-gray-150"
+                        className="fixed bottom-6 right-6 z-100 flex items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-800"
                     >
                         <div className="p-1 bg-emerald-500 rounded-full text-white">
                             <CheckCircle className="w-4 h-4" />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-sm font-bold leading-tight text-white dark:text-slate-900">Progresso Salvo</span>
-                            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">As alterações foram salvas com sucesso</span>
+                            <span className="text-sm font-bold leading-tight text-white">Progresso Salvo</span>
+                            <span className="text-[10px] text-slate-400 font-medium mt-0.5">As alterações foram salvas com sucesso</span>
                         </div>
                     </motion.div>
                 )}

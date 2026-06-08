@@ -15,7 +15,7 @@ export default function ResourceCards({ resources, title = "AI Suggested Resourc
     return (
         <div className="flex flex-col gap-6">
             {/* label placeholder aria-label */}
-            <h3 className="text-sm font-bold text-white dark:text-gray-100 flex items-center gap-2 mb-2">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2 mb-2">
                 <Sparkles className="w-4 h-4 text-blue-500" />
                 {title}
             </h3>
@@ -23,7 +23,7 @@ export default function ResourceCards({ resources, title = "AI Suggested Resourc
             {/* Videos Section */}
             {videos.length > 0 && (
                 <div className="space-y-3">
-                    <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-2">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
                         Related Videos
                     </p>
                     {videos.map(video => {
@@ -75,7 +75,7 @@ export default function ResourceCards({ resources, title = "AI Suggested Resourc
             {/* Articles Section */}
             {articles.length > 0 && (
                 <div className="space-y-3 mt-4">
-                    <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-2">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">
                         Reference Articles
                     </p>
                     <div className="space-y-2">
@@ -85,16 +85,16 @@ export default function ResourceCards({ resources, title = "AI Suggested Resourc
                                 href={article.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-start gap-3 p-3 rounded-xl bg-[#0A101A] dark:bg-slate-800/60 border border-white/5 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500/50 hover:shadow-md transition-all group"
+                                className="flex items-start gap-3 p-3 rounded-xl bg-[#0A101A] border border-white/5 hover:border-blue-300 hover:shadow-md transition-all group"
                             >
-                                <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 shrink-0 group-hover:scale-110 transition-transform">
+                                <div className="p-2 rounded-lg bg-blue-50 text-blue-600 shrink-0 group-hover:scale-110 transition-transform">
                                     <FileText className="w-4 h-4" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h4 className="text-sm font-bold text-white dark:text-slate-100 truncate">
+                                    <h4 className="text-sm font-bold text-white truncate">
                                         {article.title}
                                     </h4>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                                    <p className="text-xs text-slate-500 truncate mt-0.5">
                                         {new URL(article.url).hostname.replace('www.', '')}
                                     </p>
                                 </div>
@@ -105,9 +105,9 @@ export default function ResourceCards({ resources, title = "AI Suggested Resourc
             )}
 
             {resources.length === 0 && (
-                <div className="p-8 text-center border-2 border-dashed border-white/5 dark:border-slate-800 rounded-xl">
-                    <Sparkles className="w-6 h-6 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                <div className="p-8 text-center border-2 border-dashed border-white/5 rounded-xl">
+                    <Sparkles className="w-6 h-6 text-slate-300 mx-auto mb-2" />
+                    <p className="text-xs text-slate-500">
                         Nenhum recurso associado.<br />Os recursos da Inteligência Artificial aparecerão aqui futuramente.
                     </p>
                 </div>

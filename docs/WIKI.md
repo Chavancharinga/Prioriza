@@ -32,7 +32,7 @@ Para evitar a fadiga de decisão, o sistema auxilia o utilizador classificando a
 
 ## 🎨 O Sistema de Cores e Produtividade Cromática
 
-A cor não é apenas estética; é um atalho cognitivo. O cérebro humano processa cores muito mais rápido do que texto, permitindo uma triagem subconsciente instantânea. O Prioriza adota uma paleta adaptativa de tons de destaque (*neon accents*) sobre um fundo escuro premium para guiar a atenção do utilizador:
+A cor não é apenas estética; é um atalho cognitivo. O cérebro humano processa cores muito mais rápido do que texto, permitindo uma triagem subconsciente instantânea. O Prioriza adota uma paleta adaptativa de tons de destaque de alta precisão sobre um fundo cinza-claro/ardósia médio-claro profissional (com acentos de cor azul alinhados com a logo oficial, livre de alternâncias de tema claro/escuro e de brilhos neon de IA) para guiar a atenção do utilizador:
 
 | Nível | Cor de Destaque | Significado Lógico | Impacto na Produtividade |
 | :--- | :--- | :--- | :--- |
@@ -147,6 +147,11 @@ Ao marcar uma tarefa como concluída, o utilizador recebe satisfação sensorial
 1. Partículas de XP verdes são geradas a partir das coordenadas exatas de clique do cursor.
 2. As partículas voam a 60fps em arco em direção ao troféu de Nível no cabeçalho.
 3. Ao colidir, o troféu executa um pulso elástico com física de mola e explode em 12 faíscas verdes/douradas, enquanto a barra de progresso da XP sobe de forma fluida.
+
+### F. Diferenciação de XP: Conclusão Rápida vs. Conclusão no Workspace
+Para incentivar o foco real e desencorajar o uso superficial da aplicação, a conclusão de tarefas atribui pontuações diferenciadas consoante o fluxo de trabalho utilizado:
+* **Conclusão no Workspace (Foco Detalhado):** Confere o XP base total (ex: **250 XP** para prioridade Crítica P1), habilita o bónus de pontualidade de **+150 XP** (caso seja concluída antes da data limite) e calcula a penalidade em caso de atraso.
+* **Conclusão Rápida (Colunas do Kanban / General List):** Confere apenas **40%** do valor de XP base (ex: **100 XP** para P1), não aplicando bónus de pontualidade ou penalização ativa. Isto estimula o utilizador a abrir o espaço de trabalho individualizado para trabalhar e concluir de forma contextualizada.
 
 ---
 
