@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
-import { CheckCircle2, AlertTriangle, Loader2 } from 'lucide-react'
+import { CheckCircle2, AlertTriangle } from 'lucide-react'
 
 export default function Auth({ onLogin }) {
     const [isLogin, setIsLogin] = useState(true)
@@ -40,14 +40,12 @@ export default function Auth({ onLogin }) {
                 })
                 if (error) throw error
 
-                // Check if session was created immediately (auto-confirm enabled)
                 if (data?.session) {
                     setMessage({ type: 'success', text: 'Conta criada e logada com sucesso!' })
                     onLogin?.()
                     return
                 }
 
-                // If no session, email confirmation is likely required
                 setMessage({ type: 'success', text: 'Conta criada! Verifique seu email para ativar a conta antes de entrar.' })
             }
             if (isLogin) onLogin()
@@ -66,19 +64,20 @@ export default function Auth({ onLogin }) {
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: '#0AB1D7' }}>
-            <div className="max-w-md w-full">
-                <div className="text-center mb-8">
-                    <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Prioriza" className="w-[68px] h-auto mx-auto mb-5 object-contain scale-[1.25]" />
-                    <h2 className="text-3xl font-extrabold text-gray-900">
-                        {isLogin ? 'Bem-vindo de volta' : 'Crie sua conta'}
-                    </h2>
-                    <p className="mt-2 text-sm text-gray-600">
-                        Gerencie suas tarefas com eficiência
-                    </p>
-                </div>
+            <div className="max-w-lg w-full">
+                <Card className="p-8 sm:p-10 md:p-12 min-h-[680px] flex flex-col justify-between">
+                    <div className="text-center mb-8">
+                        <img
+                            src={`${import.meta.env.BASE_URL}logo.png`}
+                            alt="Prioriza"
+                            className="w-[84px] h-auto mx-auto object-contain"
+                        />
+                        <p className="mt-4 text-sm text-gray-600">
+                            Gerencie suas tarefas com eficiência
+                        </p>
+                    </div>
 
-                <Card className="p-8">
-                    <form onSubmit={handleAuth} className="space-y-6">
+                    <form onSubmit={handleAuth} className="space-y-6 flex-1 flex flex-col justify-center">
                         {!isLogin && (
                             <>
                                 <div>
@@ -113,8 +112,7 @@ export default function Auth({ onLogin }) {
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400
-                                focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                             />
                         </div>
 
@@ -125,8 +123,7 @@ export default function Auth({ onLogin }) {
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400
-                                focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                             />
                         </div>
 
