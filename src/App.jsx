@@ -16,6 +16,7 @@ import Skeleton from './components/ui/Skeleton'
 import ConfirmationModal from './components/ui/ConfirmationModal'
 
 export default function App() {
+  const siteBackgroundImage = encodeURI(`${import.meta.env.BASE_URL}fundo do login e site.png`)
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
   const [activePage, setActivePage] = useState(() => {
@@ -340,10 +341,12 @@ export default function App() {
       <div
         className="transition-all duration-300 ease-in-out lg:pl-20 pl-0"
         style={{
-          backgroundImage: `url("${encodeURI(`${import.meta.env.BASE_URL}fundo do login e site.png`)}")`,
-          backgroundSize: '100% auto',
-          backgroundPosition: 'top center',
-          backgroundRepeat: 'no-repeat',
+          minHeight: '100vh',
+          backgroundColor: 'var(--color-surface)',
+          backgroundImage: `url("${siteBackgroundImage}"), url("${siteBackgroundImage}")`,
+          backgroundSize: '100% auto, 100% auto',
+          backgroundPosition: 'top center, bottom center',
+          backgroundRepeat: 'no-repeat, no-repeat',
         }}
       >
         <DashboardHeader
