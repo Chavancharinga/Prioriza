@@ -339,40 +339,51 @@ export default function App() {
       />
 
       <div
-        className="transition-all duration-300 ease-in-out lg:pl-20 pl-0"
+        className="relative transition-all duration-300 ease-in-out lg:pl-20 pl-0 overflow-hidden"
         style={{
           minHeight: '100vh',
           backgroundColor: 'var(--color-surface)',
-          backgroundImage: `url("${siteBackgroundImage}"), url("${siteBackgroundImage}")`,
-          backgroundSize: '100% auto, 100% auto',
-          backgroundPosition: 'top center, bottom center',
-          backgroundRepeat: 'no-repeat, no-repeat',
         }}
       >
-        <DashboardHeader
-          title={config.title}
-          breadcrumb={config.breadcrumb}
-          onNavigate={setActivePage}
-          profile={profile}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage: `url("${siteBackgroundImage}")`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center top',
+            backgroundRepeat: 'no-repeat',
+            backgroundAttachment: 'fixed',
+            transform: 'translateZ(0)',
+          }}
         />
 
-        <main className="px-4 sm:px-6 lg:px-8 pb-20 lg:pb-10 max-w-[1920px] mx-auto w-full">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activePage}
-              initial={{ x: 20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: -20, opacity: 0 }}
-              transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-            >
-              <PageComponent
-                profile={profile}
-                onProfileUpdate={loadProfile}
-                onNavigate={setActivePage}
-              />
-            </motion.div>
-          </AnimatePresence>
-        </main>
+        <div className="relative z-10">
+          <DashboardHeader
+            title={config.title}
+            breadcrumb={config.breadcrumb}
+            onNavigate={setActivePage}
+            profile={profile}
+          />
+
+          <main className="px-4 sm:px-6 lg:px-8 pb-20 lg:pb-10 max-w-[1920px] mx-auto w-full">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activePage}
+                initial={{ x: 20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -20, opacity: 0 }}
+                transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+              >
+                <PageComponent
+                  profile={profile}
+                  onProfileUpdate={loadProfile}
+                  onNavigate={setActivePage}
+                />
+              </motion.div>
+            </AnimatePresence>
+          </main>
+        </div>
       </div>
 
       <BottomNav activeTab={activePage} onTabChange={setActivePage} />

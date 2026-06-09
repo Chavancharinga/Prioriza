@@ -662,17 +662,25 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
     return (
         // Full-screen workspace with dark mode support
         <div
-            className="fixed inset-0 z-50 flex flex-col animate-in fade-in zoom-in-95 duration-200"
-            style={{
-                backgroundColor: 'var(--color-surface)',
-                backgroundImage: !loading && task
-                    ? `url("${workspaceBackgroundImage}"), url("${workspaceBackgroundImage}")`
-                    : 'none',
-                backgroundSize: '100% auto, 100% auto',
-                backgroundPosition: 'top center, bottom center',
-                backgroundRepeat: 'no-repeat, no-repeat',
-            }}
+            className="fixed inset-0 z-50 flex flex-col animate-in fade-in zoom-in-95 duration-200 overflow-hidden"
+            style={{ backgroundColor: 'var(--color-surface)' }}
         >
+            {!loading && task && (
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0"
+                    style={{
+                        backgroundImage: `url("${workspaceBackgroundImage}")`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center top',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundAttachment: 'fixed',
+                        transform: 'translateZ(0)',
+                    }}
+                />
+            )}
+
+            <div className="relative z-10 flex flex-col flex-1 min-h-0">
 
             {/* Custom Exit Alert Modal */}
             {showExitAlert && (
@@ -1345,6 +1353,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                     </motion.div>
                 )}
             </AnimatePresence>
+            </div>
         </div>
     )
 }
