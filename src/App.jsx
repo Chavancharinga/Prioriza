@@ -338,22 +338,15 @@ export default function App() {
         onCollapse={setSidebarCollapsed}
       />
 
-      <div
-        className="relative transition-all duration-300 ease-in-out lg:pl-20 pl-0 overflow-hidden"
-        style={{
-          minHeight: '100vh',
-          backgroundColor: 'var(--color-surface)',
-        }}
-      >
+      <div className="relative min-h-screen transition-all duration-300 ease-in-out lg:pl-20 pl-0 bg-(--color-surface)">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0"
+          className="pointer-events-none fixed inset-0 z-0"
           style={{
             backgroundImage: `url("${siteBackgroundImage}")`,
             backgroundSize: 'cover',
             backgroundPosition: 'center top',
             backgroundRepeat: 'no-repeat',
-            backgroundAttachment: 'fixed',
             transform: 'translateZ(0)',
           }}
         />

@@ -662,19 +662,17 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
     return (
         // Full-screen workspace with dark mode support
         <div
-            className="fixed inset-0 z-50 flex flex-col animate-in fade-in zoom-in-95 duration-200 overflow-hidden"
-            style={{ backgroundColor: 'var(--color-surface)' }}
+            className="fixed inset-0 z-50 flex flex-col animate-in fade-in zoom-in-95 duration-200 overflow-hidden bg-(--color-surface)"
         >
             {!loading && task && (
                 <div
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0"
+                    className="pointer-events-none fixed inset-0 z-0"
                     style={{
                         backgroundImage: `url("${workspaceBackgroundImage}")`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center top',
                         backgroundRepeat: 'no-repeat',
-                        backgroundAttachment: 'fixed',
                         transform: 'translateZ(0)',
                     }}
                 />
