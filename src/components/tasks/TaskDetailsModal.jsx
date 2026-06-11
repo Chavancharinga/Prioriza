@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import {
     X, Calendar, Clock, CheckSquare, MessageSquare,
     MoreVertical, Trash2, Plus, Send, AlertTriangle,
@@ -655,12 +656,12 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
     }
 
 
-    if (!isOpen) return null
+    if (!isOpen || typeof document === 'undefined') return null
 
-    return (
+    return createPortal(
         // Full-screen workspace with dark mode support
         <div
-            className="fixed inset-0 z-50 flex flex-col animate-in fade-in duration-200 overflow-hidden"
+            className="fixed inset-0 z-[200] flex flex-col animate-in fade-in duration-200 overflow-hidden"
             style={{ backgroundColor: 'transparent' }}
         >
             <div className="relative z-10 flex flex-col flex-1 min-h-0">
@@ -1337,7 +1338,8 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                 )}
             </AnimatePresence>
             </div>
-        </div>
+        </div>,
+        document.body
     )
 }
 
