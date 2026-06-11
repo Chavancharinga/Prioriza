@@ -15,6 +15,7 @@ import RichTextEditor from '../ui/RichTextEditor'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, onNavigate, profile }) {
+    const workspaceBackgroundImage = encodeURI(`${import.meta.env.BASE_URL}fundo do login e site.png`)
     const [currentTaskId, setCurrentTaskId] = useState(taskId)
     const [task, setTask] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -662,8 +663,19 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
         // Full-screen workspace with dark mode support
         <div
             className="fixed inset-0 z-[200] flex flex-col animate-in fade-in duration-200 overflow-hidden"
-            style={{ backgroundColor: 'transparent' }}
         >
+            <div
+                aria-hidden="true"
+                className="pointer-events-none fixed inset-0 z-0"
+                style={{
+                    backgroundColor: 'var(--color-surface)',
+                    backgroundImage: !loading && task ? `url("${workspaceBackgroundImage}")` : 'none',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center top',
+                    backgroundRepeat: 'no-repeat',
+                }}
+            />
+
             <div className="relative z-10 flex flex-col flex-1 min-h-0">
 
             {/* Custom Exit Alert Modal */}
