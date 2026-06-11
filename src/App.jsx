@@ -47,6 +47,52 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    if (typeof document === 'undefined') return
+
+    const backgroundUrl = `url("${siteBackgroundImage}")`
+    const applyBackground = () => {
+      document.documentElement.style.backgroundImage = backgroundUrl
+      document.documentElement.style.backgroundSize = 'cover'
+      document.documentElement.style.backgroundPosition = 'center top'
+      document.documentElement.style.backgroundRepeat = 'no-repeat'
+      document.documentElement.style.backgroundAttachment = 'fixed'
+      document.documentElement.style.backgroundColor = 'var(--color-surface)'
+
+      document.body.style.backgroundImage = backgroundUrl
+      document.body.style.backgroundSize = 'cover'
+      document.body.style.backgroundPosition = 'center top'
+      document.body.style.backgroundRepeat = 'no-repeat'
+      document.body.style.backgroundAttachment = 'fixed'
+      document.body.style.backgroundColor = 'var(--color-surface)'
+      document.body.style.minHeight = '100vh'
+    }
+
+    const clearBackground = () => {
+      document.documentElement.style.backgroundImage = ''
+      document.documentElement.style.backgroundSize = ''
+      document.documentElement.style.backgroundPosition = ''
+      document.documentElement.style.backgroundRepeat = ''
+      document.documentElement.style.backgroundAttachment = ''
+      document.documentElement.style.backgroundColor = ''
+
+      document.body.style.backgroundImage = ''
+      document.body.style.backgroundSize = ''
+      document.body.style.backgroundPosition = ''
+      document.body.style.backgroundRepeat = ''
+      document.body.style.backgroundAttachment = ''
+      document.body.style.backgroundColor = ''
+      document.body.style.minHeight = ''
+    }
+
+    if (session) {
+      applyBackground()
+      return clearBackground
+    }
+
+    clearBackground()
+  }, [session, siteBackgroundImage])
+
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('prioriza_active_page', activePage)
     }
@@ -330,7 +376,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-(--color-surface) font-sans text-(--color-text-primary) overflow-x-hidden selection:bg-blue-100 transition-colors duration-300">
+    <div className="min-h-screen font-sans text-(--color-text-primary) overflow-x-hidden selection:bg-blue-100 transition-colors duration-300">
       <Sidebar
         activeItem={activePage}
         onItemChange={setActivePage}
@@ -338,19 +384,7 @@ export default function App() {
         onCollapse={setSidebarCollapsed}
       />
 
-      <div className="relative min-h-screen transition-all duration-300 ease-in-out lg:pl-20 pl-0 bg-(--color-surface)">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none fixed inset-0 z-0"
-          style={{
-            backgroundImage: `url("${siteBackgroundImage}")`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center top',
-            backgroundRepeat: 'no-repeat',
-            transform: 'translateZ(0)',
-          }}
-        />
-
+      <div className="relative min-h-screen transition-all duration-300 ease-in-out lg:pl-20 pl-0">
         <div className="relative z-10">
           <DashboardHeader
             title={config.title}
