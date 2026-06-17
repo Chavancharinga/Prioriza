@@ -28,17 +28,17 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                 className="fixed left-0 top-0 z-50 h-screen flex flex-col items-center py-6 hidden lg:flex"
                 style={{
                     width: '80px',
-                    background: 'linear-gradient(180deg, #071B34 0%, #042E59 68%, #061626 100%)',
-                    borderRight: '1px solid rgba(4, 182, 186, 0.18)',
-                    boxShadow: '18px 0 48px rgba(4, 46, 89, 0.24)'
+                    background: 'linear-gradient(180deg, #020B18 0%, #061B33 55%, #020814 100%)',
+                    borderRight: '1px solid rgba(4, 182, 186, 0.22)',
+                    boxShadow: '18px 0 52px rgba(2, 8, 20, 0.34)'
                 }}
             >
                 {/* Logo */}
-                <div className="mb-6 flex items-center justify-center w-full px-1">
+                <div className="mb-6 flex items-center justify-center w-full px-0">
                     <img 
                         src={`${import.meta.env.BASE_URL}logo.png`} 
                         alt="Prioriza" 
-                        className="w-[68px] h-auto object-contain transition-all duration-200 drop-shadow-[0_10px_22px_rgba(4,182,186,0.22)]" 
+                        className="w-[78px] h-auto object-contain scale-[1.16] transition-all duration-200 drop-shadow-[0_0_18px_rgba(167,243,255,0.38)]" 
                     />
                 </div>
 

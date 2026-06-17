@@ -17,11 +17,11 @@
   --color-prioriza-coral: #FF5A6F;
   --color-prioriza-orange: #F97316;
   --prioriza-app-background:
-    radial-gradient(circle at 10% 8%, rgba(4, 182, 186, 0.34) 0 15%, transparent 34%),
-    radial-gradient(circle at 92% 9%, rgba(5, 114, 186, 0.30) 0 17%, transparent 38%),
-    radial-gradient(circle at 12% 92%, rgba(7, 27, 52, 0.18) 0 18%, transparent 38%),
-    linear-gradient(160deg, rgba(4, 46, 89, 0.28) 0%, rgba(4, 46, 89, 0.06) 34%, transparent 56%),
-    linear-gradient(135deg, #CFEFF3 0%, #D9ECF3 38%, #C8DDEB 68%, #B8D5E4 100%);
+    radial-gradient(circle at 10% 8%, rgba(4, 182, 186, 0.42) 0 14%, transparent 34%),
+    radial-gradient(circle at 92% 8%, rgba(5, 114, 186, 0.38) 0 17%, transparent 38%),
+    radial-gradient(circle at 14% 92%, rgba(2, 11, 24, 0.34) 0 18%, transparent 40%),
+    linear-gradient(160deg, rgba(2, 11, 24, 0.38) 0%, rgba(4, 46, 89, 0.18) 38%, rgba(4, 182, 186, 0.06) 68%),
+    linear-gradient(135deg, #8CCDD6 0%, #A9D9E1 34%, #8FB6CF 66%, #6E94B2 100%);
 
   /* Primary Color Scale */
   --color-primary-50: #EAFBFC;
@@ -38,9 +38,9 @@
 
   /* ── Duolingo-Inspired Gamified Theme ─────────────────────────── */
   /* Canvas (page background) */
-  --color-surface: #C8DDEB;
-  --color-surface-card: rgba(231, 246, 249, 0.92);
-  --color-surface-elevated: #BFD8E7;
+  --color-surface: #8FB6CF;
+  --color-surface-card: rgba(218, 238, 244, 0.90);
+  --color-surface-elevated: #A9CADB;
 
   /* Sidebar (Duolingo Style: Clean White & Bold Accents) */
   --color-sidebar-bg: #071B34;
