@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { LayoutList, LayoutGrid, Network, Search, Plus, Lightbulb } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { LayoutGrid, LayoutList, Network, Plus, Search } from 'lucide-react'
 import { TaskService } from '../services/TaskService'
 import { GamificationService } from '../services/GamificationService'
 import Card from '../components/ui/Card'
@@ -17,18 +17,21 @@ const views = [
     { id: 'tree', label: 'Árvore', icon: Network },
 ]
 
+const filters = [
+    { value: 'all', label: 'Todas' },
+    { value: 'pending', label: 'A fazer' },
+    { value: 'in_progress', label: 'Em foco' },
+    { value: 'completed', label: 'Feitas' },
+]
+
 export default function Tasks({ profile, onNavigate }) {
     const [activeView, setActiveView] = useState('list')
     const [tasks, setTasks] = useState([])
     const [loading, setLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState('')
     const [statusFilter, setStatusFilter] = useState('all')
-
-    // Create/Edit Modal
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [taskToEdit, setTaskToEdit] = useState(null)
-
-    // Details Modal
     const [isDetailsOpen, setIsDetailsOpen] = useState(false)
     const [selectedTaskId, setSelectedTaskId] = useState(null)
     const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, taskId: null })
@@ -49,6 +52,21 @@ export default function Tasks({ profile, onNavigate }) {
         }
     }
 
+    const filteredTasks = useMemo(() => {
+        const query = searchQuery.trim().toLowerCase()
+
+        return tasks.filter((task) => {
+            const matchesSearch = !query || task.title.toLowerCase().includes(query)
+            const matchesStatus = statusFilter === 'all' ||
+                (statusFilter === 'pending' && task.status === 'A Fazer') ||
+                (statusFilter === 'in_progress' && task.status === 'Em Progresso') ||
+                (statusFilter === 'completed' && task.status === 'Feito') ||
+                task.status === statusFilter
+
+            return matchesSearch && matchesStatus
+        })
+    }, [searchQuery, statusFilter, tasks])
+
     async function handleCreateTask(taskData) {
         try {
             const newTask = await TaskService.createTask(taskData)
@@ -64,7 +82,7 @@ export default function Tasks({ profile, onNavigate }) {
         if (!taskToEdit) return
         try {
             const updatedTask = await TaskService.updateTask(taskToEdit.id, taskData)
-            setTasks(tasks.map(t => t.id === taskToEdit.id ? updatedTask : t))
+            setTasks(tasks.map(task => task.id === taskToEdit.id ? updatedTask : task))
             setIsModalOpen(false)
             setTaskToEdit(null)
         } catch (err) {
@@ -73,16 +91,13 @@ export default function Tasks({ profile, onNavigate }) {
         }
     }
 
-    function handleDeleteTask(taskId) {
-        setDeleteConfirm({ isOpen: true, taskId })
-    }
-
     async function handleConfirmDelete() {
         const taskId = deleteConfirm.taskId
         if (!taskId) return
+
         try {
             await TaskService.deleteTask(taskId)
-            setTasks(tasks.filter(t => t.id !== taskId))
+            setTasks(tasks.filter(task => task.id !== taskId))
         } catch (err) {
             console.error('Error deleting task:', err)
             alert('Falha ao excluir tarefa')
@@ -97,7 +112,6 @@ export default function Tasks({ profile, onNavigate }) {
     }
 
     function openEditModal(task) {
-        // Prevent event bubbling if triggered from row click
         setTaskToEdit(task)
         setIsModalOpen(true)
     }
@@ -107,24 +121,46 @@ export default function Tasks({ profile, onNavigate }) {
         setIsDetailsOpen(true)
     }
 
-    const filteredTasks = tasks.filter((task) => {
-        const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase())
-        // Map UI filter values to database values if needed, or keep consistent
-        const matchesStatus = statusFilter === 'all' ||
-            (statusFilter === 'pending' && task.status === 'A Fazer') ||
-            (statusFilter === 'in_progress' && task.status === 'Em Progresso') ||
-            (statusFilter === 'completed' && task.status === 'Feito') ||
-            task.status === statusFilter
-        return matchesSearch && matchesStatus
-    })
+    async function handleStatusChange(id, status) {
+        try {
+            const targetTask = tasks.find(task => task.id === id)
+            const isCompleting = status === 'Feito' && targetTask?.status !== 'Feito'
+
+            if (isCompleting && targetTask) {
+                const details = await TaskService.getTaskDetails(id)
+                const totalChecklist = details?.checklist_items?.length || 0
+                const completedChecklist = details?.checklist_items?.filter(item => item.is_completed).length || 0
+                const pendingChecklist = totalChecklist - completedChecklist
+
+                await TaskService.updateStatus(id, status)
+                setTasks(tasks.map(task => task.id === id ? { ...task, status } : task))
+
+                if (pendingChecklist > 0) {
+                    alert(`A tarefa foi concluída, mas ainda tem ${pendingChecklist} item(ns) pendente(s) na checklist. Nenhum XP foi concedido.`)
+                    return
+                }
+
+                const priorityXp = (6 - (targetTask.priority || 3)) * 20
+                const result = await GamificationService.awardXp(priorityXp)
+                if (result?.levelUp) {
+                    alert(`Subiu de nível. Você alcançou o nível ${result.newLevel}.`)
+                }
+                return
+            }
+
+            await TaskService.updateStatus(id, status)
+            setTasks(tasks.map(task => task.id === id ? { ...task, status } : task))
+        } catch (err) {
+            console.error('Error moving task:', err)
+            alert('Erro ao mover tarefa')
+        }
+    }
 
     return (
-        <div className="space-y-6">
-            {/* Toolbar */}
-            <Card>
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    {/* View Switcher */}
-                    <div className="flex gap-1.5 rounded-2xl border-2 border-slate-200 bg-slate-100 p-1 overflow-x-auto shrink-0">
+        <div className="space-y-5">
+            <Card className="p-3 sm:p-4">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex gap-1 rounded-2xl border border-slate-200 bg-slate-50 p-1">
                         {views.map((view) => {
                             const Icon = view.icon
                             const isActive = activeView === view.id
@@ -132,114 +168,72 @@ export default function Tasks({ profile, onNavigate }) {
                             return (
                                 <button
                                     key={view.id}
+                                    type="button"
                                     onClick={() => setActiveView(view.id)}
-                                    className={`flex items-center gap-2 rounded-xl px-4 py-1.5 text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${isActive
-                                        ? 'bg-white text-slate-800 border-b-[3px] border-slate-300'
-                                        : 'text-slate-500 hover:text-slate-800'
+                                    className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-extrabold transition-all ${isActive
+                                        ? 'bg-white text-slate-950 shadow-sm'
+                                        : 'text-slate-500 hover:bg-white/70 hover:text-slate-800'
                                         }`}
                                 >
-                                    <Icon className="h-4.5 w-4.5" />
-                                    <span className="hidden sm:inline">{view.label}</span>
+                                    <Icon className="h-4 w-4" />
+                                    <span>{view.label}</span>
                                 </button>
                             )
                         })}
                     </div>
 
-                    {/* Actions */}
-                    <div className="grid grid-cols-12 gap-2.5 w-full sm:flex sm:w-auto sm:items-center">
-                        {/* Search */}
-                        <div className="relative col-span-6 sm:w-64">
-                            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                    <div className="grid grid-cols-12 gap-2.5 lg:flex lg:w-auto lg:items-center">
+                        <div className="relative col-span-12 sm:col-span-6 lg:w-72">
+                            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                             <input
                                 type="search"
-                                placeholder="Buscar..."
+                                placeholder="Buscar tarefa"
                                 value={searchQuery}
-                                onClick={(e) => e.stopPropagation()}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="h-10 w-full rounded-2xl border-2 border-slate-200 bg-white pl-9 pr-3 text-sm font-bold text-slate-700 outline-none transition-all placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500"
+                                onChange={(event) => setSearchQuery(event.target.value)}
+                                className="h-11 w-full rounded-2xl border border-slate-200 bg-white pl-10 pr-3 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-100"
                             />
                         </div>
 
-                        {/* Filter */}
                         <select
                             value={statusFilter}
-                            onClick={(e) => e.stopPropagation()}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            className="h-10 col-span-3 rounded-2xl border-2 border-slate-200 bg-white px-3 text-xs font-black uppercase tracking-wider text-slate-600 outline-none transition-all hover:border-slate-300 focus:border-blue-500 cursor-pointer"
+                            onChange={(event) => setStatusFilter(event.target.value)}
+                            className="col-span-6 h-11 rounded-2xl border border-slate-200 bg-white px-3 text-sm font-extrabold text-slate-700 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100 sm:col-span-3 lg:w-32"
                         >
-                            <option value="all">Todas</option>
-                            <option value="pending">A Fazer</option>
-                            <option value="in_progress">Progresso</option>
-                            <option value="completed">Concluídas</option>
+                            {filters.map(filter => (
+                                <option key={filter.value} value={filter.value}>{filter.label}</option>
+                            ))}
                         </select>
 
-                        {/* Add Button */}
-                        <Button variant="primary" onClick={openCreateModal} className="h-10 col-span-3 flex items-center justify-center gap-1.5 px-3 text-xs sm:text-sm">
-                            <Plus className="w-4.5 h-4.5" />
-                            <span>Nova</span>
+                        <Button variant="primary" onClick={openCreateModal} className="col-span-6 h-11 justify-center gap-2 px-4 text-sm sm:col-span-3">
+                            <Plus className="h-4 w-4" />
+                            Nova
                         </Button>
                     </div>
                 </div>
             </Card>
 
-            {/* View Content */}
             <div className="min-h-[400px]">
                 {activeView === 'list' && (
                     <TaskList
                         tasks={filteredTasks}
                         loading={loading}
-                        onEdit={(t) => {
-                            // Stop propagation of the click to row
-                            openEditModal(t)
-                        }}
-                        onDelete={(id) => {
-                            handleDeleteTask(id)
-                        }}
+                        onEdit={openEditModal}
+                        onDelete={(id) => setDeleteConfirm({ isOpen: true, taskId: id })}
                         onTaskClick={handleTaskClick}
                     />
                 )}
+
                 {activeView === 'kanban' && (
                     <KanbanBoard
                         tasks={filteredTasks}
                         loading={loading}
-                        onEdit={(t) => openEditModal(t)}
-                        onDelete={(id) => handleDeleteTask(id)}
+                        onEdit={openEditModal}
+                        onDelete={(id) => setDeleteConfirm({ isOpen: true, taskId: id })}
                         onTaskClick={handleTaskClick}
-                        onStatusChange={async (id, status) => {
-                            try {
-                                const targetTask = tasks.find(t => t.id === id)
-                                const isCompleting = status === 'Feito' && targetTask?.status !== 'Feito'
-                                
-                                if (isCompleting && targetTask) {
-                                    // Fetch checklist items for this task first
-                                    const details = await TaskService.getTaskDetails(id)
-                                    const totalChecklist = details?.checklist_items?.length || 0
-                                    const completedChecklist = details?.checklist_items?.filter(i => i.is_completed).length || 0
-                                    const pendingChecklist = totalChecklist - completedChecklist
-
-                                    await TaskService.updateStatus(id, status)
-                                    setTasks(tasks.map(t => t.id === id ? { ...t, status } : t))
-
-                                    if (pendingChecklist > 0) {
-                                        alert(`A tarefa foi movida para "Feito", mas como existem ${pendingChecklist} sub-tarefa(s) pendente(s) na checklist, nenhum ponto de XP foi concedido (0 XP).`)
-                                    } else {
-                                        const priorityXp = (6 - (targetTask.priority || 3)) * 20
-                                        const res = await GamificationService.awardXp(priorityXp)
-                                        if (res && res.levelUp) {
-                                            alert(`SUBIU DE NÍVEL!\nVocê alcançou o Nível ${res.newLevel}! Continue assim!`)
-                                        }
-                                    }
-                                } else {
-                                    await TaskService.updateStatus(id, status)
-                                    setTasks(tasks.map(t => t.id === id ? { ...t, status } : t))
-                                }
-                            } catch (err) {
-                                console.error('Error moving task:', err)
-                                alert('Erro ao mover tarefa')
-                            }
-                        }}
+                        onStatusChange={handleStatusChange}
                     />
                 )}
+
                 {activeView === 'tree' && (
                     <TreeView
                         tasks={filteredTasks}
@@ -249,7 +243,6 @@ export default function Tasks({ profile, onNavigate }) {
                 )}
             </div>
 
-            {/* Create/Edit Modal */}
             <TaskModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
@@ -257,12 +250,11 @@ export default function Tasks({ profile, onNavigate }) {
                 taskToEdit={taskToEdit}
             />
 
-            {/* Details Modal */}
             <TaskDetailsModal
                 taskId={selectedTaskId}
                 isOpen={isDetailsOpen}
                 onClose={() => setIsDetailsOpen(false)}
-                onUpdate={loadTasks} // Reload tasks in background to keep data fresh
+                onUpdate={loadTasks}
                 onNavigate={onNavigate}
                 profile={profile}
             />
@@ -271,7 +263,7 @@ export default function Tasks({ profile, onNavigate }) {
                 isOpen={deleteConfirm.isOpen}
                 onClose={() => setDeleteConfirm({ isOpen: false, taskId: null })}
                 onConfirm={handleConfirmDelete}
-                title="Excluir Tarefa"
+                title="Excluir tarefa"
                 message="Tem certeza de que deseja excluir esta tarefa? Esta ação não pode ser desfeita."
                 confirmText="Excluir"
                 cancelText="Cancelar"

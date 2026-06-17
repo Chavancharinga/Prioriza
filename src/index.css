@@ -6,19 +6,15 @@
 
 @import "shadcn/tailwind.css";
 
-@import "@fontsource-variable/oxanium";
-
-@import "@fontsource-variable/jetbrains-mono";
-
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Brand Colors (from the Prioriza logo) */
-  --color-prioriza-navy: #0A1128;
-  --color-prioriza-blue: #2563EB;
-  --color-prioriza-coral: #F43F5E;
-  --color-prioriza-orange: #F97316;
-  --color-prioriza-cyan: #06B6D4;
+  /* Brand: modern Duolingo-inspired, calmer and more professional */
+  --color-prioriza-navy: #111827;
+  --color-prioriza-blue: #1D4ED8;
+  --color-prioriza-coral: #DC2626;
+  --color-prioriza-orange: #D97706;
+  --color-prioriza-cyan: #0EA5E9;
 
   /* Primary Color Scale */
   --color-primary-50: #EFF6FF;
@@ -28,31 +24,31 @@
   --color-primary-700: #1D4ED8;
 
   /* Gamification Colors */
-  --color-prioriza-gold: #EAB308;
-  --color-prioriza-xp: #10B981;
-  --color-prioriza-focus: #2563EB;
-  --color-prioriza-danger: #EF4444;
+  --color-prioriza-gold: #F59E0B;
+  --color-prioriza-xp: #16A34A;
+  --color-prioriza-focus: #1D4ED8;
+  --color-prioriza-danger: #DC2626;
 
   /* ── Duolingo-Inspired Gamified Theme ─────────────────────────── */
   /* Canvas (page background) */
-  --color-surface: #F3F4F6;           /* Very friendly light grey canvas */
-  --color-surface-card: #FFFFFF;     /* White cards/panels for high contrast */
-  --color-surface-elevated: #E5E7EB; /* Subtle grey for secondary surfaces */
+  --color-surface: #F7F8FA;
+  --color-surface-card: #FFFFFF;
+  --color-surface-elevated: #EEF2F7;
 
   /* Sidebar (Duolingo Style: Clean White & Bold Accents) */
   --color-sidebar-bg: #FFFFFF;       /* Pure white sidebar */
-  --color-sidebar-text: #777777;     /* Dark grey for inactive icons/text */
-  --color-sidebar-active: #2563EB;   /* Logo blue for active navigation */
-  --color-sidebar-hover: #F3F4F6;     /* Light grey hover background */
+  --color-sidebar-text: #64748B;
+  --color-sidebar-active: #1D4ED8;
+  --color-sidebar-hover: #F1F5F9;
 
   /* Text */
-  --color-text-primary: #3C3C3C;     /* Slate-800 for high-readability text */
-  --color-text-secondary: #4B4B4B;   /* Slate-700 secondary text */
-  --color-text-muted: #777777;       /* Slate-500 muted text */
+  --color-text-primary: #172033;
+  --color-text-secondary: #475569;
+  --color-text-muted: #7C8AA0;
 
   /* Borders */
-  --color-border: #E5E7EB;           /* Clean 2px borders */
-  --color-border-light: #F3F4F6;     /* Very subtle dividers */
+  --color-border: #DDE5EF;
+  --color-border-light: #EEF2F7;
 
   /* Font Family */
   --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -232,7 +228,7 @@
 
 /* Subtle blue radial glow at top of the page */
 body {
-  background-image: radial-gradient(ellipse at 50% -10%, rgba(37, 99, 235, 0.07), transparent 60%);
+  background-image: radial-gradient(ellipse at 50% -10%, rgba(29, 78, 216, 0.05), transparent 55%);
 }
 
 /* Interactive spring press */
@@ -260,10 +256,10 @@ a,
 /* ── Duolingo 3D Styles ── */
 .btn-3d-primary {
   background-color: var(--color-prioriza-blue) !important;
-  border: 2px solid #1D4ED8 !important;
-  border-bottom: 5px solid #1D4ED8 !important;
+  border: 1px solid #1E40AF !important;
+  border-bottom: 4px solid #1E40AF !important;
   color: #FFFFFF !important;
-  border-radius: 16px !important;
+  border-radius: 14px !important;
   box-shadow: none !important;
 }
 .btn-3d-primary:active {
@@ -274,10 +270,10 @@ a,
 
 .btn-3d-secondary {
   background-color: #FFFFFF !important;
-  border: 2px solid #E5E7EB !important;
-  border-bottom: 5px solid #D1D5DB !important;
-  color: #4B5563 !important;
-  border-radius: 16px !important;
+  border: 1px solid #DDE5EF !important;
+  border-bottom: 4px solid #CBD5E1 !important;
+  color: #334155 !important;
+  border-radius: 14px !important;
   box-shadow: none !important;
 }
 .btn-3d-secondary:active {
@@ -288,10 +284,10 @@ a,
 
 .btn-3d-danger {
   background-color: var(--color-prioriza-coral) !important;
-  border: 2px solid #E11D48 !important;
-  border-bottom: 5px solid #BE123C !important;
+  border: 1px solid #B91C1C !important;
+  border-bottom: 4px solid #991B1B !important;
   color: #FFFFFF !important;
-  border-radius: 16px !important;
+  border-radius: 14px !important;
   box-shadow: none !important;
 }
 .btn-3d-danger:active {
@@ -302,15 +298,16 @@ a,
 
 .card-3d {
   background-color: #FFFFFF !important;
-  border: 2px solid #E5E7EB !important;
-  border-bottom: 6px solid #E5E7EB !important;
-  border-radius: 24px !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) !important;
-  transition: transform 0.2s ease, border-color 0.2s ease !important;
+  border: 1px solid #DDE5EF !important;
+  border-bottom: 4px solid #DDE5EF !important;
+  border-radius: 22px !important;
+  box-shadow: 0 10px 30px -22px rgba(15, 23, 42, 0.35) !important;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease !important;
 }
 .card-3d:hover {
   border-color: #CBD5E1 !important;
   border-bottom-color: #CBD5E1 !important;
+  box-shadow: 0 18px 40px -26px rgba(15, 23, 42, 0.45) !important;
 }
 
 .dark {
@@ -348,8 +345,8 @@ a,
 }
 
 @theme inline {
-  --font-sans: 'Oxanium Variable', sans-serif;
-  --font-heading: 'JetBrains Mono Variable', monospace;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-heading: 'Plus Jakarta Sans', 'Inter', sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

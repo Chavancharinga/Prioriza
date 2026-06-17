@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Bot, CalendarClock, CheckCircle2, Clock, Loader2, Plus, Send, Sparkles, Trophy } from 'lucide-react'
+import { Bot, CalendarClock, CheckCircle2, Clock, Loader2, Plus, Send, Trophy } from 'lucide-react'
 import { AIService } from '../services/AIService'
 import { TaskService } from '../services/TaskService'
 
@@ -7,13 +7,12 @@ const quickPrompts = [
     'PRIO, faz um mini relatório da minha produtividade.',
     'PRIO, quais tarefas estão mais urgentes agora?',
     'PRIO, cria uma tarefa para revisar meu código com defeito amanhã.',
-    'PRIO, organiza meu cronograma automático para hoje.'
 ]
 
 const initialMessages = [
     {
         role: 'assistant',
-        content: 'Olá, eu sou o PRIO. Posso analisar suas tarefas, montar um mini relatório, sugerir checklist e criar tarefas por conversa.'
+        content: 'Olá, eu sou o PRIO. Posso analisar suas tarefas, resumir produtividade e criar tarefas por conversa.'
     }
 ]
 
@@ -54,11 +53,11 @@ function buildLocalReport(tasks = [], profile = {}) {
     const completion = total ? Math.round((done / total) * 100) : 0
 
     return [
-        `Mini relatório: você está no nível ${profile?.level || 1}, com ${profile?.xp || 0} XP.`,
-        `Tarefas: ${done}/${total} concluídas (${completion}%).`,
-        progress ? `${progress} tarefa(s) em progresso agora.` : 'Nenhuma tarefa está em progresso neste momento.',
-        overdue ? `Atenção: ${overdue} tarefa(s) atrasada(s) podem custar XP.` : 'Sem atraso crítico detectado. Boa!',
-        highPriority ? `Prioridade: foque nas ${highPriority} tarefa(s) P1/P2 pendentes.` : 'Não vi pendências P1/P2 no topo.'
+        `Mini relatório: nível ${profile?.level || 1}, ${profile?.xp || 0} XP.`,
+        `Progresso: ${done}/${total} tarefas concluídas (${completion}%).`,
+        progress ? `${progress} tarefa(s) em foco agora.` : 'Nenhuma tarefa em foco agora.',
+        overdue ? `${overdue} tarefa(s) atrasada(s) precisam de atenção.` : 'Sem atrasos críticos.',
+        highPriority ? `Prioridade: foque nas ${highPriority} tarefa(s) P1/P2.` : 'Sem P1/P2 pendente no topo.'
     ].join(' ')
 }
 
@@ -81,7 +80,7 @@ function buildFallbackAction(message) {
             estimated_minutes: text.includes('rápido') || text.includes('rapido') ? 30 : 60,
             due_date: dueDate,
             checklist: [
-                'Confirmar o objetivo da tarefa',
+                'Confirmar o objetivo',
                 'Executar a alteração principal',
                 'Testar e registrar o resultado'
             ],
@@ -219,7 +218,7 @@ export default function PrioChat({ profile }) {
                 const fallbackAction = buildFallbackAction(message)
                 response = {
                     reply: fallbackAction
-                        ? 'Consigo criar isso agora mesmo. Como o backend da IA não respondeu, usei meu modo local: sugeri checklist, nota e estimativa automática.'
+                        ? 'Consigo criar isso agora. Usei o modo local: checklist, nota e estimativa sugeridos.'
                         : buildLocalReport(taskSnapshot, profile),
                     action: fallbackAction
                 }
@@ -239,25 +238,28 @@ export default function PrioChat({ profile }) {
     }
 
     return (
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
-            <section className="overflow-hidden rounded-[32px] border-2 border-white/80 bg-white/90 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur-xl">
-                <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+            <section className="card-3d overflow-hidden bg-white/95">
+                <div className="flex flex-col gap-3 border-b border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
                     <div className="flex items-center gap-3">
-                        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">
-                            <Bot className="h-6 w-6" />
+                        <div className="grid h-11 w-11 place-items-center rounded-2xl border border-slate-200 bg-slate-50 text-blue-600">
+                            <Bot className="h-5 w-5" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-black text-slate-900">Chat com PRIO</h2>
-                            <p className="text-sm font-bold text-slate-500">Assistente pessoal de tarefas e produtividade</p>
+                            <h2 className="text-xl font-black text-slate-950">PRIO</h2>
+                            <p className="text-sm font-semibold text-slate-500">Seu assistente de tarefas</p>
                         </div>
                     </div>
-                    <span className="hidden rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-600 sm:inline-flex">IA pronta</span>
+                    <span className="w-fit rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-black text-slate-600">IA pronta</span>
                 </div>
 
-                <div className="h-[58vh] min-h-[430px] space-y-4 overflow-y-auto px-5 py-6">
+                <div className="h-[58vh] min-h-[420px] space-y-4 overflow-y-auto px-4 py-5 sm:px-5">
                     {messages.map((message, index) => (
                         <div key={`${message.role}-${index}`} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[82%] rounded-[24px] px-4 py-3 text-sm leading-relaxed shadow-sm ${message.role === 'user' ? 'bg-blue-600 text-white' : 'border border-slate-100 bg-white text-slate-700'}`}>
+                            <div className={`max-w-[86%] rounded-3xl px-4 py-3 text-sm leading-relaxed shadow-sm ${message.role === 'user'
+                                ? 'bg-slate-950 text-white'
+                                : 'border border-slate-200 bg-white text-slate-700'
+                                }`}>
                                 <p className="whitespace-pre-wrap font-semibold">{message.content}</p>
                             </div>
                         </div>
@@ -265,7 +267,7 @@ export default function PrioChat({ profile }) {
 
                     {loading && (
                         <div className="flex justify-start">
-                            <div className="flex items-center gap-2 rounded-[24px] border border-slate-100 bg-white px-4 py-3 text-sm font-bold text-slate-500 shadow-sm">
+                            <div className="flex items-center gap-2 rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-500 shadow-sm">
                                 <Loader2 className="h-4 w-4 animate-spin" />
                                 PRIO está pensando...
                             </div>
@@ -274,14 +276,14 @@ export default function PrioChat({ profile }) {
                     <div ref={messagesEndRef} />
                 </div>
 
-                <div className="border-t border-slate-100 bg-slate-50/70 p-4">
+                <div className="border-t border-slate-100 bg-slate-50/80 p-4">
                     <div className="mb-3 flex flex-wrap gap-2">
                         {quickPrompts.map(prompt => (
                             <button
                                 key={prompt}
                                 type="button"
                                 onClick={() => sendMessage(prompt)}
-                                className="rounded-full border border-blue-100 bg-white px-3 py-1.5 text-xs font-black text-blue-600 hover:border-blue-300 hover:bg-blue-50"
+                                className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-extrabold text-slate-600 transition hover:border-slate-300 hover:text-slate-950"
                             >
                                 {prompt.replace('PRIO, ', '')}
                             </button>
@@ -298,14 +300,14 @@ export default function PrioChat({ profile }) {
                                     sendMessage()
                                 }
                             }}
-                            placeholder="Ex: PRIO, crie uma tarefa para corrigir uma função do meu código amanhã."
-                            className="min-h-14 flex-1 resize-none rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+                            placeholder="Peça um relatório, cronograma ou nova tarefa..."
+                            className="min-h-14 flex-1 resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-100"
                         />
                         <button
                             type="button"
                             onClick={() => sendMessage()}
                             disabled={loading || !input.trim()}
-                            className="grid h-14 w-14 place-items-center rounded-2xl bg-blue-600 text-white shadow-[0_5px_0_#1d4ed8] transition hover:bg-blue-500 active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50"
+                            className="grid h-14 w-14 place-items-center rounded-2xl bg-slate-950 text-white shadow-[0_4px_0_#020617] transition hover:bg-slate-800 active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50"
                             aria-label="Enviar mensagem para o PRIO"
                         >
                             <Send className="h-5 w-5" />
@@ -315,41 +317,33 @@ export default function PrioChat({ profile }) {
             </section>
 
             <aside className="space-y-4">
-                <div className="rounded-[30px] border-2 border-white/80 bg-white/90 p-5 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+                <div className="card-3d bg-white/95 p-5">
                     <div className="mb-4 flex items-center gap-2">
-                        <Trophy className="h-5 w-5 fill-amber-500 text-amber-500" />
-                        <h3 className="font-black text-slate-900">Resumo vivo</h3>
+                        <Trophy className="h-5 w-5 text-blue-600" />
+                        <h3 className="font-black text-slate-950">Resumo</h3>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                        <div className="rounded-2xl bg-blue-50 p-4">
-                            <p className="text-[10px] font-black uppercase text-slate-500">Total</p>
-                            <p className="text-2xl font-black text-slate-900">{stats.total}</p>
-                        </div>
-                        <div className="rounded-2xl bg-emerald-50 p-4">
-                            <p className="text-[10px] font-black uppercase text-slate-500">Feitas</p>
-                            <p className="text-2xl font-black text-slate-900">{stats.done}</p>
-                        </div>
-                        <div className="rounded-2xl bg-amber-50 p-4">
-                            <p className="text-[10px] font-black uppercase text-slate-500">Foco</p>
-                            <p className="text-2xl font-black text-slate-900">{stats.progress}</p>
-                        </div>
-                        <div className="rounded-2xl bg-rose-50 p-4">
-                            <p className="text-[10px] font-black uppercase text-slate-500">Atrasos</p>
-                            <p className="text-2xl font-black text-slate-900">{stats.overdue}</p>
-                        </div>
+                        {[
+                            ['Total', stats.total],
+                            ['Feitas', stats.done],
+                            ['Foco', stats.progress],
+                            ['Atrasos', stats.overdue],
+                        ].map(([label, value]) => (
+                            <div key={label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <p className="text-[10px] font-black uppercase tracking-wide text-slate-500">{label}</p>
+                                <p className="text-2xl font-black text-slate-950">{value}</p>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                <div className="rounded-[30px] border-2 border-white/80 bg-white/90 p-5 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur-xl">
-                    <div className="mb-4 flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-blue-600" />
-                        <h3 className="font-black text-slate-900">O que o PRIO faz</h3>
-                    </div>
+                <div className="card-3d bg-white/95 p-5">
+                    <h3 className="mb-4 font-black text-slate-950">Comandos úteis</h3>
                     <div className="space-y-3 text-sm font-bold text-slate-600">
-                        <p className="flex gap-2"><CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" /> Responde sobre tarefas, prazos, prioridades, XP e produtividade.</p>
-                        <p className="flex gap-2"><Plus className="h-4 w-4 shrink-0 text-blue-600" /> Cria tarefas por conversa com checklist, nota e estimativa.</p>
-                        <p className="flex gap-2"><CalendarClock className="h-4 w-4 shrink-0 text-purple-600" /> Entende prazos como “amanhã” e mantém tudo editável manualmente.</p>
-                        <p className="flex gap-2"><Clock className="h-4 w-4 shrink-0 text-amber-600" /> Ajuda no cronograma automático sem travar suas mudanças.</p>
+                        <p className="flex gap-2"><CheckCircle2 className="h-4 w-4 shrink-0 text-blue-600" /> Relatórios curtos de produtividade.</p>
+                        <p className="flex gap-2"><Plus className="h-4 w-4 shrink-0 text-blue-600" /> Criação de tarefa por conversa.</p>
+                        <p className="flex gap-2"><CalendarClock className="h-4 w-4 shrink-0 text-blue-600" /> Prazos como hoje ou amanhã.</p>
+                        <p className="flex gap-2"><Clock className="h-4 w-4 shrink-0 text-blue-600" /> Estimativas editáveis.</p>
                     </div>
                 </div>
             </aside>

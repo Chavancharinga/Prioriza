@@ -281,12 +281,12 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
     }
 
     return (
-        <header className="px-4 sm:px-6 lg:px-8 pt-6 pb-2 flex flex-col gap-4 lg:gap-6">
+        <header className="px-4 sm:px-6 lg:px-8 pt-5 pb-2 flex flex-col gap-4 lg:gap-5">
             {/* Top Navigation Row */}
             <div className="flex justify-between items-center">
                 {/* Logo / Menu Mobile */}
                 <div className="flex items-center gap-3 lg:hidden">
-                    <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Prioriza" className="h-16 sm:h-20 w-auto object-contain drop-shadow-[0_2px_8px_rgba(37,99,235,0.12)]" />
+                    <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Prioriza" className="h-12 w-auto object-contain drop-shadow-[0_6px_16px_rgba(15,23,42,0.08)]" />
                 </div>
 
                 {/* Greeting & Gamification Section (Desktop) */}
@@ -297,11 +297,11 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                         <motion.div 
                             whileHover={{ y: -2 }}
                             whileTap={{ y: 1 }}
-                            className="flex items-center gap-2 bg-orange-50 border-2 border-orange-300 border-b-[5px] border-b-orange-400 px-4 py-2 rounded-2xl text-orange-600 font-black shadow-sm cursor-pointer" 
+                            className="flex items-center gap-2 bg-white border border-slate-200 border-b-4 border-b-slate-200 px-3.5 py-2 rounded-2xl text-slate-700 font-extrabold shadow-sm cursor-pointer" 
                             title="Sua Ofensiva (Dias seguidos)"
                         >
-                            <Flame className="h-5 w-5 fill-orange-500 text-orange-500 animate-pulse drop-shadow-[0_1.5px_0_rgba(194,65,12,0.3)]" />
-                            <span className="text-sm font-black tracking-tight">{profile?.streak || 0}d</span>
+                            <Flame className="h-4.5 w-4.5 text-orange-500" />
+                            <span className="text-sm tracking-tight">{profile?.streak || 0}d</span>
                         </motion.div>
                         
                         {/* XP Progress Pill */}
@@ -312,7 +312,7 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                             onKeyDown={handleXpKeyDown}
                             role="button"
                             tabIndex={0}
-                            className="flex items-center gap-3 bg-blue-50 border-2 border-blue-300 border-b-[5px] border-b-blue-400 px-4 py-2 rounded-2xl text-blue-600 font-black shadow-sm cursor-pointer" 
+                            className="flex items-center gap-3 bg-white border border-slate-200 border-b-4 border-b-slate-200 px-3.5 py-2 rounded-2xl text-slate-700 font-extrabold shadow-sm cursor-pointer" 
                             title={`XP do Nível: ${displayedXp !== null ? displayedXp : (profile?.xp || 0)}/1000`}
                         >
                             <motion.div 
@@ -321,15 +321,15 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
                                 className="shrink-0"
                             >
-                                <Trophy className="h-5 w-5 text-amber-500 fill-amber-500 drop-shadow-[0_1.5px_0_rgba(180,83,9,0.3)]" />
+                                <Trophy className="h-5 w-5 text-blue-600" />
                             </motion.div>
                             <div className="flex flex-col justify-center">
-                                <span className="text-[10px] font-black uppercase text-blue-700 leading-none tracking-wider">
+                                <span className="text-[10px] font-black uppercase text-slate-500 leading-none tracking-wider">
                                     Nível {displayedLevel !== null ? displayedLevel : (profile?.level || 1)}
                                 </span>
-                                <div className="mt-1 h-3 w-32 bg-blue-100 border border-blue-200 rounded-full overflow-hidden shadow-inner flex items-center">
+                                <div className="mt-1 h-2.5 w-32 bg-slate-100 border border-slate-200 rounded-full overflow-hidden flex items-center">
                                     <div
-                                        className="h-full bg-blue-500 border-r-2 border-black/10 transition-all duration-300 rounded-full"
+                                        className="h-full bg-blue-600 transition-all duration-300 rounded-full"
                                         style={{ width: `${Math.min(100, (((displayedXp !== null ? displayedXp : (profile?.xp || 0)) / 1000) * 100))}%` }}
                                     />
                                 </div>
@@ -341,10 +341,10 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                             <motion.div 
                                 whileHover={{ y: -2 }}
                                 whileTap={{ y: 1 }}
-                                className="flex items-center gap-2 bg-emerald-50 border-2 border-emerald-300 border-b-[5px] border-b-emerald-400 px-4 py-2 rounded-2xl text-emerald-600 font-black shadow-sm cursor-pointer animate-bounce" 
+                                className="flex items-center gap-2 bg-white border border-slate-200 border-b-4 border-b-slate-200 px-3.5 py-2 rounded-2xl text-emerald-700 font-black shadow-sm cursor-pointer" 
                                 title="Você está com tudo em dia! Recompensa de folga ativada."
                             >
-                                <Palmtree className="w-5 h-5 text-emerald-600 fill-emerald-600 shrink-0 drop-shadow-[0_1.5px_0_rgba(4,120,87,0.3)]" />
+                                <Palmtree className="w-5 h-5 text-emerald-600 shrink-0" />
                                 <span className="text-[10px] uppercase font-black tracking-wider">Folga</span>
                             </motion.div>
                         )}
@@ -384,10 +384,10 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
             <div className="flex lg:hidden items-center justify-center gap-3 px-1 mt-1">
                 {/* Streak Pill */}
                 <div 
-                    className="flex items-center gap-1.5 bg-orange-50 border-2 border-orange-300 border-b-[5px] border-b-orange-400 px-3 py-1.5 rounded-2xl text-orange-600 font-black flex-1 justify-center shadow-xs" 
+                    className="flex items-center gap-1.5 bg-white border border-slate-200 border-b-4 border-b-slate-200 px-3 py-1.5 rounded-2xl text-slate-700 font-black flex-1 justify-center shadow-xs" 
                     title="Sua Ofensiva (Dias seguidos)"
                 >
-                    <Flame className="h-4.5 w-4.5 fill-orange-500 text-orange-500 animate-pulse drop-shadow-[0_1.5px_0_rgba(194,65,12,0.3)]" />
+                    <Flame className="h-4.5 w-4.5 text-orange-500" />
                     <span className="text-xs font-black">{profile?.streak || 0}d</span>
                 </div>
                 
@@ -397,7 +397,7 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                     onKeyDown={handleXpKeyDown}
                     role="button"
                     tabIndex={0}
-                    className="flex items-center gap-2 bg-blue-50 border-2 border-blue-300 border-b-[5px] border-b-blue-400 px-3 py-1.5 rounded-2xl text-blue-600 font-black flex-2 justify-center shadow-xs" 
+                    className="flex items-center gap-2 bg-white border border-slate-200 border-b-4 border-b-slate-200 px-3 py-1.5 rounded-2xl text-slate-700 font-black flex-2 justify-center shadow-xs" 
                     title={`XP do Nível: ${displayedXp !== null ? displayedXp : (profile?.xp || 0)}/1000`}
                 >
                     <motion.div 
@@ -406,15 +406,15 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                         transition={{ type: "spring", stiffness: 400, damping: 10 }}
                         className="shrink-0"
                     >
-                        <Trophy className="h-4 w-4 text-amber-500 fill-amber-500 drop-shadow-[0_1.5px_0_rgba(180,83,9,0.3)]" />
+                        <Trophy className="h-4 w-4 text-blue-600" />
                     </motion.div>
                     <div className="flex flex-col flex-1 max-w-[120px]">
-                        <span className="text-[8px] font-black uppercase text-blue-700 leading-none">
+                        <span className="text-[8px] font-black uppercase text-slate-500 leading-none">
                             Nível {displayedLevel !== null ? displayedLevel : (profile?.level || 1)}
                         </span>
-                        <div className="mt-1 h-2 w-full bg-blue-100 border border-blue-200/50 rounded-full overflow-hidden shadow-inner flex items-center">
+                        <div className="mt-1 h-2 w-full bg-slate-100 border border-slate-200 rounded-full overflow-hidden flex items-center">
                             <div
-                                className="h-full bg-blue-500 border-r-2 border-black/10 transition-all duration-300 rounded-full"
+                                className="h-full bg-blue-600 transition-all duration-300 rounded-full"
                                 style={{ width: `${Math.min(100, (((displayedXp !== null ? displayedXp : (profile?.xp || 0)) / 1000) * 100))}%` }}
                             />
                         </div>
@@ -423,8 +423,8 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                 
                 {/* Rest Reward Pill */}
                 {(displayedLevel !== null ? displayedLevel : (profile?.level || 1)) >= 10 && (displayedXp !== null ? displayedXp : (profile?.xp || 0)) >= 1000 && (
-                    <div className="flex items-center gap-1 bg-emerald-50 border-2 border-emerald-300 border-b-[5px] border-b-emerald-400 px-2.5 py-1.5 rounded-2xl text-emerald-600 font-black shadow-xs animate-bounce" title="Você está com tudo em dia! Recompensa de folga ativada.">
-                        <Palmtree className="w-4 h-4 text-emerald-600 fill-emerald-600 shrink-0 drop-shadow-[0_1.5px_0_rgba(4,120,87,0.3)]" />
+                    <div className="flex items-center gap-1 bg-white border border-slate-200 border-b-4 border-b-slate-200 px-2.5 py-1.5 rounded-2xl text-emerald-700 font-black shadow-xs" title="Você está com tudo em dia! Recompensa de folga ativada.">
+                        <Palmtree className="w-4 h-4 text-emerald-600 shrink-0" />
                         <span className="text-[8px] font-black uppercase tracking-wider">Folga</span>
                     </div>
                 )}
@@ -441,7 +441,7 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                     ))}
                 </div>
 
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-(--color-text-primary) tracking-tight mt-1">{title}</h1>
+                <h1 className="text-2xl sm:text-3xl lg:text-[2rem] font-black text-(--color-text-primary) tracking-tight mt-1">{title}</h1>
             </div>
 
             {/* Flying XP Particles */}
@@ -462,10 +462,10 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                             ease: [0.19, 1, 0.22, 1]
                         }}
                         onAnimationComplete={() => handleParticleReach(p)}
-                        className="fixed z-200 pointer-events-none flex items-center gap-1.5 bg-linear-to-r from-emerald-500 to-teal-500 text-white font-extrabold px-3.5 py-1.5 rounded-full shadow-[0_4px_12px_rgba(16,185,129,0.2)] border border-emerald-500/20 text-xs"
+                        className="fixed z-200 pointer-events-none flex items-center gap-1.5 bg-slate-900 text-white font-extrabold px-3.5 py-1.5 rounded-full shadow-[0_8px_24px_rgba(15,23,42,0.2)] border border-white/10 text-xs"
                     >
-                        <Star className="w-3.5 h-3.5 fill-white text-emerald-400 animate-spin-slow animate-pulse" />
-                        <span>+{p.amount} XP</span>
+                        <Star className="w-3.5 h-3.5 text-white" />
+                        <span>{p.amount > 0 ? '+' : ''}{p.amount} XP</span>
                     </motion.div>
                 ))}
             </AnimatePresence>
@@ -522,9 +522,9 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                             </div>
 
                             <div className="max-h-[75vh] space-y-5 overflow-y-auto p-6">
-                                <div className="h-4 overflow-hidden rounded-full border border-blue-200 bg-blue-50">
+                                <div className="h-3.5 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
                                     <div
-                                        className="h-full rounded-full bg-linear-to-r from-blue-600 to-cyan-400"
+                                        className="h-full rounded-full bg-blue-600"
                                         style={{ width: `${Math.min(100, (xpPanelStats.currentXp / XP_PER_LEVEL) * 100)}%` }}
                                     />
                                 </div>
