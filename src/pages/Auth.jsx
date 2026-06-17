@@ -74,10 +74,11 @@ export default function Auth({ onLogin }) {
         <div
             className="min-h-screen flex items-center justify-center p-4"
             style={{
-                backgroundImage: `url("${encodeURI(`${import.meta.env.BASE_URL}fundo do login e site.png`)}")`,
+                backgroundImage: 'var(--prioriza-app-background)',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
+                backgroundAttachment: 'fixed',
             }}
         >
             <div className="max-w-lg w-full">

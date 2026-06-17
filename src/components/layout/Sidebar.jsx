@@ -28,8 +28,10 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                 className="fixed left-0 top-0 z-50 h-screen flex flex-col items-center py-6 hidden lg:flex"
                 style={{
                     width: '80px',
-                    backgroundColor: 'var(--color-sidebar-bg)',
-                    borderRight: '0'
+                    background: 'linear-gradient(180deg, rgba(255,255,255,0.86), rgba(245,249,255,0.74))',
+                    backdropFilter: 'blur(22px)',
+                    borderRight: '0',
+                    boxShadow: '18px 0 46px rgba(49, 91, 255, 0.08)'
                 }}
             >
                 {/* Logo */}
@@ -58,20 +60,20 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                                 className="relative flex items-center justify-center w-12 h-12 mx-auto rounded-2xl transition-all duration-100 group cursor-pointer"
                                 style={{
                                     color: isActive ? 'var(--color-sidebar-active)' : 'var(--color-sidebar-text)',
-                                    backgroundColor: isActive ? 'rgba(49, 91, 255, 0.08)' : 'transparent',
+                                    background: isActive ? 'linear-gradient(135deg, rgba(49, 91, 255, 0.14), rgba(18, 189, 231, 0.12))' : 'transparent',
                                     border: '0',
                                     boxShadow: isActive ? '0 16px 34px rgba(49, 91, 255, 0.16)' : 'none',
                                 }}
                                 onMouseEnter={e => {
                                     if (!isActive) {
-                                        e.currentTarget.style.backgroundColor = 'var(--color-sidebar-hover)'
+                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.72)'
                                         e.currentTarget.style.boxShadow = '0 12px 28px rgba(17, 24, 39, 0.08)'
                                         e.currentTarget.style.color = 'var(--color-text-primary)'
                                     }
                                 }}
                                 onMouseLeave={e => {
                                     if (!isActive) {
-                                        e.currentTarget.style.backgroundColor = 'transparent'
+                                        e.currentTarget.style.background = 'transparent'
                                         e.currentTarget.style.boxShadow = 'none'
                                         e.currentTarget.style.color = 'var(--color-sidebar-text)'
                                     }

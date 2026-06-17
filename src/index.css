@@ -15,6 +15,14 @@
   --color-prioriza-coral: #FF4B6E;
   --color-prioriza-orange: #FF8A3D;
   --color-prioriza-cyan: #12BDE7;
+  --prioriza-app-background:
+    radial-gradient(circle at 9% 12%, rgba(18, 189, 231, 0.34) 0 13%, transparent 31%),
+    radial-gradient(circle at 91% 13%, rgba(49, 91, 255, 0.33) 0 15%, transparent 34%),
+    radial-gradient(circle at 92% 86%, rgba(255, 75, 110, 0.28) 0 14%, transparent 33%),
+    radial-gradient(circle at 11% 89%, rgba(124, 58, 237, 0.24) 0 14%, transparent 34%),
+    linear-gradient(115deg, rgba(255, 255, 255, 0.70) 0 28%, rgba(255, 255, 255, 0.26) 28% 42%, transparent 42%),
+    linear-gradient(245deg, rgba(49, 91, 255, 0.16) 0 10%, transparent 10% 63%, rgba(255, 138, 61, 0.12) 63% 100%),
+    linear-gradient(135deg, #F7FCFF 0%, #EEF5FF 38%, #FFF4F8 68%, #F1F6FF 100%);
 
   /* Primary Color Scale */
   --color-primary-50: #F1F5FF;
@@ -31,12 +39,12 @@
 
   /* ── Duolingo-Inspired Gamified Theme ─────────────────────────── */
   /* Canvas (page background) */
-  --color-surface: #F6F7FB;
-  --color-surface-card: #FFFFFF;
-  --color-surface-elevated: #EEF2F7;
+  --color-surface: #F4F8FF;
+  --color-surface-card: rgba(255, 255, 255, 0.84);
+  --color-surface-elevated: #EAF2FF;
 
   /* Sidebar (Duolingo Style: Clean White & Bold Accents) */
-  --color-sidebar-bg: #FFFFFF;       /* Pure white sidebar */
+  --color-sidebar-bg: rgba(255, 255, 255, 0.86);
   --color-sidebar-text: #667085;
   --color-sidebar-active: #315BFF;
   --color-sidebar-hover: #F5F7FB;
@@ -228,7 +236,11 @@
 
 /* Subtle blue radial glow at top of the page */
 body {
-  background-image: radial-gradient(ellipse at 50% -10%, rgba(49, 91, 255, 0.055), transparent 60%);
+  background-image: var(--prioriza-app-background);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
 }
 
 /* Interactive spring press */
@@ -255,7 +267,8 @@ a,
 
 /* ── Duolingo 3D Styles ── */
 .btn-3d-primary {
-  background-color: var(--color-prioriza-blue) !important;
+  background:
+    linear-gradient(135deg, #315BFF 0%, #5B5CFF 48%, #12BDE7 100%) !important;
   border: 0 !important;
   color: #FFFFFF !important;
   border-radius: 16px !important;
@@ -267,7 +280,8 @@ a,
 }
 
 .btn-3d-secondary {
-  background-color: #FFFFFF !important;
+  background-color: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(18px) saturate(1.15);
   border: 0 !important;
   color: var(--color-text-secondary) !important;
   border-radius: 16px !important;
@@ -279,7 +293,8 @@ a,
 }
 
 .btn-3d-danger {
-  background-color: var(--color-prioriza-coral) !important;
+  background:
+    linear-gradient(135deg, #FF4B6E 0%, #FF6B4A 100%) !important;
   border: 0 !important;
   color: #FFFFFF !important;
   border-radius: 16px !important;
@@ -291,7 +306,8 @@ a,
 }
 
 .card-3d {
-  background-color: #FFFFFF !important;
+  background-color: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(22px) saturate(1.18);
   border: 0 !important;
   border-radius: 28px !important;
   box-shadow:
@@ -299,6 +315,15 @@ a,
     0 6px 18px rgba(17, 24, 39, 0.04),
     inset 0 1px 0 rgba(255, 255, 255, 0.92) !important;
   transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+.card-3d::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, rgba(49, 91, 255, 0.45), rgba(18, 189, 231, 0.28), rgba(255, 75, 110, 0.30));
+  opacity: 0.55;
+  pointer-events: none;
 }
 .card-3d:hover {
   border-color: transparent !important;
@@ -341,7 +366,11 @@ a,
 
 [class*="rounded-[30px]"],
 [class*="rounded-[32px]"],
+[class*="rounded-[28px]"],
+[class*="rounded-[24px]"],
 [class*="rounded-3xl"] {
+  background-color: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(20px) saturate(1.14);
   box-shadow:
     0 24px 60px rgba(17, 24, 39, 0.075),
     0 6px 18px rgba(17, 24, 39, 0.035) !important;

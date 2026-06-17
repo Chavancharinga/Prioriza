@@ -17,7 +17,6 @@ import Skeleton from './components/ui/Skeleton'
 import ConfirmationModal from './components/ui/ConfirmationModal'
 
 export default function App() {
-  const siteBackgroundImage = encodeURI(`${import.meta.env.BASE_URL}fundo do login e site.png`)
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
   const [activePage, setActivePage] = useState(() => {
@@ -50,7 +49,7 @@ export default function App() {
   useEffect(() => {
     if (typeof document === 'undefined') return
 
-    const backgroundUrl = `url("${siteBackgroundImage}")`
+    const backgroundUrl = 'var(--prioriza-app-background)'
     const applyBackground = () => {
       document.documentElement.style.backgroundImage = backgroundUrl
       document.documentElement.style.backgroundSize = 'cover'
@@ -91,7 +90,7 @@ export default function App() {
     }
 
     clearBackground()
-  }, [session, siteBackgroundImage])
+  }, [session])
 
   useEffect(() => {
     if (typeof window !== 'undefined') {

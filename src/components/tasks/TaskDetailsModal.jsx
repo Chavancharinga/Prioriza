@@ -15,7 +15,6 @@ import RichTextEditor from '../ui/RichTextEditor'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, onNavigate, profile }) {
-    const workspaceBackgroundImage = encodeURI(`${import.meta.env.BASE_URL}fundo do login e site.png`)
     const [currentTaskId, setCurrentTaskId] = useState(taskId)
     const [task, setTask] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -669,7 +668,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                 className="pointer-events-none fixed inset-0 z-0"
                 style={{
                     backgroundColor: 'var(--color-surface)',
-                    backgroundImage: !loading && task ? `url("${workspaceBackgroundImage}")` : 'none',
+                    backgroundImage: !loading && task ? 'var(--prioriza-app-background)' : 'none',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center top',
                     backgroundRepeat: 'no-repeat',
