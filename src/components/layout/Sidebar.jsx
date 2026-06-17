@@ -34,11 +34,11 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                 }}
             >
                 {/* Logo */}
-                <div className="mb-6 flex items-center justify-center w-[62px] rounded-2xl bg-white/95 px-1.5 py-2 shadow-[0_14px_30px_rgba(4,46,89,0.22)]">
+                <div className="mb-6 flex items-center justify-center w-full px-1">
                     <img 
                         src={`${import.meta.env.BASE_URL}logo.png`} 
                         alt="Prioriza" 
-                        className="w-[56px] h-auto object-contain transition-all duration-200" 
+                        className="w-[68px] h-auto object-contain transition-all duration-200 drop-shadow-[0_10px_22px_rgba(4,182,186,0.22)]" 
                     />
                 </div>
 
