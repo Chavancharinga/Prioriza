@@ -28,18 +28,17 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                 className="fixed left-0 top-0 z-50 h-screen flex flex-col items-center py-6 hidden lg:flex"
                 style={{
                     width: '80px',
-                    background: 'rgba(255, 255, 255, 0.92)',
-                    backdropFilter: 'blur(22px) saturate(1.05)',
-                    borderRight: '1px solid rgba(112, 128, 151, 0.10)',
-                    boxShadow: '14px 0 44px rgba(16, 23, 42, 0.045)'
+                    background: 'linear-gradient(180deg, #071B34 0%, #042E59 68%, #061626 100%)',
+                    borderRight: '1px solid rgba(4, 182, 186, 0.18)',
+                    boxShadow: '18px 0 48px rgba(4, 46, 89, 0.24)'
                 }}
             >
                 {/* Logo */}
-                <div className="mb-6 flex items-center justify-center w-full px-0.5">
+                <div className="mb-6 flex items-center justify-center w-[62px] rounded-2xl bg-white/95 px-1.5 py-2 shadow-[0_14px_30px_rgba(4,46,89,0.22)]">
                     <img 
                         src={`${import.meta.env.BASE_URL}logo.png`} 
                         alt="Prioriza" 
-                        className="w-[68px] h-auto object-contain scale-[1.2] transition-all duration-200 drop-shadow-[0_10px_22px_rgba(49,91,255,0.10)]" 
+                        className="w-[56px] h-auto object-contain transition-all duration-200" 
                     />
                 </div>
 
@@ -59,16 +58,16 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                                 aria-label={item.label}
                                 className="relative flex items-center justify-center w-12 h-12 mx-auto rounded-2xl transition-all duration-100 group cursor-pointer"
                                 style={{
-                                    color: isActive ? 'var(--color-sidebar-active)' : 'var(--color-sidebar-text)',
-                                    background: isActive ? 'linear-gradient(135deg, rgba(49, 91, 255, 0.16), rgba(10, 177, 215, 0.13))' : 'transparent',
+                                    color: isActive ? '#071B34' : 'var(--color-sidebar-text)',
+                                    background: isActive ? 'linear-gradient(135deg, #04B6BA 0%, #A7F3FF 100%)' : 'transparent',
                                     border: '0',
-                                    boxShadow: isActive ? '0 14px 30px rgba(49, 91, 255, 0.14)' : 'none',
+                                    boxShadow: isActive ? '0 14px 30px rgba(4, 182, 186, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.35)' : 'none',
                                 }}
                                 onMouseEnter={e => {
                                     if (!isActive) {
-                                        e.currentTarget.style.background = 'linear-gradient(135deg, rgba(49, 91, 255, 0.10), rgba(10, 177, 215, 0.08))'
-                                        e.currentTarget.style.boxShadow = '0 12px 26px rgba(49, 91, 255, 0.10)'
-                                        e.currentTarget.style.color = 'var(--color-text-primary)'
+                                        e.currentTarget.style.background = 'rgba(4, 182, 186, 0.14)'
+                                        e.currentTarget.style.boxShadow = '0 12px 26px rgba(4, 182, 186, 0.12)'
+                                        e.currentTarget.style.color = '#FFFFFF'
                                     }
                                 }}
                                 onMouseLeave={e => {
