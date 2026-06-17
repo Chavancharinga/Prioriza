@@ -28,10 +28,10 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                 className="fixed left-0 top-0 z-50 h-screen flex flex-col items-center py-6 hidden lg:flex"
                 style={{
                     width: '80px',
-                    background: 'linear-gradient(180deg, rgba(255,255,255,0.86), rgba(245,249,255,0.74))',
-                    backdropFilter: 'blur(22px)',
-                    borderRight: '0',
-                    boxShadow: '18px 0 46px rgba(49, 91, 255, 0.08)'
+                    background: 'rgba(255, 255, 255, 0.92)',
+                    backdropFilter: 'blur(22px) saturate(1.05)',
+                    borderRight: '1px solid rgba(112, 128, 151, 0.10)',
+                    boxShadow: '14px 0 44px rgba(16, 23, 42, 0.045)'
                 }}
             >
                 {/* Logo */}
@@ -60,14 +60,14 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                                 className="relative flex items-center justify-center w-12 h-12 mx-auto rounded-2xl transition-all duration-100 group cursor-pointer"
                                 style={{
                                     color: isActive ? 'var(--color-sidebar-active)' : 'var(--color-sidebar-text)',
-                                    background: isActive ? 'linear-gradient(135deg, rgba(49, 91, 255, 0.14), rgba(18, 189, 231, 0.12))' : 'transparent',
+                                    background: isActive ? 'linear-gradient(135deg, rgba(49, 91, 255, 0.16), rgba(10, 177, 215, 0.13))' : 'transparent',
                                     border: '0',
-                                    boxShadow: isActive ? '0 16px 34px rgba(49, 91, 255, 0.16)' : 'none',
+                                    boxShadow: isActive ? '0 14px 30px rgba(49, 91, 255, 0.14)' : 'none',
                                 }}
                                 onMouseEnter={e => {
                                     if (!isActive) {
-                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.72)'
-                                        e.currentTarget.style.boxShadow = '0 12px 28px rgba(17, 24, 39, 0.08)'
+                                        e.currentTarget.style.background = 'linear-gradient(135deg, rgba(49, 91, 255, 0.10), rgba(10, 177, 215, 0.08))'
+                                        e.currentTarget.style.boxShadow = '0 12px 26px rgba(49, 91, 255, 0.10)'
                                         e.currentTarget.style.color = 'var(--color-text-primary)'
                                     }
                                 }}

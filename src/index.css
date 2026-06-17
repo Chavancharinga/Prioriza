@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-
 @import "tailwindcss";
 
 @import "tw-animate-css";
@@ -10,19 +8,17 @@
 
 :root {
   /* Brand Colors (from the Prioriza logo) */
-  --color-prioriza-navy: #111827;
+  --color-prioriza-navy: #10172A;
   --color-prioriza-blue: #315BFF;
-  --color-prioriza-coral: #FF4B6E;
-  --color-prioriza-orange: #FF8A3D;
-  --color-prioriza-cyan: #12BDE7;
+  --color-prioriza-purple: #6D5BFF;
+  --color-prioriza-coral: #FF5A6F;
+  --color-prioriza-orange: #F97316;
+  --color-prioriza-cyan: #0AB1D7;
   --prioriza-app-background:
-    radial-gradient(circle at 9% 12%, rgba(18, 189, 231, 0.34) 0 13%, transparent 31%),
-    radial-gradient(circle at 91% 13%, rgba(49, 91, 255, 0.33) 0 15%, transparent 34%),
-    radial-gradient(circle at 92% 86%, rgba(255, 75, 110, 0.28) 0 14%, transparent 33%),
-    radial-gradient(circle at 11% 89%, rgba(124, 58, 237, 0.24) 0 14%, transparent 34%),
-    linear-gradient(115deg, rgba(255, 255, 255, 0.70) 0 28%, rgba(255, 255, 255, 0.26) 28% 42%, transparent 42%),
-    linear-gradient(245deg, rgba(49, 91, 255, 0.16) 0 10%, transparent 10% 63%, rgba(255, 138, 61, 0.12) 63% 100%),
-    linear-gradient(135deg, #F7FCFF 0%, #EEF5FF 38%, #FFF4F8 68%, #F1F6FF 100%);
+    radial-gradient(circle at 8% 10%, rgba(10, 177, 215, 0.16) 0 17%, transparent 34%),
+    radial-gradient(circle at 92% 8%, rgba(49, 91, 255, 0.12) 0 18%, transparent 36%),
+    radial-gradient(circle at 88% 92%, rgba(109, 91, 255, 0.08) 0 16%, transparent 35%),
+    linear-gradient(135deg, #F8FBFF 0%, #F2F7FF 44%, #EEF6FA 100%);
 
   /* Primary Color Scale */
   --color-primary-50: #F1F5FF;
@@ -39,27 +35,28 @@
 
   /* ── Duolingo-Inspired Gamified Theme ─────────────────────────── */
   /* Canvas (page background) */
-  --color-surface: #F4F8FF;
-  --color-surface-card: rgba(255, 255, 255, 0.84);
-  --color-surface-elevated: #EAF2FF;
+  --color-surface: #F5F8FC;
+  --color-surface-card: rgba(255, 255, 255, 0.92);
+  --color-surface-elevated: #EEF4FB;
 
   /* Sidebar (Duolingo Style: Clean White & Bold Accents) */
-  --color-sidebar-bg: rgba(255, 255, 255, 0.86);
-  --color-sidebar-text: #667085;
+  --color-sidebar-bg: rgba(255, 255, 255, 0.92);
+  --color-sidebar-text: #5E6A7D;
   --color-sidebar-active: #315BFF;
-  --color-sidebar-hover: #F5F7FB;
+  --color-sidebar-hover: #EEF5FF;
 
   /* Text */
-  --color-text-primary: #111827;
-  --color-text-secondary: #475467;
-  --color-text-muted: #8A94A6;
+  --color-text-primary: #172033;
+  --color-text-secondary: #344054;
+  --color-text-muted: #5E6A7D;
 
   /* Borders */
-  --color-border: #E5EAF2;
-  --color-border-light: #F1F4F8;
+  --color-border: rgba(112, 128, 151, 0.16);
+  --color-border-light: rgba(112, 128, 151, 0.10);
 
   /* Font Family */
-  --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-sans: 'Oxanium Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-heading: 'Oxanium Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -112,12 +109,34 @@
 
   body {
     font-family: var(--font-sans);
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 400;
     line-height: 1.5;
     color: var(--color-text-primary);
     background-color: var(--color-surface);
     @apply bg-background text-foreground;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+    color: var(--color-text-primary);
+    letter-spacing: -0.045em;
+  }
+
+  h1 {
+    font-size: clamp(1.8rem, 2.2vw, 2.65rem);
+    font-weight: 720;
+    line-height: 1.05;
+  }
+
+  h2 {
+    font-weight: 680;
+  }
+
+  h3 {
+    font-weight: 650;
   }
 
   /* Accessibility */
@@ -267,12 +286,11 @@ a,
 
 /* ── Duolingo 3D Styles ── */
 .btn-3d-primary {
-  background:
-    linear-gradient(135deg, #315BFF 0%, #5B5CFF 48%, #12BDE7 100%) !important;
+  background: #315BFF !important;
   border: 0 !important;
   color: #FFFFFF !important;
-  border-radius: 16px !important;
-  box-shadow: 0 14px 30px rgba(49, 91, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+  border-radius: 15px !important;
+  box-shadow: 0 12px 28px rgba(49, 91, 255, 0.20), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
 }
 .btn-3d-primary:active {
   transform: translateY(1px) !important;
@@ -280,12 +298,12 @@ a,
 }
 
 .btn-3d-secondary {
-  background-color: rgba(255, 255, 255, 0.82) !important;
-  backdrop-filter: blur(18px) saturate(1.15);
-  border: 0 !important;
+  background-color: rgba(255, 255, 255, 0.90) !important;
+  backdrop-filter: blur(18px) saturate(1.08);
+  border: 1px solid rgba(112, 128, 151, 0.13) !important;
   color: var(--color-text-secondary) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 12px 28px rgba(17, 24, 39, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  border-radius: 15px !important;
+  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.055), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
 }
 .btn-3d-secondary:active {
   transform: translateY(1px) !important;
@@ -293,12 +311,11 @@ a,
 }
 
 .btn-3d-danger {
-  background:
-    linear-gradient(135deg, #FF4B6E 0%, #FF6B4A 100%) !important;
+  background: #F04438 !important;
   border: 0 !important;
   color: #FFFFFF !important;
-  border-radius: 16px !important;
-  box-shadow: 0 14px 30px rgba(255, 75, 110, 0.20), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  border-radius: 15px !important;
+  box-shadow: 0 12px 28px rgba(240, 68, 56, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
 }
 .btn-3d-danger:active {
   transform: translateY(1px) !important;
@@ -306,31 +323,25 @@ a,
 }
 
 .card-3d {
-  background-color: rgba(255, 255, 255, 0.82) !important;
-  backdrop-filter: blur(22px) saturate(1.18);
-  border: 0 !important;
-  border-radius: 28px !important;
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(18px) saturate(1.08);
+  border: 1px solid rgba(112, 128, 151, 0.12) !important;
+  border-radius: 24px !important;
   box-shadow:
-    0 24px 60px rgba(17, 24, 39, 0.08),
-    0 6px 18px rgba(17, 24, 39, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.92) !important;
+    0 20px 55px rgba(16, 23, 42, 0.075),
+    0 4px 14px rgba(16, 23, 42, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96) !important;
   transition: transform 0.2s ease, box-shadow 0.2s ease !important;
 }
 .card-3d::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 3px;
-  background: linear-gradient(90deg, rgba(49, 91, 255, 0.45), rgba(18, 189, 231, 0.28), rgba(255, 75, 110, 0.30));
-  opacity: 0.55;
-  pointer-events: none;
+  content: none !important;
 }
 .card-3d:hover {
-  border-color: transparent !important;
+  border-color: rgba(112, 128, 151, 0.12) !important;
   box-shadow:
-    0 28px 70px rgba(17, 24, 39, 0.10),
-    0 8px 22px rgba(17, 24, 39, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.92) !important;
+    0 24px 64px rgba(16, 23, 42, 0.085),
+    0 6px 18px rgba(16, 23, 42, 0.045),
+    inset 0 1px 0 rgba(255, 255, 255, 0.96) !important;
 }
 
 /* Apple-like visual override: keep structure, remove visible UI borders */
@@ -354,14 +365,10 @@ a,
 
 .card-3d,
 .card-3d:hover,
-[class*="border-slate"],
-[class*="border-neutral"],
-[class*="border-gray"],
-[class*="border-white"],
 [class*="hover:border-slate"],
 [class*="hover:border-neutral"],
 [class*="hover:border-gray"] {
-  border-color: transparent !important;
+  border-color: rgba(112, 128, 151, 0.12) !important;
 }
 
 [class*="rounded-[30px]"],
@@ -369,11 +376,11 @@ a,
 [class*="rounded-[28px]"],
 [class*="rounded-[24px]"],
 [class*="rounded-3xl"] {
-  background-color: rgba(255, 255, 255, 0.82) !important;
-  backdrop-filter: blur(20px) saturate(1.14);
+  background-color: rgba(255, 255, 255, 0.90) !important;
+  backdrop-filter: blur(18px) saturate(1.08);
   box-shadow:
-    0 24px 60px rgba(17, 24, 39, 0.075),
-    0 6px 18px rgba(17, 24, 39, 0.035) !important;
+    0 18px 50px rgba(16, 23, 42, 0.065),
+    0 4px 14px rgba(16, 23, 42, 0.035) !important;
 }
 
 input,
@@ -387,6 +394,41 @@ input:focus,
 textarea:focus,
 select:focus {
   box-shadow: 0 0 0 4px rgba(49, 91, 255, 0.10), 0 12px 28px rgba(17, 24, 39, 0.07) !important;
+}
+
+h1[class*="font-black"],
+h2[class*="font-black"],
+h3[class*="font-black"],
+h1 [class*="font-black"],
+h2 [class*="font-black"],
+h3 [class*="font-black"] {
+  font-weight: 720 !important;
+}
+
+.font-black {
+  font-weight: 720 !important;
+}
+
+.font-extrabold {
+  font-weight: 680 !important;
+}
+
+.text-gray-400,
+.text-slate-400,
+.text-neutral-400,
+[class*="text-gray-400"],
+[class*="text-slate-400"],
+[class*="text-neutral-400"] {
+  color: var(--color-text-muted) !important;
+}
+
+.text-4xl {
+  font-size: clamp(2rem, 2.6vw, 2.65rem) !important;
+}
+
+.text-5xl,
+.text-6xl {
+  font-size: clamp(2.5rem, 4.4vw, 4.35rem) !important;
 }
 
 .dark {
