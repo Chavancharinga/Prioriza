@@ -19,7 +19,7 @@ export default function Button({ children, variant = 'primary', disabled = false
             whileHover={disabled || loading ? {} : hoverAnimation}
             whileTap={disabled || loading ? {} : tapAnimation}
             disabled={disabled || loading}
-            className={`inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-extrabold tracking-tight transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary-500/20 disabled:cursor-not-allowed disabled:opacity-50 ${variants[variant]} ${className}`}
+            className={`inline-flex items-center justify-center gap-2.5 px-5 py-2.5 text-sm font-semibold tracking-tight transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary-500/20 disabled:cursor-not-allowed disabled:opacity-50 ${variants[variant]} ${className}`}
             {...props}
         >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}

@@ -4,11 +4,11 @@ import Card from '../ui/Card'
 import EmptyState from '../ui/EmptyState'
 
 const priorityColors = {
-    1: 'border-l-rose-600 bg-rose-50/50',
-    2: 'border-l-red-500 bg-red-50/50',
-    3: 'border-l-orange-500 bg-orange-50/50',
-    4: 'border-l-yellow-500 bg-yellow-50/50',
-    5: 'border-l-blue-500 bg-blue-50/50',
+    1: 'border-l-red-600 bg-red-50/50',
+    2: 'border-l-orange-500 bg-orange-50/50',
+    3: 'border-l-amber-400 bg-amber-50/50',
+    4: 'border-l-lime-500 bg-lime-50/50',
+    5: 'border-l-green-500 bg-green-50/50',
 }
 
 const statusIcons = {
@@ -60,11 +60,11 @@ function TaskNode({ task, level = 0, children, onTaskClick, allTasks }) {
                 )}
 
                 <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-                    task.priority === 1 ? 'bg-rose-100 text-rose-700' :
-                    task.priority === 2 ? 'bg-red-100 text-red-600' :
-                    task.priority === 3 ? 'bg-orange-100 text-orange-700' :
-                    task.priority === 4 ? 'bg-yellow-100 text-yellow-700' :
-                    'bg-blue-100 text-blue-700'
+                    task.priority === 1 ? 'bg-red-100 text-red-700' :
+                    task.priority === 2 ? 'bg-orange-100 text-orange-700' :
+                    task.priority === 3 ? 'bg-amber-100 text-amber-700' :
+                    task.priority === 4 ? 'bg-lime-100 text-lime-700' :
+                    'bg-green-100 text-green-700'
                 }`}>
                     P{task.priority}
                 </span>

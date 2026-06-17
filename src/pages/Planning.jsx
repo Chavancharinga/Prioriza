@@ -8,11 +8,11 @@ const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 const MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
 
 const priorityDotColors = {
-    1: 'bg-rose-600',
-    2: 'bg-red-500',
-    3: 'bg-orange-500',
-    4: 'bg-yellow-500',
-    5: 'bg-blue-500',
+    1: 'bg-red-600',
+    2: 'bg-orange-500',
+    3: 'bg-amber-400',
+    4: 'bg-lime-500',
+    5: 'bg-green-500',
 }
 
 export default function Planning() {

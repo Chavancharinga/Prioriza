@@ -11,7 +11,7 @@ const tabs = [
 
 export default function BottomNav({ activeTab, onTabChange }) {
     return (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-(--color-border) bg-white/95 pb-safe backdrop-blur-xl lg:hidden shadow-[0_-4px_24px_rgba(15,23,42,0.05)]">
+        <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-(--color-border) bg-(--color-surface-card)/95 pb-safe backdrop-blur-xl lg:hidden shadow-[0_-4px_24px_rgba(0,0,0,0.04)]">
             <div className="grid grid-cols-6 h-16">
                 {tabs.map((tab) => {
                     const Icon = tab.icon
@@ -25,11 +25,11 @@ export default function BottomNav({ activeTab, onTabChange }) {
                         >
                             {/* Active Indicator Bar at Top */}
                             {isActive && (
-                                <div className="absolute top-0 left-1/2 h-[3px] w-9 -translate-x-1/2 rounded-b-full bg-blue-600" />
+                                <div className="absolute top-0 left-1/2 h-[3px] w-10 -translate-x-1/2 rounded-b-full bg-linear-to-r from-blue-500 to-cyan-400" />
                             )}
 
                             {/* Icon */}
-                            <div className="relative transition-all duration-200">
+                            <div className={`relative transition-all duration-200 ${isActive ? 'scale-110' : ''}`}>
                                 <Icon className={`h-5 w-5 transition-all duration-200 ${isActive ? 'stroke-[2.5] text-(--color-prioriza-blue)' : 'stroke-2 text-(--color-text-muted)'}`} />
                             </div>
 

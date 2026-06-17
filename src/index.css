@@ -9,46 +9,46 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Brand: modern Duolingo-inspired, calmer and more professional */
+  /* Brand Colors (from the Prioriza logo) */
   --color-prioriza-navy: #111827;
-  --color-prioriza-blue: #1D4ED8;
-  --color-prioriza-coral: #DC2626;
-  --color-prioriza-orange: #D97706;
-  --color-prioriza-cyan: #0EA5E9;
+  --color-prioriza-blue: #315BFF;
+  --color-prioriza-coral: #FF4B6E;
+  --color-prioriza-orange: #FF8A3D;
+  --color-prioriza-cyan: #12BDE7;
 
   /* Primary Color Scale */
-  --color-primary-50: #EFF6FF;
-  --color-primary-100: #DBEAFE;
-  --color-primary-500: #3B82F6;
-  --color-primary-600: #2563EB;
-  --color-primary-700: #1D4ED8;
+  --color-primary-50: #F1F5FF;
+  --color-primary-100: #E4EBFF;
+  --color-primary-500: #315BFF;
+  --color-primary-600: #2647D9;
+  --color-primary-700: #1F36A8;
 
   /* Gamification Colors */
   --color-prioriza-gold: #F59E0B;
-  --color-prioriza-xp: #16A34A;
-  --color-prioriza-focus: #1D4ED8;
-  --color-prioriza-danger: #DC2626;
+  --color-prioriza-xp: #22C55E;
+  --color-prioriza-focus: #315BFF;
+  --color-prioriza-danger: #FF4B6E;
 
   /* ── Duolingo-Inspired Gamified Theme ─────────────────────────── */
   /* Canvas (page background) */
-  --color-surface: #F7F8FA;
+  --color-surface: #F6F7FB;
   --color-surface-card: #FFFFFF;
   --color-surface-elevated: #EEF2F7;
 
   /* Sidebar (Duolingo Style: Clean White & Bold Accents) */
   --color-sidebar-bg: #FFFFFF;       /* Pure white sidebar */
-  --color-sidebar-text: #64748B;
-  --color-sidebar-active: #1D4ED8;
-  --color-sidebar-hover: #F1F5F9;
+  --color-sidebar-text: #667085;
+  --color-sidebar-active: #315BFF;
+  --color-sidebar-hover: #F5F7FB;
 
   /* Text */
-  --color-text-primary: #172033;
-  --color-text-secondary: #475569;
-  --color-text-muted: #7C8AA0;
+  --color-text-primary: #111827;
+  --color-text-secondary: #475467;
+  --color-text-muted: #8A94A6;
 
   /* Borders */
-  --color-border: #DDE5EF;
-  --color-border-light: #EEF2F7;
+  --color-border: #E5EAF2;
+  --color-border-light: #F1F4F8;
 
   /* Font Family */
   --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -228,7 +228,7 @@
 
 /* Subtle blue radial glow at top of the page */
 body {
-  background-image: radial-gradient(ellipse at 50% -10%, rgba(29, 78, 216, 0.05), transparent 55%);
+  background-image: radial-gradient(ellipse at 50% -10%, rgba(49, 91, 255, 0.055), transparent 60%);
 }
 
 /* Interactive spring press */
@@ -256,58 +256,69 @@ a,
 /* ── Duolingo 3D Styles ── */
 .btn-3d-primary {
   background-color: var(--color-prioriza-blue) !important;
-  border: 1px solid #1E40AF !important;
-  border-bottom: 4px solid #1E40AF !important;
+  border: 1px solid rgba(31, 54, 168, 0.18) !important;
   color: #FFFFFF !important;
   border-radius: 14px !important;
-  box-shadow: none !important;
+  box-shadow: 0 10px 24px rgba(49, 91, 255, 0.18) !important;
 }
 .btn-3d-primary:active {
-  transform: translateY(2px) !important;
-  border-bottom-width: 2px !important;
-  margin-bottom: 2px !important;
+  transform: translateY(1px) !important;
+  box-shadow: 0 6px 16px rgba(49, 91, 255, 0.16) !important;
 }
 
 .btn-3d-secondary {
   background-color: #FFFFFF !important;
-  border: 1px solid #DDE5EF !important;
-  border-bottom: 4px solid #CBD5E1 !important;
-  color: #334155 !important;
+  border: 1px solid var(--color-border) !important;
+  color: var(--color-text-secondary) !important;
   border-radius: 14px !important;
-  box-shadow: none !important;
+  box-shadow: 0 8px 20px rgba(17, 24, 39, 0.05) !important;
 }
 .btn-3d-secondary:active {
-  transform: translateY(2px) !important;
-  border-bottom-width: 2px !important;
-  margin-bottom: 2px !important;
+  transform: translateY(1px) !important;
+  box-shadow: 0 5px 14px rgba(17, 24, 39, 0.05) !important;
 }
 
 .btn-3d-danger {
   background-color: var(--color-prioriza-coral) !important;
-  border: 1px solid #B91C1C !important;
-  border-bottom: 4px solid #991B1B !important;
+  border: 1px solid rgba(190, 18, 60, 0.16) !important;
   color: #FFFFFF !important;
   border-radius: 14px !important;
-  box-shadow: none !important;
+  box-shadow: 0 10px 24px rgba(255, 75, 110, 0.16) !important;
 }
 .btn-3d-danger:active {
-  transform: translateY(2px) !important;
-  border-bottom-width: 2px !important;
-  margin-bottom: 2px !important;
+  transform: translateY(1px) !important;
+  box-shadow: 0 6px 16px rgba(255, 75, 110, 0.14) !important;
 }
 
 .card-3d {
   background-color: #FFFFFF !important;
-  border: 1px solid #DDE5EF !important;
-  border-bottom: 4px solid #DDE5EF !important;
+  border: 1px solid var(--color-border) !important;
   border-radius: 22px !important;
-  box-shadow: 0 10px 30px -22px rgba(15, 23, 42, 0.35) !important;
-  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease !important;
+  box-shadow: 0 18px 45px rgba(17, 24, 39, 0.06) !important;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
 }
 .card-3d:hover {
-  border-color: #CBD5E1 !important;
-  border-bottom-color: #CBD5E1 !important;
-  box-shadow: 0 18px 40px -26px rgba(15, 23, 42, 0.45) !important;
+  border-color: #D5DCE8 !important;
+  box-shadow: 0 22px 50px rgba(17, 24, 39, 0.075) !important;
+}
+
+/* Apple-like visual override: keep structure, remove heavy game borders */
+[class*="border-2"] {
+  border-width: 1px !important;
+}
+
+[class*="border-b-["] {
+  border-bottom-width: 1px !important;
+}
+
+[class*="shadow-[0_5px"],
+[class*="shadow-[0_2px_0"] {
+  box-shadow: 0 8px 20px rgba(17, 24, 39, 0.06) !important;
+}
+
+.animate-bounce,
+.animate-pulse {
+  animation: none !important;
 }
 
 .dark {
@@ -345,8 +356,8 @@ a,
 }
 
 @theme inline {
-  --font-sans: 'Plus Jakarta Sans', 'Inter', sans-serif;
-  --font-heading: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-sans: 'Oxanium Variable', sans-serif;
+  --font-heading: 'JetBrains Mono Variable', monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

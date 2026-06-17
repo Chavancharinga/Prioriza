@@ -952,11 +952,11 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                         <p className="text-xs text-gray-500 uppercase font-bold mb-2">Prioridade</p>
                                         <div className="flex items-center gap-2">
                                             <div className={`w-3 h-3 rounded-full ${
-                                                task.priority === 1 ? 'bg-rose-600' :
-                                                task.priority === 2 ? 'bg-red-500' :
-                                                task.priority === 3 ? 'bg-orange-500' :
-                                                task.priority === 4 ? 'bg-yellow-500' :
-                                                'bg-blue-500'
+                                                task.priority === 1 ? 'bg-red-600' :
+                                                task.priority === 2 ? 'bg-orange-500' :
+                                                task.priority === 3 ? 'bg-amber-400' :
+                                                task.priority === 4 ? 'bg-lime-500' :
+                                                'bg-green-500'
                                             }`}></div>
                                             <span className="text-sm font-bold text-(--color-text-primary)">
                                                 {task.priority === 1 ? 'Crítica' :

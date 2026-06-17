@@ -72,11 +72,11 @@ const quadrants = [
 ]
 
 const priorityColors = {
-    1: 'bg-rose-600',
-    2: 'bg-red-500',
-    3: 'bg-orange-500',
-    4: 'bg-yellow-500',
-    5: 'bg-blue-500',
+    1: 'bg-red-600',
+    2: 'bg-orange-500',
+    3: 'bg-amber-400',
+    4: 'bg-lime-500',
+    5: 'bg-green-500',
 }
 
 const priorityLabels = { 1: 'P1', 2: 'P2', 3: 'P3', 4: 'P4', 5: 'P5' }

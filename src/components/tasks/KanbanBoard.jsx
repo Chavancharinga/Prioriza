@@ -9,11 +9,11 @@ const columns = [
 ]
 
 const priorityColors = {
-    1: 'border-l-rose-600',
-    2: 'border-l-red-500',
-    3: 'border-l-orange-500',
-    4: 'border-l-yellow-500',
-    5: 'border-l-blue-500',
+    1: 'border-l-red-600',
+    2: 'border-l-orange-500',
+    3: 'border-l-amber-400',
+    4: 'border-l-lime-500',
+    5: 'border-l-green-500',
 }
 
 export default function KanbanBoard({ tasks, loading, onEdit, onDelete, onStatusChange, onTaskClick }) {
@@ -139,11 +139,11 @@ export default function KanbanBoard({ tasks, loading, onEdit, onDelete, onStatus
                                                         </span>
                                                     )}
                                                     <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                                                        task.priority === 1 ? 'bg-rose-100 text-rose-700' :
-                                                        task.priority === 2 ? 'bg-red-100 text-red-600' :
-                                                        task.priority === 3 ? 'bg-orange-100 text-orange-700' :
-                                                        task.priority === 4 ? 'bg-yellow-100 text-yellow-700' :
-                                                        'bg-blue-100 text-blue-700'
+                                                        task.priority === 1 ? 'bg-red-100 text-red-700' :
+                                                        task.priority === 2 ? 'bg-orange-100 text-orange-700' :
+                                                        task.priority === 3 ? 'bg-amber-100 text-amber-700' :
+                                                        task.priority === 4 ? 'bg-lime-100 text-lime-700' :
+                                                        'bg-green-100 text-green-700'
                                                     }`}>
                                                         P{task.priority}
                                                     </span>

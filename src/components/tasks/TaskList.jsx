@@ -5,11 +5,11 @@ import EmptyState from '../ui/EmptyState'
 import Button from '../ui/Button'
 
 const priorityColors = {
-    1: 'border-l-red-500 bg-white',
-    2: 'border-l-red-400 bg-white',
-    3: 'border-l-amber-400 bg-white',
-    4: 'border-l-slate-300 bg-white',
-    5: 'border-l-slate-300 bg-white',
+    1: 'border-l-red-600 bg-red-50',
+    2: 'border-l-orange-500 bg-orange-50',
+    3: 'border-l-amber-400 bg-amber-50',
+    4: 'border-l-lime-500 bg-lime-50',
+    5: 'border-l-green-500 bg-green-50',
 }
 
 const statusIcons = {
@@ -46,7 +46,7 @@ export default function TaskList({ tasks, loading, onEdit, onDelete, onTaskClick
     return (
         <Card>
             {/* label placeholder aria-label */}
-            <div className="space-y-2.5">
+            <div className="space-y-2">
                 <AnimatePresence mode="popLayout">
                     {tasks.map((task) => {
                         const StatusIcon = statusIcons[task.status] || Circle
@@ -60,18 +60,18 @@ export default function TaskList({ tasks, loading, onEdit, onDelete, onTaskClick
                                 transition={{ type: "spring", stiffness: 450, damping: 30 }}
                                 key={task.id}
                                 onClick={() => onTaskClick && onTaskClick(task)}
-                                className={`group flex items-center gap-3 rounded-2xl border-l-4 border-y border-r border-slate-200 p-3.5 transition-all hover:-translate-y-0.5 hover:border-slate-300 cursor-pointer ${priorityColors[task.priority] || 'border-l-slate-300'
+                                className={`group flex items-center gap-3 rounded-lg border-l-4 border-y border-r border-neutral-200 p-3 transition-all hover:shadow-sm cursor-pointer ${priorityColors[task.priority] || 'border-l-neutral-300'
                                     }`}
                                 title="Clique para abrir o espaço de trabalho (Pomodoro, Notas, Checklists)"
                             >
-                                <StatusIcon className="h-5 w-5 text-slate-400" />
+                                <StatusIcon className="h-5 w-5 text-neutral-400" />
 
                                 <div className="flex-1 min-w-0">
-                                    <h4 className="text-sm font-black text-slate-800 truncate">
+                                    <h4 className="text-sm font-medium text-neutral-900 truncate">
                                         {task.title}
                                     </h4>
                                     {task.description && (
-                                        <p className="text-xs font-medium text-slate-500 truncate">
+                                        <p className="text-xs text-neutral-500 truncate">
                                             {task.description}
                                         </p>
                                     )}
@@ -80,13 +80,13 @@ export default function TaskList({ tasks, loading, onEdit, onDelete, onTaskClick
                                 <div className="flex items-center gap-2">
                                     {task.due_date && (
                                         <span className="hidden sm:inline text-xs text-neutral-500">
-                                            {new Date(task.due_date).toLocaleDateString('pt-PT', {
+                                            {new Date(task.due_date).toLocaleDateString('pt-BR', {
                                                 day: '2-digit',
                                                 month: 'short',
                                             })}
                                         </span>
                                     )}
-                                    <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-black text-slate-600">
+                                    <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-700">
                                         P{task.priority}
                                     </span>
 
@@ -96,7 +96,7 @@ export default function TaskList({ tasks, loading, onEdit, onDelete, onTaskClick
                                                 e.stopPropagation()
                                                 onEdit(task)
                                             }}
-                                            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-slate-50 rounded-md transition-colors"
+                                            className="p-1.5 text-neutral-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
                                         >
                                             <Pencil className="w-4 h-4" />
                                         </button>
@@ -105,7 +105,7 @@ export default function TaskList({ tasks, loading, onEdit, onDelete, onTaskClick
                                                 e.stopPropagation()
                                                 onDelete(task.id)
                                             }}
-                                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-slate-50 rounded-md transition-colors"
+                                            className="p-1.5 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>

@@ -3,10 +3,12 @@ import {
     ListTodo,
     Calendar,
     BarChart3,
+    Menu,
+    X,
     Bot,
     User
 } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const menuItems = [
     { id: 'dashboard', label: 'Início', icon: LayoutDashboard },
@@ -27,20 +29,20 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                 style={{
                     width: '80px',
                     backgroundColor: 'var(--color-sidebar-bg)',
-                    borderRight: '2px solid var(--color-border)'
+                    borderRight: '1px solid var(--color-border)'
                 }}
             >
                 {/* Logo */}
-                <div className="mb-8 flex items-center justify-center w-full px-1">
+                <div className="mb-6 flex items-center justify-center w-full px-0.5">
                     <img 
                         src={`${import.meta.env.BASE_URL}logo.png`} 
                         alt="Prioriza" 
-                        className="w-[58px] h-auto object-contain transition-all duration-200 drop-shadow-[0_6px_16px_rgba(15,23,42,0.08)]" 
+                        className="w-[68px] h-auto object-contain scale-[1.2] transition-all duration-200 drop-shadow-[0_10px_22px_rgba(49,91,255,0.10)]" 
                     />
                 </div>
 
                 {/* Navigation Icons */}
-                <nav className="flex-1 flex flex-col gap-3 w-full px-3 overflow-y-auto overflow-x-hidden pb-safe">
+                <nav className="flex-1 flex flex-col gap-5 w-full px-3 overflow-y-auto overflow-x-hidden pb-safe">
                     {menuItems.map((item) => {
                         const Icon = item.icon
                         const isActive = activeItem === item.id
@@ -53,19 +55,18 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                                 }}
                                 title={item.label}
                                 aria-label={item.label}
-                                className="relative flex items-center justify-center w-12 h-12 mx-auto rounded-2xl transition-all duration-150 group cursor-pointer"
+                                className="relative flex items-center justify-center w-12 h-12 mx-auto rounded-2xl transition-all duration-100 group cursor-pointer"
                                 style={{
                                     color: isActive ? 'var(--color-sidebar-active)' : 'var(--color-sidebar-text)',
-                                    backgroundColor: isActive ? 'rgba(29, 78, 216, 0.08)' : 'transparent',
-                                    border: isActive ? '1px solid rgba(29, 78, 216, 0.18)' : '1px solid transparent',
-                                    borderBottom: isActive ? '4px solid rgba(29, 78, 216, 0.28)' : '1px solid transparent',
+                                    backgroundColor: isActive ? 'rgba(49, 91, 255, 0.08)' : 'transparent',
+                                    border: isActive ? '1px solid rgba(49, 91, 255, 0.22)' : '1px solid transparent',
+                                    boxShadow: isActive ? '0 10px 22px rgba(49, 91, 255, 0.12)' : 'none',
                                 }}
                                 onMouseEnter={e => {
                                     if (!isActive) {
                                         e.currentTarget.style.backgroundColor = 'var(--color-sidebar-hover)'
-                                        e.currentTarget.style.borderColor = '#E5E7EB'
-                                        e.currentTarget.style.borderBottomColor = '#D1D5DB'
-                                        e.currentTarget.style.borderBottomWidth = '3px'
+                                        e.currentTarget.style.borderColor = 'var(--color-border)'
+                                        e.currentTarget.style.boxShadow = '0 8px 18px rgba(17, 24, 39, 0.05)'
                                         e.currentTarget.style.color = 'var(--color-text-primary)'
                                     }
                                 }}
@@ -73,15 +74,14 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                                     if (!isActive) {
                                         e.currentTarget.style.backgroundColor = 'transparent'
                                         e.currentTarget.style.borderColor = 'transparent'
-                                        e.currentTarget.style.borderBottomColor = 'transparent'
-                                        e.currentTarget.style.borderBottomWidth = '2px'
+                                        e.currentTarget.style.boxShadow = 'none'
                                         e.currentTarget.style.color = 'var(--color-sidebar-text)'
                                     }
                                 }}
                             >
                                 <Icon className={`h-5 w-5 sm:h-6 sm:w-6 ${isActive ? 'stroke-2' : 'stroke-[2px]'}`} />
 
-                                <span className="absolute left-16 bg-slate-800 text-white text-[10px] font-extrabold uppercase px-2.5 py-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 shadow-md">
+                                <span className="absolute left-16 bg-slate-900 text-white text-[10px] font-semibold px-2.5 py-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 shadow-md">
                                     {item.label}
                                 </span>
                             </button>
@@ -89,7 +89,25 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                     })}
                 </nav>
 
-                <div className="mt-auto h-8 border-t border-(--color-border) w-full" />
+                {/* Priority Legend (Desktop only, at the bottom of sidebar) */}
+                <div className="mt-auto pt-6 border-t border-(--color-border) w-full flex flex-col items-center gap-4 pb-2">
+                    {[
+                        { priority: 5, label: 'Mínima', color: 'bg-green-500', tooltip: 'Prioridade Mínima (P5)' },
+                        { priority: 4, label: 'Baixa', color: 'bg-lime-500', tooltip: 'Prioridade Baixa (P4)' },
+                        { priority: 3, label: 'Média', color: 'bg-amber-400', tooltip: 'Prioridade Média (P3)' },
+                        { priority: 2, label: 'Alta', color: 'bg-orange-500', tooltip: 'Prioridade Alta (P2)' },
+                        { priority: 1, label: 'Crítica', color: 'bg-red-600', tooltip: 'Prioridade Crítica (P1)' },
+                    ].map((p) => (
+                        <div key={p.priority} className="relative group cursor-help">
+                            <div className={`w-[16px] h-[16px] rounded-full ${p.color} border border-white shadow-sm hover:scale-110 transition-transform`} />
+                            
+                            {/* Custom Tooltip */}
+                            <span className="absolute left-12 top-1/2 -translate-y-1/2 bg-slate-900 text-white text-[10px] font-semibold px-2.5 py-1.5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50 shadow-md">
+                                {p.tooltip}
+                            </span>
+                        </div>
+                    ))}
+                </div>
             </motion.aside>
         </>
     )
