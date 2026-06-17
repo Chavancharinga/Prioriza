@@ -29,7 +29,7 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                 style={{
                     width: '80px',
                     backgroundColor: 'var(--color-sidebar-bg)',
-                    borderRight: '1px solid var(--color-border)'
+                    borderRight: '0'
                 }}
             >
                 {/* Logo */}
@@ -59,21 +59,19 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                                 style={{
                                     color: isActive ? 'var(--color-sidebar-active)' : 'var(--color-sidebar-text)',
                                     backgroundColor: isActive ? 'rgba(49, 91, 255, 0.08)' : 'transparent',
-                                    border: isActive ? '1px solid rgba(49, 91, 255, 0.22)' : '1px solid transparent',
-                                    boxShadow: isActive ? '0 10px 22px rgba(49, 91, 255, 0.12)' : 'none',
+                                    border: '0',
+                                    boxShadow: isActive ? '0 16px 34px rgba(49, 91, 255, 0.16)' : 'none',
                                 }}
                                 onMouseEnter={e => {
                                     if (!isActive) {
                                         e.currentTarget.style.backgroundColor = 'var(--color-sidebar-hover)'
-                                        e.currentTarget.style.borderColor = 'var(--color-border)'
-                                        e.currentTarget.style.boxShadow = '0 8px 18px rgba(17, 24, 39, 0.05)'
+                                        e.currentTarget.style.boxShadow = '0 12px 28px rgba(17, 24, 39, 0.08)'
                                         e.currentTarget.style.color = 'var(--color-text-primary)'
                                     }
                                 }}
                                 onMouseLeave={e => {
                                     if (!isActive) {
                                         e.currentTarget.style.backgroundColor = 'transparent'
-                                        e.currentTarget.style.borderColor = 'transparent'
                                         e.currentTarget.style.boxShadow = 'none'
                                         e.currentTarget.style.color = 'var(--color-sidebar-text)'
                                     }
