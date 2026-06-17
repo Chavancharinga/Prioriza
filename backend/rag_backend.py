@@ -1,15 +1,16 @@
 import json
 import os
 import re
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from openai import OpenAI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from supabase import Client, create_client
 
 BACKEND_DIR = Path(__file__).resolve().parent
@@ -71,6 +72,14 @@ class QueryRequest(BaseModel):
 class TaskInsightRequest(BaseModel):
     task_id: str
     mode: Literal["subtasks", "summary"]
+
+
+class PrioChatRequest(BaseModel):
+    message: str
+    tasks: list[dict[str, Any]] = Field(default_factory=list)
+    profile: dict[str, Any] | None = None
+    history: list[dict[str, str]] = Field(default_factory=list)
+    last_created_task: dict[str, Any] | None = None
 
 
 def fetch_task_context(task_id: str):
@@ -216,6 +225,167 @@ def call_openrouter(task, full_context: str, mode: str, question: str | None = N
         return response.choices[0].message.content or ""
 
 
+def infer_due_date_from_message(message: str):
+    normalized = message.lower()
+    due_date = None
+    if "amanh" in normalized:
+        date = datetime.now() + timedelta(days=1)
+        hour_match = re.search(r"(\d{1,2})(?::(\d{2}))?\s*(?:h|horas?)?", normalized)
+        hour = int(hour_match.group(1)) if hour_match else 18
+        minute = int(hour_match.group(2)) if hour_match and hour_match.group(2) else 0
+        date = date.replace(hour=min(hour, 23), minute=min(minute, 59), second=0, microsecond=0)
+        due_date = date.isoformat()
+    elif "hoje" in normalized:
+        date = datetime.now()
+        hour_match = re.search(r"(\d{1,2})(?::(\d{2}))?\s*(?:h|horas?)?", normalized)
+        hour = int(hour_match.group(1)) if hour_match else 18
+        minute = int(hour_match.group(2)) if hour_match and hour_match.group(2) else 0
+        date = date.replace(hour=min(hour, 23), minute=min(minute, 59), second=0, microsecond=0)
+        due_date = date.isoformat()
+    return due_date
+
+
+def build_fallback_task_action(message: str):
+    if not re.search(r"\b(cria|crie|criar|adiciona|adicione|nova tarefa)\b", message, flags=re.IGNORECASE):
+        return None
+
+    title_match = re.search(
+        r"(?:para|tarefa)\s+(.+?)(?:\s+amanh[ãa]|\s+hoje|\s+até|\s+prazo|$)",
+        message,
+        flags=re.IGNORECASE,
+    )
+    title = title_match.group(1).strip() if title_match else re.sub(
+        r"\b(prio|cria|crie|criar|adiciona|adicione|uma|nova|tarefa|para)\b",
+        "",
+        message,
+        flags=re.IGNORECASE,
+    ).strip()
+    if not title:
+        title = "Nova tarefa criada pelo PRIO"
+
+    lowered = message.lower()
+    priority = 1 if any(word in lowered for word in ["urgente", "crítico", "critico", "defeito", "bug"]) else 3
+    estimated_minutes = 45 if any(word in lowered for word in ["bug", "defeito", "corrigir", "função", "funcao"]) else 60
+
+    return {
+        "type": "create_task",
+        "task": {
+            "title": title[:1].upper() + title[1:],
+            "description": "Tarefa criada por conversa com o PRIO. Revise os detalhes antes de iniciar.",
+            "priority": priority,
+            "estimated_minutes": estimated_minutes,
+            "due_date": infer_due_date_from_message(message),
+            "checklist": [
+                "Confirmar o problema e o resultado esperado",
+                "Dividir a correção em passos pequenos",
+                "Executar, testar e registrar a conclusão",
+            ],
+            "note": "Nota do PRIO: checklist, prioridade e tempo foram sugeridos automaticamente e podem ser editados manualmente.",
+        },
+    }
+
+
+def fallback_prio_response(req: PrioChatRequest):
+    def is_overdue(task):
+        try:
+            if task.get("status") == "Feito" or not task.get("due_date"):
+                return False
+            return datetime.fromisoformat(str(task["due_date"]).replace("Z", "+00:00")).replace(tzinfo=None) < datetime.now()
+        except Exception:
+            return False
+
+    tasks = req.tasks or []
+    total = len(tasks)
+    done = len([task for task in tasks if task.get("status") == "Feito"])
+    progress = len([task for task in tasks if task.get("status") == "Em Progresso"])
+    overdue = len([task for task in tasks if is_overdue(task)])
+    completion = round((done / total) * 100) if total else 0
+    action = build_fallback_task_action(req.message)
+
+    if action:
+        reply = (
+            "Perfeito. Vou criar a tarefa com prioridade, checklist, nota importante e estimativa automática. "
+            "Depois você pode editar tudo manualmente no Prioriza."
+        )
+    else:
+        reply = (
+            f"Mini relatório: você concluiu {done}/{total} tarefas ({completion}%). "
+            f"Há {progress} em progresso e {overdue} atrasada(s). "
+            "Minha sugestão: ataque primeiro as P1/P2 com prazo próximo e deixe o cronograma ajustar o resto."
+        )
+
+    return {
+        "reply": reply,
+        "action": action,
+        "provider": "local-fallback",
+        "model": None,
+    }
+
+
+def build_prio_messages(req: PrioChatRequest):
+    now_text = datetime.now().isoformat(timespec="minutes")
+    task_context = json.dumps(req.tasks[:80], ensure_ascii=False, indent=2)
+    profile_context = json.dumps(req.profile or {}, ensure_ascii=False, indent=2)
+    history_context = json.dumps(req.history[-8:], ensure_ascii=False, indent=2)
+    last_created = json.dumps(req.last_created_task or {}, ensure_ascii=False, indent=2)
+
+    system_message = """
+Você é o PRIO, assistente pessoal de produtividade do app Prioriza.
+Responda em português, com tom direto, motivador e prático.
+Você conhece as tarefas enviadas no contexto e pode:
+- fazer mini relatórios de produtividade;
+- responder sobre prazos, prioridades, atrasos, XP e foco;
+- sugerir cronograma automático mantendo tudo editável manualmente;
+- criar tarefas quando o usuário pedir;
+- complementar a última tarefa criada quando o usuário der prazo ou detalhes depois.
+
+Retorne APENAS JSON válido com esta estrutura:
+{
+  "reply": "mensagem curta ao usuário",
+  "action": {
+    "type": "none|create_task|update_last_task",
+    "task": {
+      "title": "string",
+      "description": "string",
+      "priority": 1,
+      "estimated_minutes": 60,
+      "due_date": "ISO-8601 ou null",
+      "checklist": ["item 1", "item 2"],
+      "note": "string"
+    }
+  }
+}
+
+Regras:
+- Se não houver ação, use {"type":"none","task":null}.
+- Para nova tarefa, crie checklist com 3 a 6 itens, nota importante e estimativa se o usuário não informar.
+- Se o usuário disser "amanhã" sem hora, use amanhã às 18:00.
+- Se o objetivo da tarefa estiver claro, não faça perguntas desnecessárias.
+- Só pergunte detalhes se faltar o título/objetivo principal.
+""".strip()
+
+    user_message = f"""
+DATA_ATUAL: {now_text}
+
+PERFIL:
+{profile_context}
+
+TAREFAS:
+{task_context}
+
+HISTÓRICO_RECENTE:
+{history_context}
+
+ÚLTIMA_TAREFA_CRIADA:
+{last_created}
+
+MENSAGEM_DO_USUÁRIO:
+{req.message}
+""".strip()
+
+    return [{"role": "system", "content": system_message}, {"role": "user", "content": user_message}]
+
+
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "service": "Prioriza RAG Engine"}
@@ -344,6 +514,47 @@ async def generate_task_insight(req: TaskInsightRequest):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/ai/prio-chat")
+async def prio_chat(req: PrioChatRequest):
+    if not req.message.strip():
+        raise HTTPException(status_code=400, detail="Mensagem vazia.")
+
+    if not openrouter_client:
+        return fallback_prio_response(req)
+
+    request_kwargs = {
+        "model": OPENROUTER_MODEL,
+        "messages": build_prio_messages(req),
+        "temperature": 0.25,
+        "max_tokens": 900,
+        "response_format": {"type": "json_object"},
+    }
+
+    try:
+        try:
+            response = openrouter_client.chat.completions.create(**request_kwargs)
+        except Exception:
+            request_kwargs.pop("response_format", None)
+            response = openrouter_client.chat.completions.create(**request_kwargs)
+
+        raw_content = response.choices[0].message.content or ""
+        parsed = parse_json_content(raw_content)
+        action = parsed.get("action") or {"type": "none", "task": None}
+
+        if action.get("type") == "none":
+            action = None
+
+        return {
+            "reply": str(parsed.get("reply") or "").strip() or "Analisei suas tarefas. O que quer fazer agora?",
+            "action": action,
+            "provider": "openrouter",
+            "model": OPENROUTER_MODEL,
+        }
+    except Exception as exc:
+        print(f"PRIO OpenRouter error: {exc}")
+        return fallback_prio_response(req)
 
 
 if __name__ == "__main__":

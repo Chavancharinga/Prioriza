@@ -1,17 +1,18 @@
-import { LayoutDashboard, ListTodo, Calendar, BarChart3, User } from 'lucide-react'
+import { LayoutDashboard, ListTodo, Calendar, BarChart3, Bot, User } from 'lucide-react'
 
 const tabs = [
     { id: 'dashboard', label: 'Início', icon: LayoutDashboard },
     { id: 'tasks', label: 'Tarefas', icon: ListTodo },
     { id: 'planning', label: 'Planejar', icon: Calendar },
     { id: 'analytics', label: 'Análise', icon: BarChart3 },
+    { id: 'prio', label: 'PRIO', icon: Bot },
     { id: 'profile', label: 'Perfil', icon: User },
 ]
 
 export default function BottomNav({ activeTab, onTabChange }) {
     return (
         <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-(--color-border) bg-(--color-surface-card)/95 pb-safe backdrop-blur-xl lg:hidden shadow-[0_-4px_24px_rgba(0,0,0,0.04)]">
-            <div className="grid grid-cols-5 h-16">
+            <div className="grid grid-cols-6 h-16">
                 {tabs.map((tab) => {
                     const Icon = tab.icon
                     const isActive = activeTab === tab.id

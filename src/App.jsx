@@ -9,6 +9,7 @@ import Tasks from './pages/Tasks'
 import Auth from './pages/Auth'
 import Planning from './pages/Planning'
 import Analytics from './pages/Analytics'
+import PrioChat from './pages/PrioChat'
 import Profile from './components/dashboard/Profile'
 import { ProfileService } from './services/ProfileService'
 import { GamificationService } from './services/GamificationService'
@@ -22,7 +23,7 @@ export default function App() {
   const [activePage, setActivePage] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('prioriza_active_page')
-      return saved && ['dashboard', 'tasks', 'planning', 'analytics', 'profile'].includes(saved) ? saved : 'dashboard'
+      return saved && ['dashboard', 'tasks', 'planning', 'analytics', 'prio', 'profile'].includes(saved) ? saved : 'dashboard'
     }
     return 'dashboard'
   })
@@ -236,6 +237,11 @@ export default function App() {
       title: 'Análise',
       breadcrumb: ['Análise', 'Visão Geral'],
       component: Analytics,
+    },
+    prio: {
+      title: 'PRIO',
+      breadcrumb: ['Assistente', 'Chat'],
+      component: PrioChat,
     },
     profile: {
       title: 'Meu Perfil',

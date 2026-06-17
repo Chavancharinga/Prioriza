@@ -1,6 +1,68 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { User, Flame, Trophy, Star, Zap, Palmtree } from 'lucide-react'
+import { User, Flame, Trophy, Star, Palmtree, X, TrendingUp, TrendingDown, Clock, CheckCircle2 } from 'lucide-react'
+import { TaskService } from '../../services/TaskService'
+
+const XP_PER_LEVEL = 1000
+
+function estimateTaskXp(task, now = new Date()) {
+    const priority = Number(task?.priority || 3)
+    const baseXp = Math.max(50, (6 - priority) * 50)
+    const dueDate = task?.due_date ? new Date(task.due_date) : null
+    const completedDate = task?.completed_at ? new Date(task.completed_at) : null
+
+    if (task?.status === 'Feito') {
+        if (dueDate && completedDate && completedDate > dueDate) return -100
+        return baseXp + (dueDate ? 150 : 0)
+    }
+
+    if (dueDate && dueDate < now) return -100
+    return baseXp + (dueDate ? 150 : 0)
+}
+
+function formatShortDate(value) {
+    if (!value) return 'Sem prazo'
+    return new Intl.DateTimeFormat('pt-PT', {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+    }).format(new Date(value))
+}
+
+function buildXpStats(tasks = [], profile = {}) {
+    const now = new Date()
+    const completedTasks = tasks.filter(task => task.status === 'Feito')
+    const pendingTasks = tasks.filter(task => task.status !== 'Feito')
+    const overdueTasks = pendingTasks.filter(task => task.due_date && new Date(task.due_date) < now)
+
+    const completedGain = completedTasks.reduce((total, task) => total + Math.max(0, estimateTaskXp(task, now)), 0)
+    const completedLoss = completedTasks.reduce((total, task) => total + Math.min(0, estimateTaskXp(task, now)), 0)
+    const pendingPotential = pendingTasks
+        .filter(task => !overdueTasks.some(overdue => overdue.id === task.id))
+        .reduce((total, task) => total + Math.max(0, estimateTaskXp(task, now)), 0)
+    const overduePenalty = overdueTasks.length * -50
+    const nextLevelXp = Math.max(0, XP_PER_LEVEL - (profile?.xp || 0))
+
+    return {
+        currentXp: profile?.xp || 0,
+        level: profile?.level || 1,
+        nextLevelXp,
+        completedGain,
+        completedLoss,
+        pendingPotential,
+        overduePenalty,
+        completedTasks: completedTasks
+            .map(task => ({ ...task, xpValue: estimateTaskXp(task, now) }))
+            .sort((a, b) => new Date(b.completed_at || b.updated_at || 0) - new Date(a.completed_at || a.updated_at || 0))
+            .slice(0, 5),
+        pendingTasks: pendingTasks
+            .map(task => ({ ...task, xpValue: estimateTaskXp(task, now) }))
+            .sort((a, b) => Math.abs(b.xpValue) - Math.abs(a.xpValue))
+            .slice(0, 5),
+        overdueTasks
+    }
+}
 
 export default function DashboardHeader({ title, breadcrumb, onNavigate, profile }) {
     // Store coordinates of the user's last click to spawn particles
@@ -20,11 +82,13 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
     const [mobileTrophyScale, setMobileTrophyScale] = useState(1)
     const [particles, setParticles] = useState([])
     const [sparkles, setSparkles] = useState([])
+    const [xpPanelOpen, setXpPanelOpen] = useState(false)
+    const [xpPanelLoading, setXpPanelLoading] = useState(false)
+    const [xpPanelStats, setXpPanelStats] = useState(() => buildXpStats([], profile))
 
     // Initialize displayed stats when profile loads
     useEffect(() => {
         if (profile && displayedXp === null) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setDisplayedXp(profile.xp)
             setDisplayedLevel(profile.level)
         }
@@ -47,7 +111,6 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
             targetStatsRef.current = { level: profile.level, xp: profile.xp }
             // If no active particles are flying and no animation is running, sync immediately
             if (particles.length === 0 && !progressIntervalRef.current) {
-                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setDisplayedXp(profile.xp)
                 setDisplayedLevel(profile.level)
             }
@@ -192,6 +255,31 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
         setSparkles(prev => [...prev, ...newSparkles])
     }
 
+    const openXpPanel = async () => {
+        setXpPanelOpen(true)
+        setXpPanelLoading(true)
+        try {
+            const tasks = await TaskService.getTasks()
+            setXpPanelStats(buildXpStats(tasks, {
+                ...profile,
+                xp: displayedXp !== null ? displayedXp : profile?.xp,
+                level: displayedLevel !== null ? displayedLevel : profile?.level
+            }))
+        } catch (error) {
+            console.error('Error loading XP panel:', error)
+            setXpPanelStats(buildXpStats([], profile))
+        } finally {
+            setXpPanelLoading(false)
+        }
+    }
+
+    const handleXpKeyDown = (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            openXpPanel()
+        }
+    }
+
     return (
         <header className="px-4 sm:px-6 lg:px-8 pt-6 pb-2 flex flex-col gap-4 lg:gap-6">
             {/* Top Navigation Row */}
@@ -220,6 +308,10 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                         <motion.div 
                             whileHover={{ y: -2 }}
                             whileTap={{ y: 1 }}
+                            onClick={openXpPanel}
+                            onKeyDown={handleXpKeyDown}
+                            role="button"
+                            tabIndex={0}
                             className="flex items-center gap-3 bg-blue-50 border-2 border-blue-300 border-b-[5px] border-b-blue-400 px-4 py-2 rounded-2xl text-blue-600 font-black shadow-sm cursor-pointer" 
                             title={`XP do Nível: ${displayedXp !== null ? displayedXp : (profile?.xp || 0)}/1000`}
                         >
@@ -301,6 +393,10 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                 
                 {/* XP Progress Pill */}
                 <div 
+                    onClick={openXpPanel}
+                    onKeyDown={handleXpKeyDown}
+                    role="button"
+                    tabIndex={0}
                     className="flex items-center gap-2 bg-blue-50 border-2 border-blue-300 border-b-[5px] border-b-blue-400 px-3 py-1.5 rounded-2xl text-blue-600 font-black flex-2 justify-center shadow-xs" 
                     title={`XP do Nível: ${displayedXp !== null ? displayedXp : (profile?.xp || 0)}/1000`}
                 >
@@ -391,6 +487,132 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                         }}
                     />
                 ))}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {xpPanelOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[250] flex items-start justify-center bg-slate-950/30 px-4 py-8 backdrop-blur-sm sm:items-center"
+                        onClick={() => setXpPanelOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ y: 24, opacity: 0, scale: 0.96 }}
+                            animate={{ y: 0, opacity: 1, scale: 1 }}
+                            exit={{ y: 16, opacity: 0, scale: 0.97 }}
+                            transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+                            className="w-full max-w-3xl overflow-hidden rounded-[32px] border-2 border-white bg-white shadow-[0_24px_80px_rgba(15,23,42,0.25)]"
+                            onClick={event => event.stopPropagation()}
+                        >
+                            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+                                <div>
+                                    <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-500">Carteira de XP</p>
+                                    <h2 className="text-2xl font-black text-slate-900">Nível {xpPanelStats.level} · {xpPanelStats.currentXp}/1000 XP</h2>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setXpPanelOpen(false)}
+                                    className="grid h-10 w-10 place-items-center rounded-2xl border-2 border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-900"
+                                    aria-label="Fechar painel de XP"
+                                >
+                                    <X className="h-5 w-5" />
+                                </button>
+                            </div>
+
+                            <div className="max-h-[75vh] space-y-5 overflow-y-auto p-6">
+                                <div className="h-4 overflow-hidden rounded-full border border-blue-200 bg-blue-50">
+                                    <div
+                                        className="h-full rounded-full bg-linear-to-r from-blue-600 to-cyan-400"
+                                        style={{ width: `${Math.min(100, (xpPanelStats.currentXp / XP_PER_LEVEL) * 100)}%` }}
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
+                                    <div className="rounded-3xl border border-blue-100 bg-blue-50 p-4">
+                                        <Clock className="mb-2 h-5 w-5 text-blue-600" />
+                                        <p className="text-[10px] font-black uppercase text-slate-500">Próximo nível</p>
+                                        <p className="text-2xl font-black text-slate-900">{xpPanelStats.nextLevelXp}</p>
+                                        <p className="text-xs font-bold text-slate-500">XP restantes</p>
+                                    </div>
+                                    <div className="rounded-3xl border border-emerald-100 bg-emerald-50 p-4">
+                                        <TrendingUp className="mb-2 h-5 w-5 text-emerald-600" />
+                                        <p className="text-[10px] font-black uppercase text-slate-500">Já ganhou</p>
+                                        <p className="text-2xl font-black text-slate-900">+{xpPanelStats.completedGain}</p>
+                                        <p className="text-xs font-bold text-slate-500">XP concluído</p>
+                                    </div>
+                                    <div className="rounded-3xl border border-amber-100 bg-amber-50 p-4">
+                                        <Star className="mb-2 h-5 w-5 fill-amber-500 text-amber-500" />
+                                        <p className="text-[10px] font-black uppercase text-slate-500">Pode ganhar</p>
+                                        <p className="text-2xl font-black text-slate-900">+{xpPanelStats.pendingPotential}</p>
+                                        <p className="text-xs font-bold text-slate-500">XP pendente</p>
+                                    </div>
+                                    <div className="rounded-3xl border border-rose-100 bg-rose-50 p-4">
+                                        <TrendingDown className="mb-2 h-5 w-5 text-rose-600" />
+                                        <p className="text-[10px] font-black uppercase text-slate-500">Perdas</p>
+                                        <p className="text-2xl font-black text-slate-900">{xpPanelStats.overduePenalty + xpPanelStats.completedLoss}</p>
+                                        <p className="text-xs font-bold text-slate-500">XP por atraso</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                    <div className="rounded-3xl border border-slate-200 p-4">
+                                        <div className="mb-3 flex items-center gap-2">
+                                            <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+                                            <h3 className="font-black text-slate-900">Próximos ganhos</h3>
+                                        </div>
+                                        <div className="space-y-2">
+                                            {xpPanelLoading ? (
+                                                <p className="text-sm font-bold text-slate-500">Calculando XP...</p>
+                                            ) : xpPanelStats.pendingTasks.length ? (
+                                                xpPanelStats.pendingTasks.map(task => (
+                                                    <div key={task.id} className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-3 py-2">
+                                                        <div className="min-w-0">
+                                                            <p className="truncate text-sm font-black text-slate-800">{task.title}</p>
+                                                            <p className="text-[11px] font-bold text-slate-400">{formatShortDate(task.due_date)}</p>
+                                                        </div>
+                                                        <span className={`rounded-full px-2.5 py-1 text-xs font-black ${task.xpValue < 0 ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'}`}>
+                                                            {task.xpValue > 0 ? '+' : ''}{task.xpValue} XP
+                                                        </span>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p className="text-sm font-bold text-slate-500">Nenhuma tarefa pendente com XP previsto.</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="rounded-3xl border border-slate-200 p-4">
+                                        <div className="mb-3 flex items-center gap-2">
+                                            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                                            <h3 className="font-black text-slate-900">Últimos resultados</h3>
+                                        </div>
+                                        <div className="space-y-2">
+                                            {xpPanelLoading ? (
+                                                <p className="text-sm font-bold text-slate-500">Buscando histórico...</p>
+                                            ) : xpPanelStats.completedTasks.length ? (
+                                                xpPanelStats.completedTasks.map(task => (
+                                                    <div key={task.id} className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 px-3 py-2">
+                                                        <div className="min-w-0">
+                                                            <p className="truncate text-sm font-black text-slate-800">{task.title}</p>
+                                                            <p className="text-[11px] font-bold text-slate-400">{formatShortDate(task.completed_at)}</p>
+                                                        </div>
+                                                        <span className={`rounded-full px-2.5 py-1 text-xs font-black ${task.xpValue < 0 ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                                                            {task.xpValue > 0 ? '+' : ''}{task.xpValue} XP
+                                                        </span>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p className="text-sm font-bold text-slate-500">Ainda não há tarefas concluídas no histórico.</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
             </AnimatePresence>
         </header>
     )

@@ -21,8 +21,27 @@ async function requestTaskInsight(taskId, mode) {
     return payload
 }
 
+async function prioChat(payload) {
+    const response = await fetch(`${AI_API_BASE_URL}/ai/prio-chat`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+
+    const data = await response.json().catch(() => ({}))
+
+    if (!response.ok) {
+        throw new Error(data?.detail || 'Falha ao conversar com o PRIO.')
+    }
+
+    return data
+}
+
 export const AIService = {
     requestTaskInsight,
+    prioChat,
 
     suggestSubtasks(taskId) {
         return requestTaskInsight(taskId, 'subtasks')

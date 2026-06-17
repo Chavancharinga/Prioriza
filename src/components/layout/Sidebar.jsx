@@ -5,6 +5,7 @@ import {
     BarChart3,
     Menu,
     X,
+    Bot,
     User
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -14,6 +15,7 @@ const menuItems = [
     { id: 'tasks', label: 'Tarefas', icon: ListTodo },
     { id: 'planning', label: 'Planejamento', icon: Calendar },
     { id: 'analytics', label: 'Análise', icon: BarChart3 },
+    { id: 'prio', label: 'PRIO', icon: Bot },
     { id: 'profile', label: 'Perfil', icon: User },
 ]
 

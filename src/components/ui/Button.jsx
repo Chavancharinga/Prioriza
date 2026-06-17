@@ -5,11 +5,12 @@ const variants = {
     primary: 'btn-3d-primary',
     ghost: 'bg-transparent text-neutral-600 hover:bg-slate-100 rounded-xl',
     outline: 'btn-3d-secondary',
+    secondary: 'btn-3d-secondary',
     danger: 'btn-3d-danger',
 }
 
 export default function Button({ children, variant = 'primary', disabled = false, loading = false, className = '', ...props }) {
-    const is3d = ['primary', 'outline', 'danger'].includes(variant)
+    const is3d = ['primary', 'outline', 'secondary', 'danger'].includes(variant)
     const hoverAnimation = is3d ? {} : { scale: 1.02 }
     const tapAnimation = is3d ? {} : { scale: 0.98 }
 
