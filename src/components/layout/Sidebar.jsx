@@ -59,7 +59,7 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                                 aria-label={item.label}
                                 className="relative flex items-center justify-center w-12 h-12 mx-auto rounded-2xl transition-all duration-100 group cursor-pointer"
                                 style={{
-                                    color: isActive ? '#2563EB' : 'var(--color-sidebar-text)',
+                                    color: isActive ? 'var(--color-prioriza-blue)' : 'var(--color-sidebar-text)',
                                     background: isActive ? '#FFFFFF' : 'transparent',
                                     border: '0',
                                     boxShadow: isActive ? '0 8px 20px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9)' : 'none',
