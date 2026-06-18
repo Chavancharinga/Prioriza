@@ -117,7 +117,7 @@ export default function App() {
       const searchStr = (title + ' ' + finalMessage).toLowerCase()
       if (searchStr.includes('erro') || searchStr.includes('falha') || searchStr.includes('expirado') || searchStr.includes('penalidade') || searchStr.includes('atraso')) {
         type = 'danger'
-      } else if (searchStr.includes('subiu de nível') || searchStr.includes('sucesso') || searchStr.includes('parabéns') || searchStr.includes('vitória')) {
+      } else if (searchStr.includes('subiu de n\u00edvel') || searchStr.includes('sucesso') || searchStr.includes('parab\u00e9ns') || searchStr.includes('vit\u00f3ria')) {
         type = 'success'
       }
 
@@ -193,7 +193,15 @@ export default function App() {
     const handleOverduePenalty = (e) => {
       const { tasks, deduction } = e.detail
       const titles = tasks.map(t => `"${t.title}"`).join(', ')
-      alert(`PRAZO EXPIRADO!\n\nAs seguintes tarefas passaram do prazo sem conclusão: ${titles}.\nVocê perdeu ${deduction} XP de penalidade. Acelere suas entregas!`)
+      setAlertConfig({
+        isOpen: true,
+        type: 'danger',
+        title: 'Prazo expirado',
+        message: `As seguintes tarefas passaram do prazo sem conclusão: ${titles}.\nVocê perdeu ${deduction} XP de penalidade. Acelere suas entregas!`,
+        confirmText: 'Entendido',
+        cancelText: null,
+        onConfirm: null
+      })
       loadProfile()
     }
     window.addEventListener('xp-updated', handleXpUpdate)
@@ -229,12 +237,12 @@ export default function App() {
     },
     planning: {
       title: 'Planejamento',
-      breadcrumb: ['Planejamento', 'Calendário'],
+      breadcrumb: ['Planejamento', 'Calend\u00e1rio'],
       component: Planning,
     },
     analytics: {
-      title: 'Análise',
-      breadcrumb: ['Análise', 'Visão Geral'],
+      title: 'An\u00e1lise',
+      breadcrumb: ['An\u00e1lise', 'Vis\u00e3o Geral'],
       component: Analytics,
     },
     prio: {
@@ -244,7 +252,7 @@ export default function App() {
     },
     profile: {
       title: 'Meu Perfil',
-      breadcrumb: ['Configurações', 'Perfil'],
+      breadcrumb: ['Configura\u00e7\u00f5es', 'Perfil'],
       component: Profile,
     },
   }

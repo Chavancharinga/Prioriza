@@ -1,3 +1,4 @@
+﻿import os
 import asyncio
 import re
 from playwright import async_api
@@ -70,13 +71,13 @@ async def run_test():
         # email input
         elem = page.locator("xpath=/html/body/div/div/div/div[2]/form/div/input").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("danieloliveiradasilva261623@gmail.com")
+        await elem.fill(os.environ["TESTSPRITE_LOGIN_EMAIL"])
         
         # -> Sign in by entering the provided email and password and submit the form (inputs 406, 407; click 410).
         # password input
         elem = page.locator("xpath=/html/body/div/div/div/div[2]/form/div[2]/input").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("261623ruth")
+        await elem.fill(os.environ["TESTSPRITE_LOGIN_PASSWORD"])
         
         # -> Sign in by entering the provided email and password and submit the form (inputs 406, 407; click 410).
         # button "Entrar"
@@ -103,7 +104,7 @@ async def run_test():
         await elem.fill("Created by automated test \u2014 verify appears in the task list.")
         
         # -> Fill the task form (title, description), select priority, set due date, and submit the 'Criar Tarefa' button to create the task.
-        # button title="Média"
+        # button title="MÃ©dia"
         elem = page.locator("xpath=/html/body/div/div/div/main/div/div/div[4]/div/form/div[2]/div[3]/div/div/button[3]").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
         await elem.click()
@@ -211,7 +212,7 @@ async def run_test():
         await elem.fill("Created by automated test \u2014 verify appears in the task list.")
         
         # -> Fill title and description, select a priority, set the due date, then click 'CRIAR TAREFA' to submit and allow verification of success or display of validation errors.
-        # button title="Média"
+        # button title="MÃ©dia"
         elem = page.locator("xpath=/html/body/div/div/div/main/div/div/div[4]/div/form/div[2]/div[3]/div/div/button[3]").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
         await elem.click()
@@ -264,7 +265,7 @@ async def run_test():
         await elem.wait_for(state="visible", timeout=10000)
         await elem.click()
         
-        # --> Test passed — verified by AI agent
+        # --> Test passed â€” verified by AI agent
         frame = context.pages[-1]
         current_url = await frame.evaluate("() => window.location.href")
         assert current_url is not None, "Test completed successfully"

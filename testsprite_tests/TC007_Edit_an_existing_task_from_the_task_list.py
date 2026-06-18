@@ -1,3 +1,4 @@
+﻿import os
 import asyncio
 import re
 from playwright import async_api
@@ -50,13 +51,13 @@ async def run_test():
         # email input
         elem = page.locator("xpath=/html/body/div/div/div/div[2]/form/div/input").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("danieloliveiradasilva261623@gmail.com")
+        await elem.fill(os.environ["TESTSPRITE_LOGIN_EMAIL"])
         
         # -> Fill the email and password fields and submit the login form by clicking the Entrar button.
         # password input
         elem = page.locator("xpath=/html/body/div/div/div/div[2]/form/div[2]/input").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("261623ruth")
+        await elem.fill(os.environ["TESTSPRITE_LOGIN_PASSWORD"])
         
         # -> Fill the email and password fields and submit the login form by clicking the Entrar button.
         # button "Entrar"
@@ -179,7 +180,7 @@ async def run_test():
         await elem.click()
         
         # -> Open an existing task from the task list to reveal its detail/edit controls by clicking task container element [682].
-        # "P 3 06 de jun. Preparar relatório mensal..." title="Clique para abrir o espaço de "
+        # "P 3 06 de jun. Preparar relatÃ³rio mensal..." title="Clique para abrir o espaÃ§o de "
         elem = page.locator("xpath=/html/body/div/div/div/main/div/div/div[2]/div[2]/div/div").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
         await elem.click()
@@ -191,12 +192,12 @@ async def run_test():
         await elem.click()
         
         # -> Open an existing task detail by clicking the task card at index 682 so edit controls become visible.
-        # "P 3 06 de jun. Preparar relatório mensal..." title="Clique para abrir o espaço de "
+        # "P 3 06 de jun. Preparar relatÃ³rio mensal..." title="Clique para abrir o espaÃ§o de "
         elem = page.locator("xpath=/html/body/div/div/div/main/div/div/div[2]/div[2]/div/div").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
         await elem.click()
         
-        # --> Test passed — verified by AI agent
+        # --> Test passed â€” verified by AI agent
         frame = context.pages[-1]
         current_url = await frame.evaluate("() => window.location.href")
         assert current_url is not None, "Test completed successfully"

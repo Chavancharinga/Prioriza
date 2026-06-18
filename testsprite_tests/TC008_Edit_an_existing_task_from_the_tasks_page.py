@@ -1,3 +1,4 @@
+﻿import os
 import asyncio
 import re
 from playwright import async_api
@@ -70,13 +71,13 @@ async def run_test():
         # email input
         elem = page.locator("xpath=/html/body/div/div/div/div[2]/form/div/input").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("danieloliveiradasilva261623@gmail.com")
+        await elem.fill(os.environ["TESTSPRITE_LOGIN_EMAIL"])
         
         # -> Fill the email field (index 406) and password field (index 407) with the provided credentials, then click the Entrar button (index 410) to sign in.
         # password input
         elem = page.locator("xpath=/html/body/div/div/div/div[2]/form/div[2]/input").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("261623ruth")
+        await elem.fill(os.environ["TESTSPRITE_LOGIN_PASSWORD"])
         
         # -> Fill the email field (index 406) and password field (index 407) with the provided credentials, then click the Entrar button (index 410) to sign in.
         # button "Entrar"
@@ -133,7 +134,7 @@ async def run_test():
         await elem.click()
         
         # -> Replace the description with a version that includes a unique marker and click Save to persist the change (input into index 2270, then click index 2176).
-        # "Configurar build, execução de testes uni..."
+        # "Configurar build, execuÃ§Ã£o de testes uni..."
         elem = page.locator("xpath=/html/body/div/div/div/main/div/div/div[4]/div[2]/main/div[2]/div/div[2]/div/div[2]/div/div").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
         await elem.fill("Configurar build, execu\u00e7\u00e3o de testes unit\u00e1rios automatizados e deploy cont\u00ednuo em staging. UPDATED_BY_TEST_20260608")
@@ -150,7 +151,7 @@ async def run_test():
         await elem.wait_for(state="visible", timeout=10000)
         await elem.click()
         
-        # --> Test passed — verified by AI agent
+        # --> Test passed â€” verified by AI agent
         frame = context.pages[-1]
         current_url = await frame.evaluate("() => window.location.href")
         assert current_url is not None, "Test completed successfully"

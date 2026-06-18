@@ -1,3 +1,4 @@
+﻿import os
 import asyncio
 import re
 from playwright import async_api
@@ -50,13 +51,13 @@ async def run_test():
         # email input
         elem = page.locator("xpath=/html/body/div/div/div/div[2]/form/div/input").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("danieloliveiradasilva261623@gmail.com")
+        await elem.fill(os.environ["TESTSPRITE_LOGIN_EMAIL"])
         
         # -> Fill the email and password fields with the provided credentials and click the Entrar (submit) button to log in.
         # password input
         elem = page.locator("xpath=/html/body/div/div/div/div[2]/form/div[2]/input").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("261623ruth")
+        await elem.fill(os.environ["TESTSPRITE_LOGIN_PASSWORD"])
         
         # -> Fill the email and password fields with the provided credentials and click the Entrar (submit) button to log in.
         # button "Entrar"
@@ -113,7 +114,7 @@ async def run_test():
         await elem.click()
         
         # -> Open the workspace for an existing task by clicking the task card element at index 680 to inspect and test checklist functionality.
-        # "P 5 03 de jun. Exercício Diário de Foco ..." title="Clique para abrir o espaço de "
+        # "P 5 03 de jun. ExercÃ­cio DiÃ¡rio de Foco ..." title="Clique para abrir o espaÃ§o de "
         elem = page.locator("xpath=/html/body/div/div/div/main/div/div/div[2]/div[2]/div/div").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
         await elem.click()
@@ -155,18 +156,18 @@ async def run_test():
         await elem.click()
         
         # -> click
-        # "P 4 08 de jun. Pesquisar referências de ..." title="Clique para abrir o espaço de "
+        # "P 4 08 de jun. Pesquisar referÃªncias de ..." title="Clique para abrir o espaÃ§o de "
         elem = page.locator("xpath=/html/body/div/div/div/main/div/div/div[2]/div[2]/div[3]/div").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
         await elem.click()
         
-        # -> Click the task card in the 'Feito' column (element 1769) to open its workspace and then search the page for the completion message 'Tarefa concluída' to verify the task is marked completed.
+        # -> Click the task card in the 'Feito' column (element 1769) to open its workspace and then search the page for the completion message 'Tarefa concluÃ­da' to verify the task is marked completed.
         # button
         elem = page.locator("xpath=/html/body/div/div/div/main/div/div/div[4]/div/div/div/button").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
         await elem.click()
         
-        # --> Test passed — verified by AI agent
+        # --> Test passed â€” verified by AI agent
         frame = context.pages[-1]
         current_url = await frame.evaluate("() => window.location.href")
         assert current_url is not None, "Test completed successfully"

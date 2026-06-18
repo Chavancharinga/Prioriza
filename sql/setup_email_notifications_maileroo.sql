@@ -11,9 +11,12 @@ DECLARE
   user_email text;
   payload jsonb;
   response_id bigint;
-  -- API Key fornecida
-  maileroo_api_key text := '7294b99528d13b9d74351f93a3c26edfecd1db1c0e0a926343f032fa6535ffde';
+  maileroo_api_key text := current_setting('app.maileroo_api_key', true);
 BEGIN
+  IF maileroo_api_key IS NULL OR maileroo_api_key = '' THEN
+    RAISE EXCEPTION 'Missing app.maileroo_api_key. Configure it with ALTER DATABASE/ROLE SET or a secure runtime secret before scheduling reminders.';
+  END IF;
+
   -- Loop por tarefas com lembrete vencido nas últimas 2 horas que ainda não foram enviadas
   FOR r IN
     SELECT t.id, t.title, t.description, t.user_id, t.reminder, t.due_date

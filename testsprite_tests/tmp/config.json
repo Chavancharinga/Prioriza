@@ -1,10 +1,10 @@
-{
+﻿{
   "status": "commited",
   "type": "frontend",
   "scope": "codebase",
   "localEndpoint": "http://localhost:5173/Prioriza",
-  "loginUser": "danieloliveiradasilva261623@gmail.com",
-  "loginPassword": "261623ruth",
+  "loginUser": "{{TESTSPRITE_LOGIN_EMAIL}}",
+  "loginPassword": "{{TESTSPRITE_LOGIN_PASSWORD}}",
   "executionArgs": {
     "projectName": "Prioriza_pasta",
     "projectPath": "c:\\Users\\danie\\Videos\\Prioriza\\Code\\Prioriza_pasta",

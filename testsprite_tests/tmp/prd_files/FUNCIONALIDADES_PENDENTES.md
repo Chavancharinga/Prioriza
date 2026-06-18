@@ -1,53 +1,53 @@
-# Prioriza - Funcionalidades Pendentes
+﻿# Prioriza - Funcionalidades Pendentes
 
-## 📊 Status Geral (Projeto Principal: Code/Prioriza_pasta)
+## ðŸ“Š Status Geral (Projeto Principal: Code/Prioriza_pasta)
 
 | Categoria | Funcionalidade | Status | Prioridade |
 |-----------|---------------|--------|-----------|
-| **Autenticação** | Login/Cadastro | ✅ Feito | - |
-| **Autenticação** | Recuperação de senha | ✅ Feito | - |
-| **Tarefas** | CRUD completo | ✅ Feito | - |
-| **Tarefas** | Sistema de prioridades (cores) | ✅ Feito | - |
-| **Tarefas** | Subtarefas (checklist) | ✅ Feito | - |
-| **Tarefas** | Notas por tarefa | ✅ Feito | - |
-| **Tarefas** | Recursos/Links | ✅ Feito | - |
-| **Visualização** | Lista | ✅ Feito | - |
-| **Visualização** | Kanban (drag & drop) | ✅ Feito | - |
-| **Visualização** | Árvore | ✅ Feito | - |
-| **Foco** | Modo Foco | ✅ Feito | - |
-| **Foco** | Pomodoro Timer | ✅ Feito | - |
-| **Cronograma** | Visualização Mês | ✅ Feito | - |
-| **Cronograma** | Visualização Semana | ✅ Feito | - |
-| **Cronograma** | Visualização Dia | ✅ Feito | - |
-| **Cronograma** | Exportação .ICS | ✅ Feito | - |
-| **Notificações** | In-app (navegador) | ✅ Feito | - |
-| **Notificações** | Email (Maileroo) | 🔶 Pendente | 2 |
-| **Configurações** | Perfil do usuário | ✅ Feito | - |
-| **Configurações** | Alterar senha | ✅ Feito | - |
-| **Configurações** | Exportar JSON | ✅ Feito | - |
-| **Configurações** | Modo offline | ✅ Feito | - |
-| **Configurações** | Animações | ✅ Feito | - |
-| **Configurações** | Dark Mode | ✅ Feito | 3 |
-| **Segurança** | RLS | ✅ Feito | - |
-| **Backend** | Schema Supabase | ✅ Feito | - |
+| **AutenticaÃ§Ã£o** | Login/Cadastro | âœ… Feito | - |
+| **AutenticaÃ§Ã£o** | RecuperaÃ§Ã£o de senha | âœ… Feito | - |
+| **Tarefas** | CRUD completo | âœ… Feito | - |
+| **Tarefas** | Sistema de prioridades (cores) | âœ… Feito | - |
+| **Tarefas** | Subtarefas (checklist) | âœ… Feito | - |
+| **Tarefas** | Notas por tarefa | âœ… Feito | - |
+| **Tarefas** | Recursos/Links | âœ… Feito | - |
+| **VisualizaÃ§Ã£o** | Lista | âœ… Feito | - |
+| **VisualizaÃ§Ã£o** | Kanban (drag & drop) | âœ… Feito | - |
+| **VisualizaÃ§Ã£o** | Ãrvore | âœ… Feito | - |
+| **Foco** | Modo Foco | âœ… Feito | - |
+| **Foco** | Pomodoro Timer | âœ… Feito | - |
+| **Cronograma** | VisualizaÃ§Ã£o MÃªs | âœ… Feito | - |
+| **Cronograma** | VisualizaÃ§Ã£o Semana | âœ… Feito | - |
+| **Cronograma** | VisualizaÃ§Ã£o Dia | âœ… Feito | - |
+| **Cronograma** | ExportaÃ§Ã£o .ICS | âœ… Feito | - |
+| **NotificaÃ§Ãµes** | In-app (navegador) | âœ… Feito | - |
+| **NotificaÃ§Ãµes** | Email (Maileroo) | ðŸ”¶ Pendente | 2 |
+| **ConfiguraÃ§Ãµes** | Perfil do usuÃ¡rio | âœ… Feito | - |
+| **ConfiguraÃ§Ãµes** | Alterar senha | âœ… Feito | - |
+| **ConfiguraÃ§Ãµes** | Exportar JSON | âœ… Feito | - |
+| **ConfiguraÃ§Ãµes** | Modo offline | âœ… Feito | - |
+| **ConfiguraÃ§Ãµes** | AnimaÃ§Ãµes | âœ… Feito | - |
+| **ConfiguraÃ§Ãµes** | Dark Mode | âœ… Feito | 3 |
+| **SeguranÃ§a** | RLS | âœ… Feito | - |
+| **Backend** | Schema Supabase | âœ… Feito | - |
 
 ---
 
-## 🔶 Funcionalidades Pendentes
+## ðŸ”¶ Funcionalidades Pendentes
 
-### 1. Notificações por Email (Maileroo)
+### 1. NotificaÃ§Ãµes por Email (Maileroo)
 
 **Status:** Script SQL pronto (`setup_email_notifications_maileroo.sql`)
 
 **O que precisa fazer:**
 
-1. **Habilitar extensões no Supabase Dashboard:**
-   - Acesse: Supabase → Database → Extensions
+1. **Habilitar extensÃµes no Supabase Dashboard:**
+   - Acesse: Supabase â†’ Database â†’ Extensions
    - Habilite: `pg_net` e `pg_cron`
 
 2. **Executar script SQL:**
-   - Vá em: SQL Editor → New Query
-   - Copie o conteúdo de `setup_email_notifications_maileroo.sql`
+   - VÃ¡ em: SQL Editor â†’ New Query
+   - Copie o conteÃºdo de `setup_email_notifications_maileroo.sql`
    - Execute (RUN)
 
 3. **Testar:**
@@ -65,19 +65,19 @@
 
 ### 2. Dark Mode
 
-**Status:** ✅ Implementado!
+**Status:** âœ… Implementado!
 
 **O que foi feito:**
 
 1. Habilitado `darkMode: 'class'` no Tailwind
-2. Adicionado toggle em Settings → Aparência
-3. Adicionada lógica para aplicar tema via classe CSS
+2. Adicionado toggle em Settings â†’ AparÃªncia
+3. Adicionada lÃ³gica para aplicar tema via classe CSS
 
-**Para ativar:** Vá em Configurações → Aparência → Ativar Modo Escuro
+**Para ativar:** VÃ¡ em ConfiguraÃ§Ãµes â†’ AparÃªncia â†’ Ativar Modo Escuro
 
 ---
 
-### 3. Correção Bug UI
+### 3. CorreÃ§Ã£o Bug UI
 
 **Arquivo:** `src/components/modals/CreateTaskModal.jsx`
 
@@ -85,20 +85,20 @@
 
 ```jsx
 // Mudar de:
-<label className="mb-1 block text-sm font-medium text-neutral-700">Descrição (Obrigatório)</label>
+<label className="mb-1 block text-sm font-medium text-neutral-700">DescriÃ§Ã£o (ObrigatÃ³rio)</label>
 
 // Para:
-<label className="mb-1 block text-sm font-medium text-neutral-700">Descrição (Opcional)</label>
+<label className="mb-1 block text-sm font-medium text-neutral-700">DescriÃ§Ã£o (Opcional)</label>
 ```
 
 ---
 
-## 📋 Funkcionalidades Extras (Não Essenciais)
+## ðŸ“‹ Funkcionalidades Extras (NÃ£o Essenciais)
 
 ### Analytics/Dashboard
-- Gráficos de produtividade
-- Tarefas concluídas por semana
-- Streak diário
+- GrÃ¡ficos de produtividade
+- Tarefas concluÃ­das por semana
+- Streak diÃ¡rio
 
 ### PWA (Progressive Web App)
 - `manifest.json`
@@ -106,59 +106,59 @@
 - Instalabilidade em mobile
 
 ### Tarefas Recorrentes
-- Diária, semanal, mensal
-- Repetição personalizada
+- DiÃ¡ria, semanal, mensal
+- RepetiÃ§Ã£o personalizada
 
 ### Tags/Categorias
-- Sistema de organização por tags
+- Sistema de organizaÃ§Ã£o por tags
 - Filtro por tag
 
-### Gamificação
+### GamificaÃ§Ã£o
 - Pontos
 - Badges
 - Conquistas
 
 ---
 
-## 📅 Ordem de Implementação Sugerida
+## ðŸ“… Ordem de ImplementaÃ§Ã£o Sugerida
 
-1. **Correção Bug UI** (1 min)
-2. **Notificações Email** (15 min - configurar no Supabase)
+1. **CorreÃ§Ã£o Bug UI** (1 min)
+2. **NotificaÃ§Ãµes Email** (15 min - configurar no Supabase)
 3. **Dark Mode** (30-60 min)
-4. **Extras** (quando necessário)
+4. **Extras** (quando necessÃ¡rio)
 
 ---
 
-## ✅ Checklist de Verificação
+## âœ… Checklist de VerificaÃ§Ã£o
 
-Execute este checklist para confirmar que tudo está funcionando:
+Execute este checklist para confirmar que tudo estÃ¡ funcionando:
 
 - [ ] Login e cadastro funcionando
-- [ ] Criar tarefa com título
-- [ ] Criar tarefa com descrição
+- [ ] Criar tarefa com tÃ­tulo
+- [ ] Criar tarefa com descriÃ§Ã£o
 - [ ] Criar tarefa com prioridade (cores)
 - [ ] Criar tarefa com prazo
 - [ ] Criar tarefa com lembrete
 - [ ] Adicionar subtarefa
 - [ ] Adicionar nota
 - [ ] Adicionar recurso/link
-- [ ] Visualização Lista funciona
+- [ ] VisualizaÃ§Ã£o Lista funciona
 - [ ] Kanban funciona (drag & drop)
-- [ ] Árvore funciona
+- [ ] Ãrvore funciona
 - [ ] Modo Foco abre
 - [ ] Pomodoro conta corretamente
-- [ ] Cronograma Mês exibe tarefas
+- [ ] Cronograma MÃªs exibe tarefas
 - [ ] Cronograma Semana exibe tarefas
 - [ ] Cronograma Dia exibe tarefas
-- [ ] Exportação .ICS baixa arquivo
-- [ ] Exportação JSON baixa arquivo
-- [ ] Notificações navegador aparecem
-- [ ] Notificações email aparecem (pendente)
+- [ ] ExportaÃ§Ã£o .ICS baixa arquivo
+- [ ] ExportaÃ§Ã£o JSON baixa arquivo
+- [ ] NotificaÃ§Ãµes navegador aparecem
+- [ ] NotificaÃ§Ãµes email aparecem (pendente)
 - [ ] Dark Mode funciona (pendente)
 - [ ] Logout funciona
 
 ---
 
-## 📞 Precisa de Ajuda?
+## ðŸ“ž Precisa de Ajuda?
 
 Para qualquer funcionalidade pendente, posso ajudar a implementar. Basta pedir!

@@ -1,3 +1,4 @@
+﻿import os
 import asyncio
 import time
 import random
@@ -27,8 +28,8 @@ async def run_test():
         await page.goto("http://localhost:5173/Prioriza/")
         await page.wait_for_load_state("domcontentloaded")
 
-        # Click the link to go to Register page "Não tem uma conta? Cadastre-se"
-        btn_switch = page.locator("xpath=//button[contains(text(), 'Não tem uma conta? Cadastre-se')]").nth(0)
+        # Click the link to go to Register page "NÃ£o tem uma conta? Cadastre-se"
+        btn_switch = page.locator("xpath=//button[contains(text(), 'NÃ£o tem uma conta? Cadastre-se')]").nth(0)
         await btn_switch.wait_for(state="visible", timeout=10000)
         await btn_switch.click()
 
@@ -53,7 +54,7 @@ async def run_test():
 
         # Fill password
         pass_input = page.locator("xpath=//input[@type='password']").nth(0)
-        await pass_input.fill("261623ruth")
+        await pass_input.fill(os.environ["TESTSPRITE_LOGIN_PASSWORD"])
 
         # Click "Cadastrar" button
         btn_register = page.locator("xpath=//button[type='submit']").nth(0)

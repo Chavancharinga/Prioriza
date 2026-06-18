@@ -1,3 +1,4 @@
+﻿import os
 import asyncio
 import re
 from playwright import async_api
@@ -57,13 +58,13 @@ async def run_test():
         # email input
         elem = page.locator("xpath=/html/body/div/div/div/div[2]/form/div/input").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("danieloliveiradasilva261623@gmail.com")
+        await elem.fill(os.environ["TESTSPRITE_LOGIN_EMAIL"])
         
         # -> Fill the email and password fields with the provided credentials and click 'Entrar' to submit the sign-in form.
         # password input
         elem = page.locator("xpath=/html/body/div/div/div/div[2]/form/div[2]/input").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("261623ruth")
+        await elem.fill(os.environ["TESTSPRITE_LOGIN_PASSWORD"])
         
         # -> Fill the email and password fields with the provided credentials and click 'Entrar' to submit the sign-in form.
         # button "Entrar"
@@ -72,7 +73,7 @@ async def run_test():
         await elem.click()
         
         # -> Click the first task workspace card (interactive element 689) to open the task workspace (Pomodoro area).
-        # "P 5 03 de jun. Exercício Diário de Foco ..." title="Clique para abrir o espaço de "
+        # "P 5 03 de jun. ExercÃ­cio DiÃ¡rio de Foco ..." title="Clique para abrir o espaÃ§o de "
         elem = page.locator("xpath=/html/body/div/div/div/main/div/div/div[2]/div[2]/div/div").nth(0)
         await elem.wait_for(state="visible", timeout=10000)
         await elem.click()
@@ -185,7 +186,7 @@ async def run_test():
         await elem.wait_for(state="visible", timeout=10000)
         await elem.click()
         
-        # --> Test passed — verified by AI agent
+        # --> Test passed â€” verified by AI agent
         frame = context.pages[-1]
         current_url = await frame.evaluate("() => window.location.href")
         assert current_url is not None, "Test completed successfully"

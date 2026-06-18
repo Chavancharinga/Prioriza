@@ -5,6 +5,7 @@ import Button from '../components/ui/Button'
 import TaskModal from '../components/tasks/TaskModal'
 import TaskDetailsModal from '../components/tasks/TaskDetailsModal'
 import Skeleton from '../components/ui/Skeleton'
+import ConfirmationModal from '../components/ui/ConfirmationModal'
 
 export default function Home({ profile, onNavigate }) {
     const [tasks, setTasks] = useState([])
@@ -20,6 +21,7 @@ export default function Home({ profile, onNavigate }) {
     // Details Modal
     const [isDetailsOpen, setIsDetailsOpen] = useState(false)
     const [selectedTaskId, setSelectedTaskId] = useState(null)
+    const [feedback, setFeedback] = useState({ isOpen: false, title: '', message: '', type: 'info' })
 
     useEffect(() => {
         loadData()
@@ -52,7 +54,12 @@ export default function Home({ profile, onNavigate }) {
             loadData() // Reload to update stats and timeline
         } catch (err) {
             console.error('Error creating task:', err)
-            alert(`Falha ao criar tarefa: ${err.message || JSON.stringify(err)}`)
+            setFeedback({
+                isOpen: true,
+                type: 'danger',
+                title: 'Falha ao criar tarefa',
+                message: err.message || 'Não foi possível criar a tarefa. Tente novamente.'
+            })
         }
     }
 
@@ -388,6 +395,17 @@ export default function Home({ profile, onNavigate }) {
                 onUpdate={loadData}
                 onNavigate={onNavigate}
                 profile={profile}
+            />
+
+            <ConfirmationModal
+                isOpen={feedback.isOpen}
+                onClose={() => setFeedback(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={() => setFeedback(prev => ({ ...prev, isOpen: false }))}
+                title={feedback.title}
+                message={feedback.message}
+                confirmText="Entendido"
+                cancelText={null}
+                type={feedback.type}
             />
         </div>
     )

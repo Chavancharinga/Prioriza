@@ -1,3 +1,4 @@
+﻿import os
 import asyncio
 from playwright import async_api
 
@@ -28,10 +29,10 @@ async def run_test():
         # Fill credentials
         email_input = page.locator("xpath=/html/body/div/div/div/div[2]/form/div/input").nth(0)
         await email_input.wait_for(state="visible", timeout=10000)
-        await email_input.fill("danieloliveiradasilva261623@gmail.com")
+        await email_input.fill(os.environ["TESTSPRITE_LOGIN_EMAIL"])
 
         pass_input = page.locator("xpath=/html/body/div/div/div/div[2]/form/div[2]/input").nth(0)
-        await pass_input.fill("261623ruth")
+        await pass_input.fill(os.environ["TESTSPRITE_LOGIN_PASSWORD"])
 
         # Click Entrar
         btn_entrar = page.locator("xpath=/html/body/div/div/div/div[2]/form/button").nth(0)
@@ -47,8 +48,8 @@ async def run_test():
         await name_input.wait_for(state="visible", timeout=10000)
         await name_input.fill("Daniel Silva Test")
 
-        # Click "Salvar Alterações"
-        btn_save = page.locator("xpath=//button[contains(., 'Salvar Alterações')]").nth(0)
+        # Click "Salvar AlteraÃ§Ãµes"
+        btn_save = page.locator("xpath=//button[contains(., 'Salvar AlteraÃ§Ãµes')]").nth(0)
         await btn_save.click()
 
         # Assert success modal title "Perfil Atualizado" appears

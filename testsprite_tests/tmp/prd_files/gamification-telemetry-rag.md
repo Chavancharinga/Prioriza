@@ -1,4 +1,4 @@
-# Plan: Gamification, Telemetry & Bidirectional Context
+﻿# Plan: Gamification, Telemetry & Bidirectional Context
 
 ## Overview
 This plan implements RPG-style gamification, Pomodoro-based telemetry, bidirectional links (backlinks), and the foundation for RAG context queries in the Prioriza web app.
@@ -29,23 +29,23 @@ This plan implements RPG-style gamification, Pomodoro-based telemetry, bidirecti
 
 ```plaintext
 Code/Prioriza_pasta/
-├── sql/
-│   └── schema_expansion.sql            # [NEW] Expansion migration script
-├── backend/
-│   ├── requirements.txt                # [NEW] Python deps
-│   └── rag_backend.py                  # [NEW] FastAPI server
-├── src/
-│   ├── services/
-│   │   ├── TaskService.js              # [MODIFY] Added backlinks & parsers
-│   │   └── GamificationService.js      # [NEW] XP/Level/Streak handling
-│   ├── components/
-│   │   ├── tasks/
-│   │   │   ├── TaskDetailsModal.jsx    # [MODIFY] Pomodoro, Backlinks & UI Suggestions
-│   │   │   └── BacklinksList.jsx       # [NEW] Small links list component
-│   │   └── ui/
-│   │       └── LevelUpAnimation.jsx    # [NEW] Lottie or SVG micro-interaction
-│   └── pages/
-│       └── Analytics.jsx               # [MODIFY] Added Pomodoro Telemetry charts
+â”œâ”€â”€ sql/
+â”‚   â””â”€â”€ schema_expansion.sql            # [NEW] Expansion migration script
+â”œâ”€â”€ backend/
+â”‚   â”œâ”€â”€ requirements.txt                # [NEW] Python deps
+â”‚   â””â”€â”€ rag_backend.py                  # [NEW] FastAPI server
+â”œâ”€â”€ src/
+â”‚   â”œâ”€â”€ services/
+â”‚   â”‚   â”œâ”€â”€ TaskService.js              # [MODIFY] Added backlinks & parsers
+â”‚   â”‚   â””â”€â”€ GamificationService.js      # [NEW] XP/Level/Streak handling
+â”‚   â”œâ”€â”€ components/
+â”‚   â”‚   â”œâ”€â”€ tasks/
+â”‚   â”‚   â”‚   â”œâ”€â”€ TaskDetailsModal.jsx    # [MODIFY] Pomodoro, Backlinks & UI Suggestions
+â”‚   â”‚   â”‚   â””â”€â”€ BacklinksList.jsx       # [NEW] Small links list component
+â”‚   â”‚   â””â”€â”€ ui/
+â”‚   â”‚       â””â”€â”€ LevelUpAnimation.jsx    # [NEW] Lottie or SVG micro-interaction
+â”‚   â””â”€â”€ pages/
+â”‚       â””â”€â”€ Analytics.jsx               # [MODIFY] Added Pomodoro Telemetry charts
 ```
 
 ---
@@ -153,7 +153,7 @@ Code/Prioriza_pasta/
 - [ ] Run `npm run build` to verify clean build
 - [ ] Run verification scripts: `python .agent/scripts/checklist.py .`
 
-## ✅ PHASE X COMPLETE
+## âœ… PHASE X COMPLETE
 *(To be completed on project completion)*
 - Lint: [ ]
 - Security: [ ]

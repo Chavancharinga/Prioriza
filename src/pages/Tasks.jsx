@@ -14,7 +14,7 @@ import ConfirmationModal from '../components/ui/ConfirmationModal'
 const views = [
     { id: 'list', label: 'Lista', icon: LayoutList },
     { id: 'kanban', label: 'Kanban', icon: LayoutGrid },
-    { id: 'tree', label: 'Árvore', icon: Network },
+    { id: 'tree', label: '\u00c1rvore', icon: Network },
 ]
 
 export default function Tasks({ profile, onNavigate }) {
@@ -32,6 +32,11 @@ export default function Tasks({ profile, onNavigate }) {
     const [isDetailsOpen, setIsDetailsOpen] = useState(false)
     const [selectedTaskId, setSelectedTaskId] = useState(null)
     const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, taskId: null })
+    const [feedback, setFeedback] = useState({ isOpen: false, title: '', message: '', type: 'info' })
+
+    function showFeedback(title, message, type = 'info') {
+        setFeedback({ isOpen: true, title, message, type })
+    }
 
     useEffect(() => {
         loadTasks()
@@ -56,7 +61,7 @@ export default function Tasks({ profile, onNavigate }) {
             setIsModalOpen(false)
         } catch (err) {
             console.error('Error creating task:', err)
-            alert('Falha ao criar tarefa')
+            showFeedback('Falha ao criar tarefa', 'N\u00e3o foi poss\u00edvel criar a tarefa. Tente novamente.', 'danger')
         }
     }
 
@@ -69,7 +74,7 @@ export default function Tasks({ profile, onNavigate }) {
             setTaskToEdit(null)
         } catch (err) {
             console.error('Error updating task:', err)
-            alert('Falha ao atualizar tarefa')
+            showFeedback('Falha ao atualizar tarefa', 'N\u00e3o foi poss\u00edvel guardar as altera\u00e7\u00f5es. Tente novamente.', 'danger')
         }
     }
 
@@ -85,7 +90,7 @@ export default function Tasks({ profile, onNavigate }) {
             setTasks(tasks.filter(t => t.id !== taskId))
         } catch (err) {
             console.error('Error deleting task:', err)
-            alert('Falha ao excluir tarefa')
+            showFeedback('Falha ao excluir tarefa', 'N\u00e3o foi poss\u00edvel excluir a tarefa. Tente novamente.', 'danger')
         } finally {
             setDeleteConfirm({ isOpen: false, taskId: null })
         }
@@ -170,7 +175,7 @@ export default function Tasks({ profile, onNavigate }) {
                             <option value="all">Todas</option>
                             <option value="pending">A Fazer</option>
                             <option value="in_progress">Progresso</option>
-                            <option value="completed">Concluídas</option>
+                            <option value="completed">Conclu\u00eddas</option>
                         </select>
 
                         {/* Add Button */}
@@ -221,12 +226,12 @@ export default function Tasks({ profile, onNavigate }) {
                                     setTasks(tasks.map(t => t.id === id ? { ...t, status } : t))
 
                                     if (pendingChecklist > 0) {
-                                        alert(`A tarefa foi movida para "Feito", mas como existem ${pendingChecklist} sub-tarefa(s) pendente(s) na checklist, nenhum ponto de XP foi concedido (0 XP).`)
+                                        showFeedback('Tarefa concluída sem XP', `A tarefa foi movida para "Feito", mas existem ${pendingChecklist} sub-tarefa(s) pendente(s) na checklist. Nenhum ponto de XP foi concedido.`, 'info')
                                     } else {
                                         const priorityXp = (6 - (targetTask.priority || 3)) * 20
                                         const res = await GamificationService.awardXp(priorityXp)
                                         if (res && res.levelUp) {
-                                            alert(`SUBIU DE NÍVEL!\nVocê alcançou o Nível ${res.newLevel}! Continue assim!`)
+                                            showFeedback('Subiu de nível', `Você alcançou o nível ${res.newLevel}. Continue assim!`, 'success')
                                         }
                                     }
                                 } else {
@@ -235,7 +240,7 @@ export default function Tasks({ profile, onNavigate }) {
                                 }
                             } catch (err) {
                                 console.error('Error moving task:', err)
-                                alert('Erro ao mover tarefa')
+                                showFeedback('Erro ao mover tarefa', 'Não foi possível atualizar o estado da tarefa. Tente novamente.', 'danger')
                             }
                         }}
                     />
@@ -272,10 +277,21 @@ export default function Tasks({ profile, onNavigate }) {
                 onClose={() => setDeleteConfirm({ isOpen: false, taskId: null })}
                 onConfirm={handleConfirmDelete}
                 title="Excluir Tarefa"
-                message="Tem certeza de que deseja excluir esta tarefa? Esta ação não pode ser desfeita."
+                message="Tem certeza de que deseja excluir esta tarefa? Esta a\u00e7\u00e3o n\u00e3o pode ser desfeita."
                 confirmText="Excluir"
                 cancelText="Cancelar"
                 type="danger"
+            />
+
+            <ConfirmationModal
+                isOpen={feedback.isOpen}
+                onClose={() => setFeedback(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={() => setFeedback(prev => ({ ...prev, isOpen: false }))}
+                title={feedback.title}
+                message={feedback.message}
+                confirmText="Entendido"
+                cancelText={null}
+                type={feedback.type}
             />
         </div>
     )

@@ -65,7 +65,6 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                 setAllTasksForSuggestions(data || [])
             }).catch(console.error)
         } else {
-            console.log('Resetting task details')
             setTask(null)
             setDescriptionHtml('')
             setNewNote('')
