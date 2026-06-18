@@ -1,6 +1,5 @@
-import { AlertTriangle, CheckCircle2, Info, X, Trophy, Sparkles, Star } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Info, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 
 export default function ConfirmationModal({
@@ -13,29 +12,6 @@ export default function ConfirmationModal({
     cancelText = "Cancelar",
     type = "info" // 'info', 'success', 'danger'
 }) {
-    const [particles, setParticles] = useState([])
-
-    useEffect(() => {
-        if (isOpen && type === 'success') {
-            const newParticles = Array.from({ length: 20 }).map((_, i) => {
-                const angle = (i / 20) * 2 * Math.PI + (Math.random() - 0.5) * 0.4
-                const distance = 90 + Math.random() * 120
-                return {
-                    id: i,
-                    x: Math.cos(angle) * distance,
-                    y: Math.sin(angle) * distance - 20,
-                    rotate: Math.random() * 360,
-                    scale: 0.4 + Math.random() * 0.8,
-                    color: ['#1E3A8A', '#243F93', '#172554', '#2B4AA2', '#1E40AF'][i % 5]
-                }
-            })
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setParticles(newParticles)
-        } else {
-            setParticles([])
-        }
-    }, [isOpen, type])
-
     if (!isOpen || typeof document === 'undefined') return null
 
     const config = {
@@ -62,8 +38,6 @@ export default function ConfirmationModal({
     const style = config[type] || config.info
     const Icon = style.icon
 
-    const isSuccess = type === 'success'
-
     return createPortal(
         <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/45 backdrop-blur-md p-4">
             {/* Backdrop click */}
@@ -74,42 +48,8 @@ export default function ConfirmationModal({
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                 transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                className={`bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 border-2 border-slate-200 scale-100 relative overflow-hidden z-10
-                    ${isSuccess ? 'ring-2 ring-[rgba(30,58,138,0.18)] shadow-[0_24px_70px_rgba(30,58,138,0.18)]' : ''}`}
+                className="bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 border-2 border-slate-200 scale-100 relative overflow-hidden z-10"
             >
-                {/* Decorative Sunburst for Success */}
-                {isSuccess && (
-                    <div className="absolute inset-x-0 -top-24 pointer-events-none flex items-center justify-center z-0">
-                        {/* Soft ambient glow */}
-                        <motion.div
-                            animate={{ scale: [1, 1.25, 1], opacity: [0.15, 0.35, 0.15] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute w-64 h-64 bg-(--color-prioriza-blue) rounded-full blur-3xl opacity-15"
-                        />
-                        {/* Spinning SVG Rays */}
-                        <motion.svg
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                            className="w-56 h-56 text-[rgba(30,58,138,0.12)] fill-current"
-                            viewBox="0 0 100 100"
-                        >
-                            <path d="M50 50 L50 0 L53 40 L85 15 L56 44 L100 50 L56 56 L85 85 L53 60 L50 100 L47 60 L15 85 L44 56 L0 50 L44 44 L15 15 L47 40 Z" />
-                        </motion.svg>
-                    </div>
-                )}
-
-                {/* Confetti Particles dispersion on success */}
-                {isSuccess && particles.map((p) => (
-                    <motion.div
-                        key={p.id}
-                        initial={{ x: 0, y: 0, opacity: 1, scale: 0, rotate: 0 }}
-                        animate={{ x: p.x, y: p.y, opacity: 0, scale: p.scale, rotate: p.rotate }}
-                        transition={{ duration: 1.6, ease: [0.1, 0.8, 0.25, 1], delay: 0.1 }}
-                        className="absolute left-[50%] top-[35%] w-3 h-3 rounded-xs pointer-events-none z-20"
-                        style={{ backgroundColor: p.color }}
-                    />
-                ))}
-
                 {/* Close Button */}
                 <button
                     onClick={onClose}
@@ -120,53 +60,11 @@ export default function ConfirmationModal({
 
                 {/* Body Content */}
                 <div className="relative z-10 flex flex-col items-center text-center mt-2">
-                    
-                    {isSuccess ? (
-                        /* Hero celebration badge */
-                        <div className="relative flex justify-center mb-6">
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <motion.div
-                                    animate={{ scale: [1, 1.25, 1], opacity: [0.3, 0.6, 0.3] }}
-                                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                                    className="w-20 h-20 bg-[rgba(30,58,138,0.22)] rounded-full blur-md"
-                                />
-                            </div>
-                            
-                            <motion.div
-                                initial={{ scale: 0, rotate: -35 }}
-                                animate={{ scale: 1, rotate: 0 }}
-                                transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.05 }}
-                                className="relative z-10 p-5 bg-(--color-prioriza-blue) rounded-2xl shadow-xl shadow-[0_18px_45px_rgba(30,58,138,0.28)] border border-[rgba(30,58,138,0.25)] text-white"
-                            >
-                                <Trophy className="w-12 h-12 drop-shadow-[0_2px_6px_rgba(0,0,0,0.15)]" />
-                            </motion.div>
-                            
-                            {/* Orbiting sparkles */}
-                            <motion.div
-                                animate={{ y: [0, -6, 0], x: [0, 5, 0], rotate: 15 }}
-                                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
-                                className="absolute -top-3 -right-3 text-(--color-prioriza-blue)"
-                            >
-                                <Sparkles className="w-6 h-6 fill-current" />
-                            </motion.div>
-                            
-                            <motion.div
-                                animate={{ y: [0, 6, 0], x: [0, -5, 0], rotate: -15 }}
-                                transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                                className="absolute -bottom-2 -left-3 text-(--color-prioriza-blue)"
-                            >
-                                <Star className="w-5 h-5 fill-current" />
-                            </motion.div>
-                        </div>
-                    ) : (
-                        /* Generic header for info/danger */
-                        <div className={`p-4 rounded-2xl ${style.bg} ${style.color} mb-5`}>
-                            <Icon className="w-8 h-8" />
-                        </div>
-                    )}
+                    <div className={`p-4 rounded-2xl ${style.bg} ${style.color} mb-5`}>
+                        <Icon className="w-8 h-8" />
+                    </div>
 
-                    <h3 className={`font-black tracking-tight leading-tight mb-3 z-10
-                        ${isSuccess ? 'text-2xl text-(--color-prioriza-blue)' : 'text-xl text-gray-900 dark:text-white'}`}>
+                    <h3 className="font-black tracking-tight leading-tight mb-3 z-10 text-xl text-gray-900 dark:text-white">
                         {title}
                     </h3>
 
@@ -190,7 +88,6 @@ export default function ConfirmationModal({
                         onClick={onConfirm || onClose}
                         className={`w-full py-3 rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer ${style.button}`}
                     >
-                        {isSuccess && <Sparkles className="w-4 h-4 fill-current shrink-0" />}
                         <span>{confirmText}</span>
                     </button>
                 </div>

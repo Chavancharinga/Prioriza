@@ -1,11 +1,18 @@
 import { supabase } from '../lib/supabase'
 
-async function convertIconToPng(file) {
+async function normalizeAvatarToPng(file) {
     const isIcon = file.type === 'image/x-icon' || file.type === 'image/vnd.microsoft.icon' || file.name.toLowerCase().endsWith('.ico')
-    if (!isIcon) return file
+    const isPng = file.type === 'image/png' && file.name.toLowerCase().endsWith('.png')
+    const isImage = file.type?.startsWith('image/') || isIcon
+
+    if (!isImage) {
+        throw new Error('Formato invÃ¡lido. Use PNG, JPG, JPEG, WEBP ou ICO.')
+    }
+
+    if (isPng && !isIcon) return file
 
     if (typeof document === 'undefined') {
-        throw new Error('Formato .ico não suportado neste navegador. Use PNG, JPG ou WEBP para a foto de perfil.')
+        throw new Error('Este navegador nÃ£o conseguiu processar a imagem. Use PNG, JPG, JPEG ou WEBP.')
     }
 
     try {
@@ -28,7 +35,7 @@ async function convertIconToPng(file) {
                 }
                 image.onerror = () => {
                     URL.revokeObjectURL(objectUrl)
-                    reject(new Error('O navegador não conseguiu ler este ficheiro .ico.'))
+                    reject(new Error('O navegador nÃ£o conseguiu ler esta imagem.'))
                 }
                 image.src = objectUrl
             })
@@ -44,13 +51,14 @@ async function convertIconToPng(file) {
         const blob = await new Promise((resolve, reject) => {
             canvas.toBlob(result => {
                 if (result) resolve(result)
-                else reject(new Error('Não foi possível converter o ficheiro .ico para PNG.'))
+                else reject(new Error('NÃ£o foi possÃ­vel converter a imagem para PNG.'))
             }, 'image/png')
         })
 
-        return new File([blob], file.name.replace(/\.ico$/i, '.png'), { type: 'image/png' })
+        const safeBaseName = file.name.replace(/\.[^.]+$/i, '') || 'avatar'
+        return new File([blob], `${safeBaseName}.png`, { type: 'image/png' })
     } catch (error) {
-        throw new Error(`Não foi possível converter o .ico para PNG. Use PNG, JPG ou WEBP. Detalhe: ${error.message}`)
+        throw new Error(`NÃ£o foi possÃ­vel preparar a imagem. Use PNG, JPG, JPEG ou WEBP. Detalhe: ${error.message}`)
     }
 }
 
@@ -104,10 +112,10 @@ export const ProfileService = {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) throw new Error('User not authenticated')
 
-        const uploadFile = await convertIconToPng(file)
-        const fileExt = uploadFile.name.split('.').pop().toLowerCase()
+        const uploadFile = await normalizeAvatarToPng(file)
+        const fileExt = 'png'
         const timestamp = Date.now()
-        // Path pattern: {userId}/{timestamp}.{ext}  → matches storage RLS policy
+        // Path pattern: {userId}/{timestamp}.{ext} matches storage RLS policy
         const filePath = `${user.id}/${timestamp}.${fileExt}`
 
         const { error: uploadError } = await supabase.storage
