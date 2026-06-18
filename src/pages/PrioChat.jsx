@@ -307,8 +307,8 @@ export default function PrioChat({ profile }) {
     }
 
     return (
-        <div className="grid grid-cols-1 gap-4 overflow-hidden sm:gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-            <section className="flex min-h-[calc(100dvh-220px)] min-w-0 flex-col overflow-hidden rounded-[28px] border border-white/80 bg-white/90 shadow-[0_18px_45px_rgba(17,24,39,0.06)] backdrop-blur-xl sm:min-h-[620px]">
+        <div className="grid grid-cols-1 gap-4 overflow-visible pb-24 sm:gap-6 sm:pb-0 xl:grid-cols-[minmax(0,1fr)_360px]">
+            <section className="flex h-[calc(100dvh-250px)] min-h-[420px] min-w-0 flex-col overflow-hidden rounded-[28px] border border-white/80 bg-white/90 shadow-[0_18px_45px_rgba(17,24,39,0.06)] backdrop-blur-xl sm:h-auto sm:min-h-[620px]">
                 <div className="flex flex-col gap-3 border-b border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
                     <div className="flex items-center gap-3">
                         <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-(--color-prioriza-blue) text-white shadow-sm sm:h-12 sm:w-12">
@@ -322,7 +322,7 @@ export default function PrioChat({ profile }) {
                     <button
                         type="button"
                         onClick={handleNewChat}
-                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-(--color-prioriza-blue) px-4 py-2 text-xs font-black text-white shadow-sm"
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-(--color-prioriza-blue) px-4 py-2 text-xs font-black text-white shadow-sm sm:w-auto"
                     >
                         <MessageSquarePlus className="h-4 w-4" />
                         Novo chat
@@ -349,7 +349,7 @@ export default function PrioChat({ profile }) {
                     <div ref={messagesEndRef} />
                 </div>
 
-                <div className="border-t border-slate-100 bg-slate-50/70 p-3 sm:p-4">
+                <div className="shrink-0 border-t border-slate-100 bg-slate-50/70 p-3 sm:p-4">
                     <div className="mb-3 flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
                         {quickPrompts.map(prompt => (
                             <button
@@ -374,7 +374,7 @@ export default function PrioChat({ profile }) {
                                 }
                             }}
                             placeholder="Ex: PRIO, crie uma tarefa para corrigir uma função do meu código amanhã."
-                            className="min-h-14 min-w-0 flex-1 resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium outline-none transition focus:border-[rgba(30,58,138,0.34)] focus:ring-4 focus:ring-[rgba(30,58,138,0.12)]"
+                            className="min-h-14 max-h-20 min-w-0 flex-1 resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium outline-none transition focus:border-[rgba(30,58,138,0.34)] focus:ring-4 focus:ring-[rgba(30,58,138,0.12)]"
                         />
                         <button
                             type="button"

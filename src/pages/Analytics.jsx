@@ -5,11 +5,11 @@ import Skeleton from '../components/ui/Skeleton'
 
 const priorityLabels = { 1: 'Crítica', 2: 'Alta', 3: 'Média', 4: 'Baixa', 5: 'Mínima' }
 const priorityColors = {
-    1: { bg: 'bg-red-600', light: 'bg-red-50', text: 'text-red-700', border: 'border-red-200' },
-    2: { bg: 'bg-orange-500', light: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200' },
-    3: { bg: 'bg-amber-400', light: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
-    4: { bg: 'bg-lime-500', light: 'bg-lime-50', text: 'text-lime-700', border: 'border-lime-200' },
-    5: { bg: 'bg-green-500', light: 'bg-green-50', text: 'text-green-700', border: 'border-green-200' },
+    1: { bg: 'bg-(--color-prioriza-blue)', text: 'text-(--color-prioriza-blue)', border: 'border-[rgba(30,58,138,0.32)]' },
+    2: { bg: 'bg-(--color-prioriza-blue)', text: 'text-(--color-prioriza-blue)', border: 'border-[rgba(30,58,138,0.32)]' },
+    3: { bg: 'bg-(--color-prioriza-blue)', text: 'text-(--color-prioriza-blue)', border: 'border-[rgba(30,58,138,0.32)]' },
+    4: { bg: 'bg-(--color-prioriza-blue)', text: 'text-(--color-prioriza-blue)', border: 'border-[rgba(30,58,138,0.32)]' },
+    5: { bg: 'bg-(--color-prioriza-blue)', text: 'text-(--color-prioriza-blue)', border: 'border-[rgba(30,58,138,0.32)]' },
 }
 
 export default function Analytics() {
@@ -146,19 +146,19 @@ export default function Analytics() {
             {/* KPI Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                 {[
-                    { label: 'Total', value: stats.total, icon: Target, iconBg: 'bg-blue-50', iconColor: 'text-blue-500' },
-                    { label: 'Concluídas', value: stats.done, icon: CheckCircle2, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-500' },
-                    { label: 'Em Progresso', value: stats.inProgress, icon: Activity, iconBg: 'bg-orange-50', iconColor: 'text-orange-500' },
-                    { label: 'Atrasadas', value: stats.overdue, icon: Clock, iconBg: 'bg-rose-50', iconColor: 'text-rose-500' },
-                    { label: 'Últimos 7 dias', value: stats.recentlyCompleted, icon: TrendingUp, iconBg: 'bg-cyan-50', iconColor: 'text-cyan-500' },
+                    { label: 'Total', value: stats.total, icon: Target },
+                    { label: 'Concluídas', value: stats.done, icon: CheckCircle2 },
+                    { label: 'Em Progresso', value: stats.inProgress, icon: Activity },
+                    { label: 'Atrasadas', value: stats.overdue, icon: Clock },
+                    { label: 'Últimos 7 dias', value: stats.recentlyCompleted, icon: TrendingUp },
                 ].map((kpi, i) => {
                     const Icon = kpi.icon
                     return (
                         <div key={i} className="card-3d p-5 flex flex-col justify-between">
                             <div className="flex items-center justify-between mb-4">
                                 <span className="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider">{kpi.label}</span>
-                                <div className={`w-8 h-8 rounded-xl ${kpi.iconBg} flex items-center justify-center border-2 border-slate-100`}>
-                                    <Icon className={`w-4 h-4 ${kpi.iconColor}`} />
+                                <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-[rgba(30,58,138,0.24)] bg-[rgba(30,58,138,0.10)]">
+                                    <Icon className="h-4 w-4 text-(--color-prioriza-blue)" />
                                 </div>
                             </div>
                             <div>
@@ -173,7 +173,7 @@ export default function Analytics() {
                 {/* Completion Rate */}
                 <div className="card-3d p-6 lg:p-8">
                     <h3 className="text-xl font-black text-[#3C3C3C] tracking-tight mb-6 flex items-center gap-2">
-                        <Trophy className="w-5 h-5 text-yellow-500" /> Taxa de Conclusão
+                        <Trophy className="w-5 h-5 text-(--color-prioriza-blue)" /> Taxa de Conclusão
                     </h3>
 
                     <div className="flex items-center justify-center mb-8">
@@ -191,7 +191,7 @@ export default function Analytics() {
                                 />
                             </svg>
                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <Trophy className="w-6 h-6 text-yellow-500 mb-0.5 animate-bounce" style={{ animationDuration: '3s' }} />
+                                <Trophy className="w-6 h-6 text-(--color-prioriza-blue) mb-0.5 animate-bounce" style={{ animationDuration: '3s' }} />
                                 <span className="text-3xl font-black text-[#3C3C3C]">{stats.completionRate}%</span>
                                 <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Completo</span>
                             </div>
@@ -216,7 +216,7 @@ export default function Analytics() {
                 {/* Priority Distribution */}
                 <div className="card-3d p-6 lg:p-8">
                     <h3 className="text-xl font-black text-[#3C3C3C] tracking-tight mb-6 flex items-center gap-2">
-                        <Award className="w-5 h-5 text-orange-500" /> Distribuição por Prioridade
+                        <Award className="w-5 h-5 text-(--color-prioriza-blue)" /> Distribuição por Prioridade
                     </h3>
 
                     <div className="space-y-5">
@@ -237,10 +237,10 @@ export default function Analytics() {
                                         <div className="flex items-center gap-2 text-xs font-bold text-gray-500">
                                             <span>{p.count} total</span>
                                             <span className="text-gray-300">•</span>
-                                            <span className="text-emerald-600">{p.doneCount} feitas</span>
+                                            <span className="text-(--color-prioriza-blue)">{p.doneCount} feitas</span>
                                         </div>
                                     </div>
-                                    <div className="h-4 bg-gray-100 border-2 border-gray-200 rounded-full overflow-hidden shadow-inner">
+                                    <div className="h-4 overflow-hidden rounded-full border border-[rgba(30,58,138,0.18)] bg-[rgba(30,58,138,0.08)] shadow-inner">
                                         <div
                                             className={`h-full rounded-full ${colors.bg} border-r-2 border-black/10 transition-all duration-700`}
                                             style={{ width: `${percentage}%` }}
@@ -255,7 +255,7 @@ export default function Analytics() {
                 {/* Telemetry Dashboard: Planned vs Actual */}
                 <div className="card-3d p-6 lg:p-8 col-span-1 xl:col-span-2">
                     <h3 className="text-xl font-black text-[#3C3C3C] tracking-tight mb-1 flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-blue-500" /> Telemetria de Tempo: Planejado vs. Executado
+                        <Activity className="w-5 h-5 text-(--color-prioriza-blue)" /> Telemetria de Tempo: Planejado vs. Executado
                     </h3>
                     <p className="text-xs font-bold text-gray-400 mb-6">Comparação direta por prioridade entre estimativa teórica e ciclos concluídos.</p>
 
@@ -294,17 +294,17 @@ export default function Analytics() {
                                     <div className="md:col-span-9 space-y-2">
                                         {/* Estimated Bar */}
                                         <div className="flex items-center gap-3">
-                                            <div className="h-3.5 bg-blue-50 border-2 border-blue-100 rounded-full flex-1 overflow-hidden shadow-inner">
-                                                <div className="h-full bg-blue-500 border-r-2 border-black/10 rounded-full transition-all duration-500" style={{ width: estWidth }} />
+                                            <div className="h-3.5 flex-1 overflow-hidden rounded-full border border-[rgba(30,58,138,0.18)] bg-[rgba(30,58,138,0.08)] shadow-inner">
+                                                <div className="h-full rounded-full bg-(--color-prioriza-blue) transition-all duration-500" style={{ width: estWidth }} />
                                             </div>
-                                            <span className="text-xs font-black text-blue-600 w-14 text-right">{estimatedMin}m</span>
+                                            <span className="w-14 text-right text-xs font-black text-(--color-prioriza-blue)">{estimatedMin}m</span>
                                         </div>
                                         {/* Actual Bar */}
                                         <div className="flex items-center gap-3">
-                                            <div className="h-3.5 bg-emerald-50 border-2 border-emerald-100 rounded-full flex-1 overflow-hidden shadow-inner">
-                                                <div className="h-full bg-emerald-500 border-r-2 border-black/10 rounded-full transition-all duration-500" style={{ width: actWidth }} />
+                                            <div className="h-3.5 flex-1 overflow-hidden rounded-full border border-[rgba(30,58,138,0.18)] bg-[rgba(30,58,138,0.08)] shadow-inner">
+                                                <div className="h-full rounded-full bg-(--color-prioriza-blue) opacity-70 transition-all duration-500" style={{ width: actWidth }} />
                                             </div>
-                                            <span className="text-xs font-black text-emerald-600 w-14 text-right">{actualMin}m</span>
+                                            <span className="w-14 text-right text-xs font-black text-(--color-prioriza-blue)">{actualMin}m</span>
                                         </div>
                                     </div>
                                 </div>
@@ -312,13 +312,13 @@ export default function Analytics() {
                         })}
                     </div>
                     <div className="flex flex-wrap justify-end gap-6 mt-6 border-t border-slate-100 pt-4">
-                        <div className="flex items-center gap-2 bg-blue-50/50 px-3 py-1.5 rounded-xl border border-blue-100">
-                            <div className="w-3.5 h-3.5 bg-blue-500 rounded border border-blue-600" />
-                            <span className="text-xs font-extrabold text-blue-700">Tempo Planejado (Estimado)</span>
+                        <div className="flex items-center gap-2 rounded-xl border border-[rgba(30,58,138,0.18)] bg-[rgba(30,58,138,0.08)] px-3 py-1.5">
+                            <div className="h-3.5 w-3.5 rounded bg-(--color-prioriza-blue)" />
+                            <span className="text-xs font-extrabold text-(--color-prioriza-blue)">Tempo Planejado (Estimado)</span>
                         </div>
-                        <div className="flex items-center gap-2 bg-emerald-50/50 px-3 py-1.5 rounded-xl border border-emerald-100">
-                            <div className="w-3.5 h-3.5 bg-emerald-500 rounded border border-emerald-600" />
-                            <span className="text-xs font-extrabold text-emerald-700">Tempo Executado (Foco Logado)</span>
+                        <div className="flex items-center gap-2 rounded-xl border border-[rgba(30,58,138,0.18)] bg-[rgba(30,58,138,0.08)] px-3 py-1.5">
+                            <div className="h-3.5 w-3.5 rounded bg-(--color-prioriza-blue) opacity-70" />
+                            <span className="text-xs font-extrabold text-(--color-prioriza-blue)">Tempo Executado (Foco Logado)</span>
                         </div>
                     </div>
                 </div>
@@ -328,8 +328,8 @@ export default function Analytics() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="card-3d p-6">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="w-9 h-9 bg-blue-50 border-2 border-blue-100 rounded-xl flex items-center justify-center">
-                            <Clock className="w-4 h-4 text-blue-500" />
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[rgba(30,58,138,0.24)] bg-[rgba(30,58,138,0.10)]">
+                            <Clock className="w-4 h-4 text-(--color-prioriza-blue)" />
                         </div>
                         <h3 className="text-base font-extrabold text-[#3C3C3C]">Tempo Médio por Tarefa</h3>
                     </div>
@@ -343,8 +343,8 @@ export default function Analytics() {
 
                 <div className="card-3d p-6">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="w-9 h-9 bg-emerald-50 border-2 border-emerald-100 rounded-xl flex items-center justify-center">
-                            <TrendingUp className="w-4 h-4 text-emerald-500" />
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[rgba(30,58,138,0.24)] bg-[rgba(30,58,138,0.10)]">
+                            <TrendingUp className="w-4 h-4 text-(--color-prioriza-blue)" />
                         </div>
                         <h3 className="text-base font-extrabold text-[#3C3C3C]">Produtividade Recente</h3>
                     </div>
