@@ -301,7 +301,7 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                             className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-2 rounded-2xl text-slate-700 font-semibold shadow-sm cursor-pointer" 
                             title="Sua Ofensiva (Dias seguidos)"
                         >
-                            <Flame className="h-5 w-5 text-orange-500" />
+                            <Flame className="h-5 w-5 text-(--color-prioriza-blue)" />
                             <span className="text-sm font-semibold tracking-tight">{profile?.streak || 0}d</span>
                         </motion.div>
                         
@@ -345,7 +345,7 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                                 className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-2 rounded-2xl text-slate-700 font-semibold shadow-sm cursor-pointer" 
                                 title="Você está com tudo em dia! Recompensa de folga ativada."
                             >
-                                <Palmtree className="w-5 h-5 text-emerald-600 shrink-0" />
+                                <Palmtree className="w-5 h-5 text-(--color-prioriza-blue) shrink-0" />
                                 <span className="text-[10px] uppercase font-semibold tracking-wider">Folga</span>
                             </motion.div>
                         )}
@@ -388,7 +388,7 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                     className="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-2xl text-slate-700 font-semibold flex-1 justify-center shadow-xs" 
                     title="Sua Ofensiva (Dias seguidos)"
                 >
-                    <Flame className="h-4.5 w-4.5 text-orange-500" />
+                    <Flame className="h-4.5 w-4.5 text-(--color-prioriza-blue)" />
                     <span className="text-xs font-semibold">{profile?.streak || 0}d</span>
                 </div>
                 
@@ -425,7 +425,7 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                 {/* Rest Reward Pill */}
                 {(displayedLevel !== null ? displayedLevel : (profile?.level || 1)) >= 10 && (displayedXp !== null ? displayedXp : (profile?.xp || 0)) >= 1000 && (
                     <div className="flex items-center gap-1 bg-white border border-slate-200 px-2.5 py-1.5 rounded-2xl text-slate-700 font-semibold shadow-xs" title="Você está com tudo em dia! Recompensa de folga ativada.">
-                        <Palmtree className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <Palmtree className="w-4 h-4 text-(--color-prioriza-blue) shrink-0" />
                         <span className="text-[8px] font-semibold uppercase tracking-wider">Folga</span>
                     </div>
                 )}
@@ -463,7 +463,7 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                             ease: [0.19, 1, 0.22, 1]
                         }}
                         onAnimationComplete={() => handleParticleReach(p)}
-                        className="fixed z-200 pointer-events-none flex items-center gap-1.5 bg-linear-to-r from-emerald-500 to-teal-500 text-white font-extrabold px-3.5 py-1.5 rounded-full shadow-[0_4px_12px_rgba(16,185,129,0.2)] border border-emerald-500/20 text-xs"
+                        className="fixed z-200 pointer-events-none flex items-center gap-1.5 bg-(--color-prioriza-blue) text-white font-extrabold px-3.5 py-1.5 rounded-full shadow-[0_4px_12px_rgba(30,58,138,0.22)] border border-white/20 text-xs"
                     >
                         <Star className="w-3.5 h-3.5 text-white" />
                         <span>+{p.amount} XP</span>
@@ -526,7 +526,7 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                             <div className="max-h-[75vh] space-y-5 overflow-y-auto p-6">
                                 <div className="h-4 overflow-hidden rounded-full border border-blue-200 bg-blue-50">
                                     <div
-                                        className="h-full rounded-full bg-linear-to-r from-blue-600 to-cyan-400"
+                                        className="h-full rounded-full bg-(--color-prioriza-blue)"
                                         style={{ width: `${Math.min(100, (xpPanelStats.currentXp / XP_PER_LEVEL) * 100)}%` }}
                                     />
                                 </div>
@@ -538,14 +538,14 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                                         <p className="text-2xl font-black text-slate-900">{xpPanelStats.nextLevelXp}</p>
                                         <p className="text-xs font-bold text-slate-500">XP restantes</p>
                                     </div>
-                                    <div className="rounded-3xl border border-emerald-100 bg-emerald-50 p-4">
-                                        <TrendingUp className="mb-2 h-5 w-5 text-emerald-600" />
+                                    <div className="rounded-3xl border border-[rgba(30,58,138,0.16)] bg-[rgba(30,58,138,0.06)] p-4">
+                                        <TrendingUp className="mb-2 h-5 w-5 text-(--color-prioriza-blue)" />
                                         <p className="text-[10px] font-black uppercase text-slate-500">Já ganhou</p>
                                         <p className="text-2xl font-black text-slate-900">+{xpPanelStats.completedGain}</p>
                                         <p className="text-xs font-bold text-slate-500">XP concluído</p>
                                     </div>
-                                    <div className="rounded-3xl border border-amber-100 bg-amber-50 p-4">
-                                        <Star className="mb-2 h-5 w-5 text-blue-600" />
+                                    <div className="rounded-3xl border border-[rgba(30,58,138,0.16)] bg-[rgba(30,58,138,0.06)] p-4">
+                                        <Star className="mb-2 h-5 w-5 text-(--color-prioriza-blue)" />
                                         <p className="text-[10px] font-black uppercase text-slate-500">Pode ganhar</p>
                                         <p className="text-2xl font-black text-slate-900">+{xpPanelStats.pendingPotential}</p>
                                         <p className="text-xs font-bold text-slate-500">XP pendente</p>
@@ -574,7 +574,7 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                                                             <p className="truncate text-sm font-black text-slate-800">{task.title}</p>
                                                             <p className="text-[11px] font-bold text-slate-400">{formatShortDate(task.due_date)}</p>
                                                         </div>
-                                                        <span className={`rounded-full px-2.5 py-1 text-xs font-black ${task.xpValue < 0 ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'}`}>
+                                                        <span className={`rounded-full px-2.5 py-1 text-xs font-black ${task.xpValue < 0 ? 'bg-rose-100 text-rose-600' : 'bg-[rgba(30,58,138,0.10)] text-(--color-prioriza-blue)'}`}>
                                                             {task.xpValue > 0 ? '+' : ''}{task.xpValue} XP
                                                         </span>
                                                     </div>
@@ -587,7 +587,7 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
 
                                     <div className="rounded-3xl border border-slate-200 p-4">
                                         <div className="mb-3 flex items-center gap-2">
-                                            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                                            <CheckCircle2 className="h-4 w-4 text-(--color-prioriza-blue)" />
                                             <h3 className="font-black text-slate-900">Últimos resultados</h3>
                                         </div>
                                         <div className="space-y-2">
@@ -600,7 +600,7 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                                                             <p className="truncate text-sm font-black text-slate-800">{task.title}</p>
                                                             <p className="text-[11px] font-bold text-slate-400">{formatShortDate(task.completed_at)}</p>
                                                         </div>
-                                                        <span className={`rounded-full px-2.5 py-1 text-xs font-black ${task.xpValue < 0 ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                                                        <span className={`rounded-full px-2.5 py-1 text-xs font-black ${task.xpValue < 0 ? 'bg-rose-100 text-rose-600' : 'bg-[rgba(30,58,138,0.10)] text-(--color-prioriza-blue)'}`}>
                                                             {task.xpValue > 0 ? '+' : ''}{task.xpValue} XP
                                                         </span>
                                                     </div>

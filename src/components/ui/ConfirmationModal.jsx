@@ -26,7 +26,7 @@ export default function ConfirmationModal({
                     y: Math.sin(angle) * distance - 20,
                     rotate: Math.random() * 360,
                     scale: 0.4 + Math.random() * 0.8,
-                    color: ['#F59E0B', '#10B981', '#3B82F6', '#EF4444', '#EC4899', '#06B6D4', '#10B981'][i % 7]
+                    color: ['#1E3A8A', '#243F93', '#172554', '#2B4AA2', '#1E40AF'][i % 5]
                 }
             })
             // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -41,15 +41,15 @@ export default function ConfirmationModal({
     const config = {
         info: {
             icon: Info,
-            color: 'text-blue-600',
-            bg: 'bg-blue-50',
+            color: 'text-(--color-prioriza-blue)',
+            bg: 'bg-[rgba(30,58,138,0.10)]',
             button: 'btn-3d-primary'
         },
         success: {
             icon: CheckCircle2,
-            color: 'text-emerald-600',
-            bg: 'bg-emerald-50',
-            button: 'bg-emerald-500 text-white border-2 border-emerald-600 border-b-[5px] border-b-emerald-700 cursor-pointer active:translate-y-[2px] active:border-b-[2px]'
+            color: 'text-(--color-prioriza-blue)',
+            bg: 'bg-[rgba(30,58,138,0.10)]',
+            button: 'btn-3d-primary'
         },
         danger: {
             icon: AlertTriangle,
@@ -75,7 +75,7 @@ export default function ConfirmationModal({
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                 transition={{ type: "spring", stiffness: 350, damping: 25 }}
                 className={`bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 border-2 border-slate-200 scale-100 relative overflow-hidden z-10
-                    ${isSuccess ? 'ring-2 ring-amber-400/40 dark:ring-amber-400/20 shadow-amber-500/10' : ''}`}
+                    ${isSuccess ? 'ring-2 ring-[rgba(30,58,138,0.18)] shadow-[0_24px_70px_rgba(30,58,138,0.18)]' : ''}`}
             >
                 {/* Decorative Sunburst for Success */}
                 {isSuccess && (
@@ -84,13 +84,13 @@ export default function ConfirmationModal({
                         <motion.div
                             animate={{ scale: [1, 1.25, 1], opacity: [0.15, 0.35, 0.15] }}
                             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute w-64 h-64 bg-amber-400 rounded-full blur-3xl opacity-20"
+                            className="absolute w-64 h-64 bg-(--color-prioriza-blue) rounded-full blur-3xl opacity-15"
                         />
                         {/* Spinning SVG Rays */}
                         <motion.svg
                             animate={{ rotate: 360 }}
                             transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                            className="w-56 h-56 text-amber-400/15 dark:text-amber-400/10 fill-current"
+                            className="w-56 h-56 text-[rgba(30,58,138,0.12)] fill-current"
                             viewBox="0 0 100 100"
                         >
                             <path d="M50 50 L50 0 L53 40 L85 15 L56 44 L100 50 L56 56 L85 85 L53 60 L50 100 L47 60 L15 85 L44 56 L0 50 L44 44 L15 15 L47 40 Z" />
@@ -128,7 +128,7 @@ export default function ConfirmationModal({
                                 <motion.div
                                     animate={{ scale: [1, 1.25, 1], opacity: [0.3, 0.6, 0.3] }}
                                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                                    className="w-20 h-20 bg-amber-400/25 rounded-full blur-md"
+                                    className="w-20 h-20 bg-[rgba(30,58,138,0.22)] rounded-full blur-md"
                                 />
                             </div>
                             
@@ -136,7 +136,7 @@ export default function ConfirmationModal({
                                 initial={{ scale: 0, rotate: -35 }}
                                 animate={{ scale: 1, rotate: 0 }}
                                 transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.05 }}
-                                className="relative z-10 p-5 bg-gradient-to-br from-amber-400 via-amber-500 to-yellow-500 rounded-2xl shadow-xl shadow-amber-500/30 border-2 border-amber-300 text-white"
+                                className="relative z-10 p-5 bg-(--color-prioriza-blue) rounded-2xl shadow-xl shadow-[0_18px_45px_rgba(30,58,138,0.28)] border border-[rgba(30,58,138,0.25)] text-white"
                             >
                                 <Trophy className="w-12 h-12 drop-shadow-[0_2px_6px_rgba(0,0,0,0.15)]" />
                             </motion.div>
@@ -145,7 +145,7 @@ export default function ConfirmationModal({
                             <motion.div
                                 animate={{ y: [0, -6, 0], x: [0, 5, 0], rotate: 15 }}
                                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
-                                className="absolute -top-3 -right-3 text-yellow-400"
+                                className="absolute -top-3 -right-3 text-(--color-prioriza-blue)"
                             >
                                 <Sparkles className="w-6 h-6 fill-current" />
                             </motion.div>
@@ -153,7 +153,7 @@ export default function ConfirmationModal({
                             <motion.div
                                 animate={{ y: [0, 6, 0], x: [0, -5, 0], rotate: -15 }}
                                 transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                                className="absolute -bottom-2 -left-3 text-amber-500"
+                                className="absolute -bottom-2 -left-3 text-(--color-prioriza-blue)"
                             >
                                 <Star className="w-5 h-5 fill-current" />
                             </motion.div>
@@ -166,7 +166,7 @@ export default function ConfirmationModal({
                     )}
 
                     <h3 className={`font-black tracking-tight leading-tight mb-3 z-10
-                        ${isSuccess ? 'text-2xl text-amber-500 dark:text-amber-400' : 'text-xl text-gray-900 dark:text-white'}`}>
+                        ${isSuccess ? 'text-2xl text-(--color-prioriza-blue)' : 'text-xl text-gray-900 dark:text-white'}`}>
                         {title}
                     </h3>
 

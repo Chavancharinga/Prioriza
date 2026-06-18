@@ -3,10 +3,10 @@ import { AlertTriangle, X } from 'lucide-react'
 
 const types = {
     success: {
-        bg: 'bg-gradient-to-r from-minimal/10 to-low/10',
-        border: 'border-minimal',
-        text: 'text-minimal',
-        icon: 'text-minimal',
+        bg: 'bg-[rgba(30,58,138,0.10)]',
+        border: 'border-(--color-prioriza-blue)',
+        text: 'text-(--color-prioriza-blue)',
+        icon: 'text-(--color-prioriza-blue)',
     },
     error: {
         bg: 'bg-gradient-to-r from-critical/10 to-high/10',
@@ -15,16 +15,16 @@ const types = {
         icon: 'text-critical',
     },
     warning: {
-        bg: 'bg-gradient-to-r from-medium/10 to-high/10',
-        border: 'border-medium',
-        text: 'text-medium',
-        icon: 'text-medium',
+        bg: 'bg-[rgba(30,58,138,0.10)]',
+        border: 'border-(--color-prioriza-blue)',
+        text: 'text-(--color-prioriza-blue)',
+        icon: 'text-(--color-prioriza-blue)',
     },
     info: {
-        bg: 'bg-gradient-to-r from-primary-500/10 to-prioriza-blue/10',
-        border: 'border-primary-500',
-        text: 'text-primary-600',
-        icon: 'text-primary-500',
+        bg: 'bg-[rgba(30,58,138,0.10)]',
+        border: 'border-(--color-prioriza-blue)',
+        text: 'text-(--color-prioriza-blue)',
+        icon: 'text-(--color-prioriza-blue)',
     },
 }
 

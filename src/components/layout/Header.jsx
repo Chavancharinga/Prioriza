@@ -89,20 +89,20 @@ export default function Header() {
 
                     {/* Gamification Widget */}
                     <div className="hidden items-center gap-3 bg-neutral-50 px-3.5 py-1.5 rounded-xl border border-neutral-100 sm:flex mr-1.5">
-                        <div className="flex items-center gap-1.5 text-orange-600" title="Sua Ofensiva (Dias seguidos)">
-                            <Flame className="h-4 w-4 fill-current animate-pulse text-red-500" />
+                        <div className="flex items-center gap-1.5 text-(--color-prioriza-blue)" title="Sua Ofensiva (Dias seguidos)">
+                            <Flame className="h-4 w-4 fill-current animate-pulse text-(--color-prioriza-blue)" />
                             <span className="text-xs font-black">{stats.streak}d</span>
                         </div>
                         <div className="h-4 w-px bg-neutral-200" />
                         <div className="flex items-center gap-2" title={stats.level >= 10 && stats.xp >= 200 ? 'XP Máximo Alcançado! Recompensa de descanso ativa.' : `Nível ${stats.level} - ${stats.xp}/200 XP`}>
-                            <Trophy className="h-4 w-4 text-amber-500 fill-current" />
+                            <Trophy className="h-4 w-4 text-(--color-prioriza-blue) fill-current" />
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-extrabold text-neutral-600 uppercase leading-none">
                                     {stats.level >= 10 ? 'Nível MÁX (10)' : `Nível ${stats.level}`}
                                 </span>
                                 <div className="mt-1 h-1.5 w-16 bg-neutral-200 rounded-full overflow-hidden">
                                     <div
-                                        className="h-full bg-amber-500 transition-all duration-500"
+                                        className="h-full bg-(--color-prioriza-blue) transition-all duration-500"
                                         style={{
                                             width: `${stats.level >= 10 && stats.xp >= 200
                                                 ? 100
@@ -115,8 +115,8 @@ export default function Header() {
                         {stats.level >= 10 && stats.xp >= 200 && (
                             <>
                                 <div className="h-4 w-px bg-neutral-200" />
-                                <div className="flex items-center gap-1.5 text-emerald-600 text-xs font-bold animate-bounce" title="Você está com tudo em dia! Recompensa de folga ativada.">
-                                    <Palmtree className="w-4 h-4 text-emerald-600 fill-current shrink-0" />
+                                <div className="flex items-center gap-1.5 text-(--color-prioriza-blue) text-xs font-bold animate-bounce" title="Você está com tudo em dia! Recompensa de folga ativada.">
+                                    <Palmtree className="w-4 h-4 text-(--color-prioriza-blue) fill-current shrink-0" />
                                     <span className="text-[10px] uppercase font-black tracking-wider">Folga</span>
                                 </div>
                             </>
