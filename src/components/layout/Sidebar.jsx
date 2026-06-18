@@ -28,9 +28,9 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                 className="fixed left-0 top-0 z-50 h-screen flex flex-col items-center py-6 hidden lg:flex"
                 style={{
                     width: '80px',
-                    background: 'linear-gradient(180deg, #020B18 0%, #061B33 55%, #020814 100%)',
-                    borderRight: '1px solid rgba(4, 182, 186, 0.22)',
-                    boxShadow: '18px 0 52px rgba(2, 8, 20, 0.34)'
+                    background: 'linear-gradient(180deg, #0F2742 0%, #12395A 55%, #0B2138 100%)',
+                    borderRight: '1px solid rgba(56, 189, 248, 0.18)',
+                    boxShadow: '16px 0 44px rgba(15, 23, 42, 0.22)'
                 }}
             >
                 {/* Logo */}
@@ -58,10 +58,10 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                                 aria-label={item.label}
                                 className="relative flex items-center justify-center w-12 h-12 mx-auto rounded-2xl transition-all duration-100 group cursor-pointer"
                                 style={{
-                                    color: isActive ? '#38BDF8' : 'var(--color-sidebar-text)',
-                                    background: isActive ? 'rgba(56, 189, 248, 0.14)' : 'transparent',
+                                    color: isActive ? '#E0F2FE' : 'var(--color-sidebar-text)',
+                                    background: isActive ? 'rgba(56, 189, 248, 0.22)' : 'transparent',
                                     border: '0',
-                                    boxShadow: isActive ? 'inset 3px 0 0 #38BDF8, 0 10px 22px rgba(15, 23, 42, 0.14)' : 'none',
+                                    boxShadow: isActive ? '0 10px 24px rgba(8, 145, 178, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.12)' : 'none',
                                 }}
                                 onMouseEnter={e => {
                                     if (!isActive) {
