@@ -381,7 +381,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen font-sans text-(--color-text-primary) overflow-x-hidden selection:bg-blue-100 transition-colors duration-300 lg:p-4">
+    <div className="min-h-screen font-sans text-(--color-text-primary) overflow-x-hidden selection:bg-blue-100 transition-colors duration-300 lg:p-6">
       <Sidebar
         activeItem={activePage}
         onItemChange={setActivePage}
@@ -389,7 +389,7 @@ export default function App() {
         onCollapse={setSidebarCollapsed}
       />
 
-      <div className="relative min-h-screen transition-all duration-300 ease-in-out lg:pl-20 pl-0 lg:rounded-[2rem] lg:border lg:border-white/80 lg:bg-white/35 lg:backdrop-blur-2xl lg:shadow-[0_8px_30px_rgba(15,23,42,0.04)]">
+      <div className="relative min-h-screen transition-all duration-300 ease-in-out pl-0 lg:ml-[112px] lg:min-h-[calc(100vh-3rem)] lg:rounded-[2rem] lg:border lg:border-white/80 lg:bg-white/35 lg:backdrop-blur-2xl lg:shadow-[0_8px_30px_rgba(15,23,42,0.04)]">
         <div className="relative z-10">
           <DashboardHeader
             title={config.title}
