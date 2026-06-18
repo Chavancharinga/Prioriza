@@ -43,7 +43,7 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                 </div>
 
                 {/* Navigation Icons */}
-                <nav className="flex-1 flex flex-col gap-5 w-full px-3 overflow-y-auto overflow-x-hidden pb-safe">
+                <nav className="flex-1 flex flex-col gap-3 w-full px-3 overflow-y-auto overflow-x-hidden pb-safe">
                     {menuItems.map((item) => {
                         const Icon = item.icon
                         const isActive = activeItem === item.id
@@ -58,10 +58,10 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                                 aria-label={item.label}
                                 className="relative flex items-center justify-center w-12 h-12 mx-auto rounded-2xl transition-all duration-100 group cursor-pointer"
                                 style={{
-                                    color: isActive ? '#071B34' : 'var(--color-sidebar-text)',
-                                    background: isActive ? 'linear-gradient(135deg, #04B6BA 0%, #A7F3FF 100%)' : 'transparent',
+                                    color: isActive ? '#38BDF8' : 'var(--color-sidebar-text)',
+                                    background: isActive ? 'rgba(56, 189, 248, 0.14)' : 'transparent',
                                     border: '0',
-                                    boxShadow: isActive ? '0 14px 30px rgba(4, 182, 186, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.35)' : 'none',
+                                    boxShadow: isActive ? 'inset 3px 0 0 #38BDF8, 0 10px 22px rgba(15, 23, 42, 0.14)' : 'none',
                                 }}
                                 onMouseEnter={e => {
                                     if (!isActive) {
