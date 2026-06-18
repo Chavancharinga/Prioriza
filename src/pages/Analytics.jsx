@@ -138,8 +138,7 @@ export default function Analytics() {
         <div className="space-y-6 lg:space-y-8">
             {/* Header */}
             <div>
-                <h1 className="text-3xl font-black text-[#3C3C3C] tracking-tight">Análise de Desempenho</h1>
-                <p className="text-sm font-bold text-gray-500 mt-1">
+                <p className="text-sm font-bold text-slate-600">
                     Acompanhe suas estatísticas de produtividade e telemetria de tempo.
                 </p>
             </div>
@@ -184,7 +183,7 @@ export default function Analytics() {
                                 <circle cx="60" cy="60" r="52" fill="none" stroke="#f3f4f6" strokeWidth="12" />
                                 <circle
                                     cx="60" cy="60" r="52" fill="none"
-                                    stroke="#2563EB" strokeWidth="12"
+                                    stroke="#1E3A8A" strokeWidth="12"
                                     strokeLinecap="round"
                                     strokeDasharray={`${2 * Math.PI * 52}`}
                                     strokeDashoffset={`${2 * Math.PI * 52 * (1 - stats.completionRate / 100)}`}
@@ -202,12 +201,12 @@ export default function Analytics() {
                     {/* Status Breakdown */}
                     <div className="grid grid-cols-3 gap-3">
                         {[
-                            { label: 'A Fazer', value: stats.todo, color: 'bg-gray-400', border: 'border-slate-300', text: 'text-slate-600', bg: 'bg-slate-50' },
-                            { label: 'Foco', value: stats.inProgress, color: 'bg-orange-500', border: 'border-orange-300', text: 'text-orange-700', bg: 'bg-orange-50' },
-                            { label: 'Feito', value: stats.done, color: 'bg-emerald-500', border: 'border-emerald-300', text: 'text-emerald-700', bg: 'bg-emerald-50' },
+                            { label: 'A Fazer', value: stats.todo },
+                            { label: 'Foco', value: stats.inProgress },
+                            { label: 'Feito', value: stats.done },
                         ].map((s, i) => (
-                            <div key={i} className={`p-2.5 rounded-2xl border-2 ${s.border} ${s.bg} text-center shadow-[0_2px_0_rgba(0,0,0,0.03)]`}>
-                                <span className={`block text-[10px] font-extrabold uppercase tracking-wider ${s.text}`}>{s.label}</span>
+                            <div key={i} className="rounded-2xl border border-[rgba(30,58,138,0.24)] bg-[rgba(30,58,138,0.08)] p-2.5 text-center shadow-[0_2px_0_rgba(0,0,0,0.03)]">
+                                <span className="block text-[10px] font-extrabold uppercase tracking-wider text-(--color-prioriza-blue)">{s.label}</span>
                                 <span className="text-xl font-black text-[#3C3C3C] mt-0.5 block">{s.value}</span>
                             </div>
                         ))}

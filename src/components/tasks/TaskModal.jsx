@@ -56,25 +56,25 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(30,58,138,0.42)] p-4 backdrop-blur-md">
+            <div className="w-full max-w-lg overflow-hidden rounded-[2rem] border border-white/80 bg-white/35 shadow-[0_24px_80px_rgba(15,23,42,0.18)] backdrop-blur-2xl animate-in fade-in zoom-in duration-200">
                 <form onSubmit={handleSubmit}>
                     {/* Header */}
-                    <div className="flex items-center justify-between p-6 border-b border-gray-100">
-                        <h2 className="text-xl font-bold text-gray-900">
+                    <div className="flex items-center justify-between border-b border-white/70 p-6">
+                        <h2 className="text-xl font-bold text-slate-900">
                             {taskToEdit ? 'Editar Tarefa' : 'Nova Tarefa'}
                         </h2>
                         <button
                             type="button"
                             onClick={onClose}
-                            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                            className="rounded-xl bg-white/70 p-2 text-slate-500 shadow-sm transition-colors hover:bg-white hover:text-slate-900"
                         >
                             <X className="w-5 h-5" />
                         </button>
                     </div>
 
                     {/* Body */}
-                    <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                    <div className="max-h-[70vh] space-y-4 overflow-y-auto p-6">
                         {/* Title */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Título</label>
@@ -168,15 +168,15 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
                         {/* Status */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <div className="flex bg-gray-100 p-1 rounded-lg">
+                            <div className="flex rounded-xl bg-white/45 p-1">
                                 {['A Fazer', 'Em Progresso', 'Feito'].map((s) => (
                                     <button
                                         key={s}
                                         type="button"
                                         onClick={() => setFormData({ ...formData, status: s })}
                                         className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all ${formData.status === s
-                                            ? 'bg-white text-blue-600 shadow-sm'
-                                            : 'text-gray-500 hover:text-gray-700'
+                                            ? 'bg-white text-(--color-prioriza-blue) shadow-sm'
+                                            : 'text-slate-500 hover:text-slate-700'
                                             }`}
                                     >
                                         {s}
@@ -187,7 +187,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
                     </div>
 
                     {/* Footer */}
-                    <div className="p-6 border-t border-gray-100 flex justify-end gap-3">
+                    <div className="flex justify-end gap-3 border-t border-white/70 p-6">
                         <Button variant="secondary" onClick={onClose} type="button">
                             Cancelar
                         </Button>

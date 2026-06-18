@@ -65,8 +65,8 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
         try {
             setSaving(true)
             const updates = {
-                username: profile.username,
-                full_name: profile.full_name,
+                username: profile.username.slice(0, 30),
+                full_name: profile.full_name.slice(0, 30),
                 avatar_url: profile.avatar_url,
                 preferências: profile.preferências || {},
                 updated_at: new Date().toISOString(),
@@ -384,8 +384,9 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Nome Completo</label>
                                     <input
                                         type="text"
+                                        maxLength={30}
                                         value={profile.full_name}
-                                        onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
+                                        onChange={(e) => setProfile({ ...profile, full_name: e.target.value.slice(0, 30) })}
                                         className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                         placeholder="Seu nome"
                                     />
@@ -394,8 +395,9 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
                                     <input
                                         type="text"
+                                        maxLength={30}
                                         value={profile.username}
-                                        onChange={(e) => setProfile({ ...profile, username: e.target.value })}
+                                        onChange={(e) => setProfile({ ...profile, username: e.target.value.slice(0, 30) })}
                                         className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                         placeholder="username"
                                     />

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Bot, CalendarClock, CheckCircle2, Clock, Loader2, Plus, Send, Sparkles, Trophy } from 'lucide-react'
+import { Bot, CalendarClock, CheckCircle2, Clock, Loader2, MessageSquarePlus, Plus, Send, Sparkles, Trophy } from 'lucide-react'
 import { AIService } from '../services/AIService'
 import { TaskService } from '../services/TaskService'
 
@@ -16,6 +16,24 @@ const initialMessages = [
         content: 'Olá, eu sou o PRIO. Posso analisar suas tarefas, montar um mini relatório, sugerir checklist e criar tarefas por conversa.'
     }
 ]
+
+const CHAT_STORAGE_KEY = 'prioriza_prio_chats'
+
+function createChat() {
+    return {
+        id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+        title: 'Novo chat',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        messages: initialMessages
+    }
+}
+
+function getChatTitle(messages = []) {
+    const firstUserMessage = messages.find(message => message.role === 'user')?.content
+    if (!firstUserMessage) return 'Novo chat'
+    return firstUserMessage.replace(/^PRIO,\s*/i, '').slice(0, 42)
+}
 
 function tomorrowAt(hour = 18, minute = 0) {
     const date = new Date()
@@ -110,11 +128,41 @@ function normalizeAction(action) {
 
 export default function PrioChat({ profile }) {
     const [tasks, setTasks] = useState([])
-    const [messages, setMessages] = useState(initialMessages)
+    const [chats, setChats] = useState(() => {
+        if (typeof window === 'undefined') return [createChat()]
+        try {
+            const saved = JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || '[]')
+            return Array.isArray(saved) && saved.length ? saved : [createChat()]
+        } catch {
+            return [createChat()]
+        }
+    })
+    const [activeChatId, setActiveChatId] = useState(() => {
+        if (typeof window === 'undefined') return null
+        try {
+            const saved = JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || '[]')
+            return Array.isArray(saved) && saved[0]?.id ? saved[0].id : null
+        } catch {
+            return null
+        }
+    })
     const [input, setInput] = useState('')
     const [loading, setLoading] = useState(false)
     const [lastCreatedTask, setLastCreatedTask] = useState(null)
     const messagesEndRef = useRef(null)
+
+    const activeChat = useMemo(() => chats.find(chat => chat.id === activeChatId) || chats[0] || createChat(), [activeChatId, chats])
+    const messages = activeChat.messages || initialMessages
+
+    useEffect(() => {
+        if (!activeChatId && chats[0]?.id) setActiveChatId(chats[0].id)
+    }, [activeChatId, chats])
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chats.slice(0, 12)))
+        }
+    }, [chats])
 
     const stats = useMemo(() => {
         const total = tasks.length
@@ -137,6 +185,26 @@ export default function PrioChat({ profile }) {
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages])
+
+    function updateActiveChatMessages(updater) {
+        setChats(prev => prev.map(chat => {
+            if (chat.id !== activeChat.id) return chat
+            const nextMessages = typeof updater === 'function' ? updater(chat.messages || initialMessages) : updater
+            return {
+                ...chat,
+                title: getChatTitle(nextMessages),
+                updatedAt: new Date().toISOString(),
+                messages: nextMessages
+            }
+        }))
+    }
+
+    function handleNewChat() {
+        const chat = createChat()
+        setChats(prev => [chat, ...prev].slice(0, 12))
+        setActiveChatId(chat.id)
+        setInput('')
+    }
 
     const applyAction = async (rawAction) => {
         const action = normalizeAction(rawAction)
@@ -201,7 +269,7 @@ export default function PrioChat({ profile }) {
 
         setInput('')
         setLoading(true)
-        setMessages(prev => [...prev, { role: 'user', content: message }])
+        updateActiveChatMessages(prev => [...prev, { role: 'user', content: message }])
 
         try {
             const taskSnapshot = await loadTasks()
@@ -226,38 +294,45 @@ export default function PrioChat({ profile }) {
                 console.warn('PRIO local fallback:', error)
             }
 
-            setMessages(prev => [...prev, { role: 'assistant', content: response.reply || buildLocalReport(taskSnapshot, profile) }])
+            updateActiveChatMessages(prev => [...prev, { role: 'assistant', content: response.reply || buildLocalReport(taskSnapshot, profile) }])
             const actionResult = await applyAction(response.action)
             if (actionResult) {
-                setMessages(prev => [...prev, { role: 'assistant', content: actionResult }])
+                updateActiveChatMessages(prev => [...prev, { role: 'assistant', content: actionResult }])
             }
         } catch (error) {
-            setMessages(prev => [...prev, { role: 'assistant', content: `Não consegui concluir agora: ${error.message}` }])
+            updateActiveChatMessages(prev => [...prev, { role: 'assistant', content: `Não consegui concluir agora: ${error.message}` }])
         } finally {
             setLoading(false)
         }
     }
 
     return (
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
-            <section className="overflow-hidden rounded-[28px] border border-white/80 bg-white/90 shadow-[0_18px_45px_rgba(17,24,39,0.06)] backdrop-blur-xl">
-                <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+        <div className="grid grid-cols-1 gap-4 overflow-hidden sm:gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+            <section className="flex min-h-[calc(100dvh-220px)] min-w-0 flex-col overflow-hidden rounded-[28px] border border-white/80 bg-white/90 shadow-[0_18px_45px_rgba(17,24,39,0.06)] backdrop-blur-xl sm:min-h-[620px]">
+                <div className="flex flex-col gap-3 border-b border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
                     <div className="flex items-center gap-3">
-                        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-blue-600 text-white shadow-sm">
+                        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-(--color-prioriza-blue) text-white shadow-sm sm:h-12 sm:w-12">
                             <Bot className="h-6 w-6" />
                         </div>
-                        <div>
+                        <div className="min-w-0">
                             <h2 className="text-xl font-bold text-slate-900">PRIO</h2>
-                            <p className="text-sm font-bold text-slate-500">Assistente pessoal de tarefas e produtividade</p>
+                            <p className="line-clamp-2 text-xs font-bold text-slate-500 sm:text-sm">Assistente pessoal de tarefas e produtividade</p>
                         </div>
                     </div>
-                    <span className="hidden rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 sm:inline-flex">IA pronta</span>
+                    <button
+                        type="button"
+                        onClick={handleNewChat}
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-(--color-prioriza-blue) px-4 py-2 text-xs font-black text-white shadow-sm"
+                    >
+                        <MessageSquarePlus className="h-4 w-4" />
+                        Novo chat
+                    </button>
                 </div>
 
-                <div className="h-[58vh] min-h-[430px] space-y-4 overflow-y-auto px-5 py-6">
+                <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-5 sm:py-6">
                     {messages.map((message, index) => (
                         <div key={`${message.role}-${index}`} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[82%] rounded-[24px] px-4 py-3 text-sm leading-relaxed shadow-sm ${message.role === 'user' ? 'bg-blue-600 text-white' : 'border border-slate-100 bg-white text-slate-700'}`}>
+                            <div className={`max-w-[88%] rounded-[24px] px-4 py-3 text-sm leading-relaxed shadow-sm sm:max-w-[82%] ${message.role === 'user' ? 'bg-(--color-prioriza-blue) text-white' : 'border border-slate-100 bg-white text-slate-700'}`}>
                                 <p className="whitespace-pre-wrap font-medium">{message.content}</p>
                             </div>
                         </div>
@@ -274,21 +349,21 @@ export default function PrioChat({ profile }) {
                     <div ref={messagesEndRef} />
                 </div>
 
-                <div className="border-t border-slate-100 bg-slate-50/70 p-4">
-                    <div className="mb-3 flex flex-wrap gap-2">
+                <div className="border-t border-slate-100 bg-slate-50/70 p-3 sm:p-4">
+                    <div className="mb-3 flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
                         {quickPrompts.map(prompt => (
                             <button
                                 key={prompt}
                                 type="button"
                                 onClick={() => sendMessage(prompt)}
-                                className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-blue-200 hover:text-blue-600"
+                                className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-[rgba(30,58,138,0.28)] hover:text-(--color-prioriza-blue)"
                             >
                                 {prompt.replace('PRIO, ', '')}
                             </button>
                         ))}
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex items-end gap-2 sm:gap-3">
                         <textarea
                             value={input}
                             onChange={event => setInput(event.target.value)}
@@ -299,13 +374,13 @@ export default function PrioChat({ profile }) {
                                 }
                             }}
                             placeholder="Ex: PRIO, crie uma tarefa para corrigir uma função do meu código amanhã."
-                            className="min-h-14 flex-1 resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium outline-none transition focus:border-blue-300 focus:ring-4 focus:ring-blue-100"
+                            className="min-h-14 min-w-0 flex-1 resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium outline-none transition focus:border-[rgba(30,58,138,0.34)] focus:ring-4 focus:ring-[rgba(30,58,138,0.12)]"
                         />
                         <button
                             type="button"
                             onClick={() => sendMessage()}
                             disabled={loading || !input.trim()}
-                            className="grid h-14 w-14 place-items-center rounded-2xl bg-blue-600 text-white shadow-sm transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-(--color-prioriza-blue) text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-50"
                             aria-label="Enviar mensagem para o PRIO"
                         >
                             <Send className="h-5 w-5" />
@@ -314,26 +389,48 @@ export default function PrioChat({ profile }) {
                 </div>
             </section>
 
-            <aside className="space-y-4">
+            <aside className="min-w-0 space-y-4 pb-6 lg:pb-0">
+                <div className="rounded-[28px] border border-white/80 bg-white/90 p-5 shadow-[0_18px_45px_rgba(17,24,39,0.06)] backdrop-blur-xl">
+                    <div className="mb-4 flex items-center justify-between gap-2">
+                        <h3 className="font-bold text-slate-900">Histórico</h3>
+                        <span className="rounded-full bg-[rgba(30,58,138,0.10)] px-2 py-1 text-[10px] font-black text-(--color-prioriza-blue)">{chats.length}</span>
+                    </div>
+                    <div className="max-h-56 space-y-2 overflow-y-auto">
+                        {chats.map(chat => (
+                            <button
+                                key={chat.id}
+                                type="button"
+                                onClick={() => setActiveChatId(chat.id)}
+                                className={`w-full rounded-2xl px-3 py-2 text-left text-xs font-bold transition ${chat.id === activeChat.id ? 'bg-[rgba(30,58,138,0.12)] text-(--color-prioriza-blue)' : 'bg-white/70 text-slate-600 hover:bg-white'}`}
+                            >
+                                <span className="block truncate">{chat.title}</span>
+                                <span className="mt-0.5 block text-[10px] font-semibold text-slate-400">
+                                    {new Date(chat.updatedAt).toLocaleDateString('pt-PT')}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
                 <div className="rounded-[28px] border border-white/80 bg-white/90 p-5 shadow-[0_18px_45px_rgba(17,24,39,0.06)] backdrop-blur-xl">
                     <div className="mb-4 flex items-center gap-2">
                         <Trophy className="h-5 w-5 text-blue-600" />
                         <h3 className="font-bold text-slate-900">Resumo</h3>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                        <div className="rounded-2xl bg-blue-50 p-4">
+                        <div className="rounded-2xl bg-[rgba(30,58,138,0.10)] p-4">
                             <p className="text-[10px] font-black uppercase text-slate-500">Total</p>
                             <p className="text-2xl font-black text-slate-900">{stats.total}</p>
                         </div>
-                        <div className="rounded-2xl bg-emerald-50 p-4">
+                        <div className="rounded-2xl bg-[rgba(30,58,138,0.10)] p-4">
                             <p className="text-[10px] font-black uppercase text-slate-500">Feitas</p>
                             <p className="text-2xl font-black text-slate-900">{stats.done}</p>
                         </div>
-                        <div className="rounded-2xl bg-amber-50 p-4">
+                        <div className="rounded-2xl bg-[rgba(30,58,138,0.10)] p-4">
                             <p className="text-[10px] font-black uppercase text-slate-500">Foco</p>
                             <p className="text-2xl font-black text-slate-900">{stats.progress}</p>
                         </div>
-                        <div className="rounded-2xl bg-rose-50 p-4">
+                        <div className="rounded-2xl bg-[rgba(30,58,138,0.10)] p-4">
                             <p className="text-[10px] font-black uppercase text-slate-500">Atrasos</p>
                             <p className="text-2xl font-black text-slate-900">{stats.overdue}</p>
                         </div>
