@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { User, Flame, Trophy, Star, Palmtree, X, TrendingUp, TrendingDown, Clock, CheckCircle2 } from 'lucide-react'
 import { TaskService } from '../../services/TaskService'
@@ -489,6 +490,7 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                 ))}
             </AnimatePresence>
 
+            {typeof document !== 'undefined' && createPortal(
             <AnimatePresence>
                 {xpPanelOpen && (
                     <motion.div
@@ -613,7 +615,9 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                         </motion.div>
                     </motion.div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence>,
+            document.body
+            )}
         </header>
     )
 }

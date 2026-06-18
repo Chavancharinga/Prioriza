@@ -762,7 +762,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                         {task && task.status !== 'Feito' && (
                             <button
                                 onClick={handleComplete}
-                                className="px-3.5 py-2 sm:px-5 sm:py-2 bg-emerald-500 text-white rounded-2xl text-xs sm:text-sm font-black border-2 border-emerald-600 border-b-[5px] border-b-emerald-700 flex items-center gap-2 transition-all cursor-pointer active:translate-y-[2px] active:border-b-[2px]"
+                                className="px-3.5 py-2 sm:px-5 sm:py-2 bg-(--color-prioriza-blue) text-white rounded-2xl text-xs sm:text-sm font-black border-2 border-(--color-prioriza-blue-deep) border-b-[5px] border-b-(--color-prioriza-blue-deep) flex items-center gap-2 transition-all cursor-pointer active:translate-y-[2px] active:border-b-[2px]"
                             >
                                 <CheckCircle className="w-4 h-4" />
                                 <span className="hidden md:inline">Concluir</span>
@@ -790,8 +790,8 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
             </div>
 
             {/* Main Content - Scrollable Workspace */}
-            <div className="flex-1 overflow-y-auto">
-                <main className="max-w-[1600px] mx-auto p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6">
+                <main className="max-w-[1600px] mx-auto min-h-full rounded-[2rem] border border-white/80 bg-white/35 p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 shadow-[0_8px_30px_rgba(15,23,42,0.04)] backdrop-blur-2xl">
                     {loading ? (
                         <div className="col-span-12 flex justify-center py-32">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>

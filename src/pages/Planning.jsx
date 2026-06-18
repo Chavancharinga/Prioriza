@@ -532,7 +532,7 @@ export default function Planning() {
                                         className={`relative aspect-square flex flex-col items-center justify-start pt-1 sm:pt-2 rounded-lg sm:rounded-xl transition-all text-xs sm:text-sm font-medium
                                             ${!day.isCurrentMonth ? 'text-gray-300' : 'text-gray-700'}
                                             ${today ? 'bg-blue-50 text-blue-700 font-bold' : ''}
-                                            ${selected ? 'ring-2 ring-blue-500 bg-blue-50' : ''}
+                                            ${selected ? 'ring-[3px] ring-(--color-prioriza-blue) bg-[rgba(30,58,138,0.10)]' : ''}
                                             ${!selected && day.isCurrentMonth ? 'hover:bg-gray-50' : ''}
                                         `}
                                     >
@@ -572,7 +572,7 @@ export default function Planning() {
                                         onClick={() => setSelectedDate(dayDate)}
                                         className={`p-3 md:p-4 rounded-2xl border transition-all duration-300 cursor-pointer flex flex-col md:min-h-[350px]
                                             ${isDaySelected 
-                                                ? 'border-blue-500 bg-blue-50/10 ring-2 ring-blue-500/10' 
+                                                ? 'border-(--color-prioriza-blue) bg-[rgba(30,58,138,0.10)] ring-2 ring-[rgba(30,58,138,0.30)]' 
                                                 : 'border-gray-100 hover:border-gray-200 bg-white hover:shadow-xs'
                                             }
                                         `}
