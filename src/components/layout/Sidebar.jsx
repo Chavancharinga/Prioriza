@@ -28,9 +28,10 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                 className="fixed left-0 top-0 z-50 h-screen flex flex-col items-center py-6 hidden lg:flex"
                 style={{
                     width: '80px',
-                    background: '#FFFFFF',
-                    borderRight: '1px solid #E2E8F0',
-                    boxShadow: '0 1px 2px rgba(15, 23, 42, 0.04)'
+                    background: 'rgba(255, 255, 255, 0.58)',
+                    backdropFilter: 'blur(26px) saturate(1.12)',
+                    borderRight: '1px solid rgba(255, 255, 255, 0.84)',
+                    boxShadow: '12px 0 30px rgba(15, 23, 42, 0.045)'
                 }}
             >
                 {/* Logo */}
@@ -59,15 +60,15 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                                 className="relative flex items-center justify-center w-12 h-12 mx-auto rounded-2xl transition-all duration-100 group cursor-pointer"
                                 style={{
                                     color: isActive ? '#2563EB' : 'var(--color-sidebar-text)',
-                                    background: isActive ? '#EFF6FF' : 'transparent',
+                                    background: isActive ? '#FFFFFF' : 'transparent',
                                     border: '0',
-                                    boxShadow: 'none',
+                                    boxShadow: isActive ? '0 8px 20px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9)' : 'none',
                                 }}
                                 onMouseEnter={e => {
                                     if (!isActive) {
-                                        e.currentTarget.style.background = '#F8FAFC'
+                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.58)'
                                         e.currentTarget.style.boxShadow = 'none'
-                                        e.currentTarget.style.color = '#334155'
+                                        e.currentTarget.style.color = '#1E293B'
                                     }
                                 }}
                                 onMouseLeave={e => {
