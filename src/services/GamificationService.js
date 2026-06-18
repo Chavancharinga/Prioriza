@@ -1,6 +1,70 @@
 import { supabase } from '../lib/supabase'
 
+function getLocalDateString(date = new Date()) {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+}
+
+function getDaysBetweenDates(fromDate, toDate) {
+    const from = new Date(`${fromDate}T00:00:00`)
+    const to = new Date(`${toDate}T00:00:00`)
+    return Math.floor((to - from) / (1000 * 60 * 60 * 24))
+}
+
 export const GamificationService = {
+    async registerDailyActivity() {
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return null
+
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('xp, level, streak, last_activity_date')
+                .eq('id', user.id)
+                .single()
+
+            if (error) throw error
+
+            const todayStr = getLocalDateString()
+            let newStreak = profile.streak || 0
+
+            if (!profile.last_activity_date) {
+                newStreak = 1
+            } else {
+                const diffDays = getDaysBetweenDates(profile.last_activity_date, todayStr)
+
+                if (diffDays === 1) {
+                    newStreak += 1
+                } else if (diffDays > 1) {
+                    newStreak = 1
+                }
+            }
+
+            if (profile.last_activity_date === todayStr && newStreak === (profile.streak || 0)) {
+                return profile
+            }
+
+            const { data: updatedProfile, error: updateError } = await supabase
+                .from('profiles')
+                .update({
+                    streak: newStreak,
+                    last_activity_date: todayStr
+                })
+                .eq('id', user.id)
+                .select('xp, level, streak, last_activity_date')
+                .single()
+
+            if (updateError) throw updateError
+
+            return updatedProfile
+        } catch (err) {
+            console.error('Error registering daily activity:', err)
+            return null
+        }
+    },
+
     // Award XP to the current user and check for Level Up
     async awardXp(xpAmount) {
         try {
@@ -43,17 +107,14 @@ export const GamificationService = {
                 }
             }
 
-            const todayStr = new Date().toISOString().split('T')[0]
+            const todayStr = getLocalDateString()
 
             // 2. Perform daily streak validation during XP award
             let newStreak = profile.streak || 0
             if (!profile.last_activity_date) {
                 newStreak = 1
             } else {
-                const today = new Date(todayStr)
-                const lastAct = new Date(profile.last_activity_date)
-                const diffTime = today - lastAct
-                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+                const diffDays = getDaysBetweenDates(profile.last_activity_date, todayStr)
 
                 if (diffDays === 1) {
                     newStreak += 1 // Consecutive day
@@ -114,10 +175,7 @@ export const GamificationService = {
             
             // Check streak status (reset if missed yesterday)
             if (profile && profile.last_activity_date) {
-                const today = new Date(new Date().toISOString().split('T')[0])
-                const lastAct = new Date(profile.last_activity_date)
-                const diffTime = today - lastAct
-                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+                const diffDays = getDaysBetweenDates(profile.last_activity_date, getLocalDateString())
                 
                 if (diffDays > 1) {
                     // Reset streak to 0

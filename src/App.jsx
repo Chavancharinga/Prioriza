@@ -155,9 +155,10 @@ export default function App() {
 
   const loadProfile = useCallback(async () => {
     try {
+      await GamificationService.registerDailyActivity()
+      await GamificationService.checkOverdueTasksAndPenalize()
       const data = await ProfileService.getProfile()
       setProfile(data)
-      await GamificationService.checkOverdueTasksAndPenalize()
     } catch (error) {
       console.error('Error loading app profile:', error)
     }
