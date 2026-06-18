@@ -39,10 +39,10 @@
   --color-surface-elevated: #F1F5F9;
 
   /* Sidebar (Duolingo Style: Clean White & Bold Accents) */
-  --color-sidebar-bg: #020617;
-  --color-sidebar-text: #CBD5E1;
-  --color-sidebar-active: #38BDF8;
-  --color-sidebar-hover: rgba(56, 189, 248, 0.12);
+  --color-sidebar-bg: #FFFFFF;
+  --color-sidebar-text: #94A3B8;
+  --color-sidebar-active: #2563EB;
+  --color-sidebar-hover: #F8FAFC;
 
   /* Text */
   --color-text-primary: #0F172A;
@@ -452,7 +452,7 @@ h3[class*="font-black"],
 h1 [class*="font-black"],
 h2 [class*="font-black"],
 h3 [class*="font-black"] {
-  font-weight: 720 !important;
+  font-weight: 700 !important;
 }
 
 .font-black {

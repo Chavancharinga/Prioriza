@@ -23,22 +23,22 @@ const menuItems = [
 export default function Sidebar({ activeItem, onItemChange, collapsed, onCollapse }) {
     return (
         <>
-            {/* Sidebar - Light/Medium Grey (Brand Identity) */}
+            {/* Sidebar - Light Shadcn/Apple style */}
             <motion.aside
                 className="fixed left-0 top-0 z-50 h-screen flex flex-col items-center py-6 hidden lg:flex"
                 style={{
                     width: '80px',
-                    background: 'linear-gradient(180deg, #0F2742 0%, #12395A 55%, #0B2138 100%)',
-                    borderRight: '1px solid rgba(56, 189, 248, 0.18)',
-                    boxShadow: '16px 0 44px rgba(15, 23, 42, 0.22)'
+                    background: '#FFFFFF',
+                    borderRight: '1px solid #E2E8F0',
+                    boxShadow: '0 1px 2px rgba(15, 23, 42, 0.04)'
                 }}
             >
                 {/* Logo */}
-                <div className="mb-6 flex items-center justify-center w-full px-0">
+                <div className="mb-6 flex items-center justify-center w-full px-1">
                     <img 
                         src={`${import.meta.env.BASE_URL}logo.png`} 
                         alt="Prioriza" 
-                        className="w-[78px] h-auto object-contain scale-[1.16] transition-all duration-200 drop-shadow-[0_0_18px_rgba(167,243,255,0.38)]" 
+                        className="w-[68px] h-auto object-contain transition-all duration-200" 
                     />
                 </div>
 
@@ -58,16 +58,16 @@ export default function Sidebar({ activeItem, onItemChange, collapsed, onCollaps
                                 aria-label={item.label}
                                 className="relative flex items-center justify-center w-12 h-12 mx-auto rounded-2xl transition-all duration-100 group cursor-pointer"
                                 style={{
-                                    color: isActive ? '#E0F2FE' : 'var(--color-sidebar-text)',
-                                    background: isActive ? 'rgba(56, 189, 248, 0.22)' : 'transparent',
+                                    color: isActive ? '#2563EB' : 'var(--color-sidebar-text)',
+                                    background: isActive ? '#EFF6FF' : 'transparent',
                                     border: '0',
-                                    boxShadow: isActive ? '0 10px 24px rgba(8, 145, 178, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.12)' : 'none',
+                                    boxShadow: 'none',
                                 }}
                                 onMouseEnter={e => {
                                     if (!isActive) {
-                                        e.currentTarget.style.background = 'rgba(4, 182, 186, 0.14)'
-                                        e.currentTarget.style.boxShadow = '0 12px 26px rgba(4, 182, 186, 0.12)'
-                                        e.currentTarget.style.color = '#FFFFFF'
+                                        e.currentTarget.style.background = '#F8FAFC'
+                                        e.currentTarget.style.boxShadow = 'none'
+                                        e.currentTarget.style.color = '#334155'
                                     }
                                 }}
                                 onMouseLeave={e => {
