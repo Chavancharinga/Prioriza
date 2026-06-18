@@ -369,13 +369,12 @@ export default function DashboardHeader({ title, breadcrumb, onNavigate, profile
                     </div>
                     {/* Profile Frame */}
                     <div className="border border-slate-200 rounded-full p-[3px] bg-white shadow-sm transition-all duration-200 group-hover:border-blue-300 group-hover:shadow-md shrink-0">
-                        <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-linear-to-tr from-[#00C6FB] to-[#005BEA] flex items-center justify-center text-white font-black relative overflow-hidden shadow-inner">
+                        <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-white flex items-center justify-center text-(--color-prioriza-blue) font-black relative overflow-hidden shadow-inner">
                             {profile?.avatar_url ? (
-                                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-contain rounded-full bg-white p-0.5" />
                             ) : (
                                 <span className="relative z-10 text-sm">{profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : <User className="w-4 h-4" />}</span>
                             )}
-                            <div className="absolute top-0 right-0 w-3.5 h-3.5 bg-white/25 rounded-bl-full"></div>
                         </div>
                     </div>
                 </motion.div>

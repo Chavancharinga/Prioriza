@@ -289,12 +289,12 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
                 <div className="space-y-6">
                     <Card className="p-6 text-center space-y-4">
                         <div className="relative inline-block group">
-                            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-blue-50 mx-auto bg-gray-100 flex items-center justify-center">
+                            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-blue-50 mx-auto bg-white flex items-center justify-center">
                                 {profile.avatar_url ? (
                                     <img
                                         src={profile.avatar_url}
                                         alt="Avatar"
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-contain bg-white p-2"
                                     />
                                 ) : (
                                     <User className="w-16 h-16 text-gray-400" />
