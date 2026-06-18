@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { X, Calendar, Clock, AlertTriangle, Save } from 'lucide-react'
 import Button from '../ui/Button'
 import Card from '../ui/Card'
@@ -40,7 +41,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
         }
     }, [taskToEdit, isOpen])
 
-    if (!isOpen) return null
+    if (!isOpen || typeof document === 'undefined') return null
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -55,7 +56,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
         onSubmit(payload)
     }
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(30,58,138,0.42)] p-4 backdrop-blur-md">
             <div className="w-full max-w-lg overflow-hidden rounded-[2rem] border border-white/80 bg-white/35 shadow-[0_24px_80px_rgba(15,23,42,0.18)] backdrop-blur-2xl animate-in fade-in zoom-in duration-200">
                 <form onSubmit={handleSubmit}>
@@ -198,6 +199,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
                     </div>
                 </form>
             </div>
-        </div>
+        </div>,
+        document.body
     )
 }

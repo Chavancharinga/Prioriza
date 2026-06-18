@@ -1,6 +1,7 @@
 import { AlertTriangle, CheckCircle2, Info, X, Trophy, Sparkles, Star } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 
 export default function ConfirmationModal({
     isOpen,
@@ -35,7 +36,7 @@ export default function ConfirmationModal({
         }
     }, [isOpen, type])
 
-    if (!isOpen) return null
+    if (!isOpen || typeof document === 'undefined') return null
 
     const config = {
         info: {
@@ -63,7 +64,7 @@ export default function ConfirmationModal({
 
     const isSuccess = type === 'success'
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/45 backdrop-blur-md p-4">
             {/* Backdrop click */}
             <div className="absolute inset-0" onClick={onClose} />
@@ -194,6 +195,7 @@ export default function ConfirmationModal({
                     </button>
                 </div>
             </motion.div>
-        </div>
+        </div>,
+        document.body
     )
 }

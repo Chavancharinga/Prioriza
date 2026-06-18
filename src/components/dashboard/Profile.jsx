@@ -311,7 +311,7 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
                                 type="file"
                                 ref={fileInputRef}
                                 onChange={handleAvatarUpload}
-                                accept="image/*"
+                                accept="image/*,.ico"
                                 aria-label="Upload do avatar"
                                 className="hidden"
                             />
