@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Bot, CalendarClock, CheckCircle2, Clock, Loader2, MessageSquarePlus, Plus, Send, Sparkles, Trophy } from 'lucide-react'
 import { AIService } from '../services/AIService'
 import { TaskService } from '../services/TaskService'
+import { ProfileService } from '../services/ProfileService'
 
 const quickPrompts = [
     'PRIO, faz um mini relatório da minha produtividade.',
@@ -18,6 +19,7 @@ const initialMessages = [
 ]
 
 const CHAT_STORAGE_KEY = 'prioriza_prio_chats'
+const WORK_DAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
 
 function createChat() {
     return {
@@ -46,6 +48,53 @@ function normalizePriority(priority) {
     const value = Number(priority)
     if (Number.isNaN(value)) return 3
     return Math.min(5, Math.max(1, value))
+}
+
+function normalizeTime(hour, minute = '00') {
+    const hourValue = Math.min(23, Math.max(0, Number(hour) || 0))
+    const minuteValue = Math.min(59, Math.max(0, Number(minute) || 0))
+    return `${String(hourValue).padStart(2, '0')}:${String(minuteValue).padStart(2, '0')}`
+}
+
+function extractWorkDays(message) {
+    const text = message.toLowerCase()
+    if (/segunda\s+a\s+sexta|seg\s+a\s+sex|dias?\s+úteis|semana/.test(text)) {
+        return ['Seg', 'Ter', 'Qua', 'Qui', 'Sex']
+    }
+
+    const matches = [
+        [/segunda|seg\b/, 'Seg'],
+        [/terça|terca|ter\b/, 'Ter'],
+        [/quarta|qua\b/, 'Qua'],
+        [/quinta|qui\b/, 'Qui'],
+        [/sexta|sex\b/, 'Sex'],
+        [/sábado|sabado|sáb|sab\b/, 'Sáb'],
+        [/domingo|dom\b/, 'Dom']
+    ]
+
+    const days = matches.filter(([pattern]) => pattern.test(text)).map(([, day]) => day)
+    return days.length ? days : WORK_DAYS
+}
+
+function buildWorkHoursAction(message) {
+    if (!/\b(hor[aá]rio|horarios|disponibilidade|trabalho|agenda|calend[aá]rio)\b/i.test(message)) return null
+
+    const timeRange = message.match(/(?:das|de)\s*(\d{1,2})(?::?(\d{2}))?\s*(?:h)?\s*(?:às|as|até|ate|-|a)\s*(\d{1,2})(?::?(\d{2}))?\s*(?:h)?/i)
+    if (!timeRange) return null
+
+    const start = normalizeTime(timeRange[1], timeRange[2] || '00')
+    const end = normalizeTime(timeRange[3], timeRange[4] || '00')
+    if (start >= end) return null
+
+    const workHours = extractWorkDays(message).reduce((acc, day) => {
+        acc[day] = [{ start, end }]
+        return acc
+    }, {})
+
+    return {
+        type: 'update_work_hours',
+        work_hours: workHours
+    }
 }
 
 function summarizeTasks(tasks = []) {
@@ -81,6 +130,9 @@ function buildLocalReport(tasks = [], profile = {}) {
 }
 
 function buildFallbackAction(message) {
+    const workHoursAction = buildWorkHoursAction(message)
+    if (workHoursAction) return workHoursAction
+
     const text = message.toLowerCase()
     const wantsCreate = /\b(cria|crie|criar|adiciona|adicione|nova tarefa)\b/i.test(message)
     if (!wantsCreate) return null
@@ -110,7 +162,31 @@ function buildFallbackAction(message) {
 
 function normalizeAction(action) {
     if (!action || typeof action !== 'object') return null
-    if (!['create_task', 'update_last_task'].includes(action.type)) return null
+    if (!['create_task', 'update_last_task', 'update_work_hours'].includes(action.type)) return null
+
+    if (action.type === 'update_work_hours') {
+        const workHours = action.work_hours && typeof action.work_hours === 'object' ? action.work_hours : {}
+        const normalizedHours = Object.entries(workHours).reduce((acc, [day, slots]) => {
+            if (!WORK_DAYS.includes(day) || !Array.isArray(slots)) return acc
+            const cleanSlots = slots
+                .map(slot => {
+                    const [startHour, startMinute = '00'] = String(slot?.start || '').split(':')
+                    const [endHour, endMinute = '00'] = String(slot?.end || '').split(':')
+                    return {
+                        start: normalizeTime(startHour, startMinute),
+                        end: normalizeTime(endHour, endMinute)
+                    }
+                })
+                .filter(slot => slot.start < slot.end)
+                .slice(0, 3)
+            if (cleanSlots.length) acc[day] = cleanSlots
+            return acc
+        }, {})
+
+        return Object.keys(normalizedHours).length
+            ? { type: 'update_work_hours', work_hours: normalizedHours }
+            : null
+    }
 
     return {
         type: action.type,
@@ -126,7 +202,7 @@ function normalizeAction(action) {
     }
 }
 
-export default function PrioChat({ profile }) {
+export default function PrioChat({ profile, onProfileUpdate }) {
     const [tasks, setTasks] = useState([])
     const [chats, setChats] = useState(() => {
         if (typeof window === 'undefined') return [createChat()]
@@ -238,6 +314,27 @@ export default function PrioChat({ profile }) {
             return `Tarefa criada: "${created.title}" · P${created.priority} · ${created.estimated_minutes || 60}min${dueText}.`
         }
 
+        if (action.type === 'update_work_hours') {
+            const currentPreferences = profile?.['preferências'] || {}
+            const currentWorkHours = currentPreferences.work_hours || {}
+            const nextPreferences = {
+                ...currentPreferences,
+                work_hours: {
+                    ...currentWorkHours,
+                    ...action.work_hours
+                }
+            }
+
+            await ProfileService.updateProfile({ preferências: nextPreferences })
+            await onProfileUpdate?.()
+
+            const days = Object.entries(action.work_hours)
+                .map(([day, slots]) => `${day} ${slots.map(slot => `${slot.start}-${slot.end}`).join(', ')}`)
+                .join('; ')
+
+            return `Horários de trabalho atualizados: ${days}. O cronograma automático passa a usar esta disponibilidade.`
+        }
+
         if (action.type === 'update_last_task' && lastCreatedTask?.id) {
             const updated = await TaskService.updateTask(lastCreatedTask.id, {
                 title: action.task.title || lastCreatedTask.title,
@@ -280,15 +377,19 @@ export default function PrioChat({ profile }) {
                     message,
                     tasks: summarizeTasks(taskSnapshot),
                     profile,
+                    capabilities: ['create_task', 'update_last_task', 'update_work_hours', 'suggest_schedule', 'report_productivity'],
                     history: messages.slice(-8),
                     last_created_task: lastCreatedTask
                 })
             } catch (error) {
                 const fallbackAction = buildFallbackAction(message)
+                const fallbackReply = fallbackAction?.type === 'update_work_hours'
+                    ? 'Consigo atualizar esse horÃ¡rio agora. Como o backend da IA nÃ£o respondeu, usei o modo local e apliquei a disponibilidade no seu perfil.'
+                    : fallbackAction
+                        ? 'Consigo criar isso agora mesmo. Como o backend da IA nÃ£o respondeu, usei meu modo local: sugeri checklist, nota e estimativa automÃ¡tica.'
+                        : buildLocalReport(taskSnapshot, profile)
                 response = {
-                    reply: fallbackAction
-                        ? 'Consigo criar isso agora mesmo. Como o backend da IA não respondeu, usei meu modo local: sugeri checklist, nota e estimativa automática.'
-                        : buildLocalReport(taskSnapshot, profile),
+                    reply: fallbackReply,
                     action: fallbackAction
                 }
                 console.warn('PRIO local fallback:', error)

@@ -78,6 +78,7 @@ class PrioChatRequest(BaseModel):
     message: str
     tasks: list[dict[str, Any]] = Field(default_factory=list)
     profile: dict[str, Any] | None = None
+    capabilities: list[str] = Field(default_factory=list)
     history: list[dict[str, str]] = Field(default_factory=list)
     last_created_task: dict[str, Any] | None = None
 
@@ -245,7 +246,58 @@ def infer_due_date_from_message(message: str):
     return due_date
 
 
+def normalize_hour(hour: str, minute: str | None = None):
+    hour_value = max(0, min(23, int(hour or 0)))
+    minute_value = max(0, min(59, int(minute or 0)))
+    return f"{hour_value:02d}:{minute_value:02d}"
+
+
+def infer_work_days(message: str):
+    normalized = message.lower()
+    if re.search(r"segunda\s+a\s+sexta|seg\s+a\s+sex|dias?\s+uteis|dias?\s+úteis|semana", normalized):
+        return ["Seg", "Ter", "Qua", "Qui", "Sex"]
+
+    checks = [
+        (r"segunda|seg\b", "Seg"),
+        (r"terca|terça|ter\b", "Ter"),
+        (r"quarta|qua\b", "Qua"),
+        (r"quinta|qui\b", "Qui"),
+        (r"sexta|sex\b", "Sex"),
+        (r"sabado|sábado|sab\b|sáb\b", "Sáb"),
+        (r"domingo|dom\b", "Dom"),
+    ]
+    days = [day for pattern, day in checks if re.search(pattern, normalized)]
+    return days or ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"]
+
+
+def build_fallback_work_hours_action(message: str):
+    if not re.search(r"\b(hor[aá]rio|horarios|disponibilidade|trabalho|agenda|calend[aá]rio)\b", message, flags=re.IGNORECASE):
+        return None
+
+    range_match = re.search(
+        r"(?:das|de)\s*(\d{1,2})(?::?(\d{2}))?\s*(?:h)?\s*(?:às|as|até|ate|-|a)\s*(\d{1,2})(?::?(\d{2}))?\s*(?:h)?",
+        message,
+        flags=re.IGNORECASE,
+    )
+    if not range_match:
+        return None
+
+    start = normalize_hour(range_match.group(1), range_match.group(2))
+    end = normalize_hour(range_match.group(3), range_match.group(4))
+    if start >= end:
+        return None
+
+    return {
+        "type": "update_work_hours",
+        "work_hours": {day: [{"start": start, "end": end}] for day in infer_work_days(message)},
+    }
+
+
 def build_fallback_task_action(message: str):
+    work_hours_action = build_fallback_work_hours_action(message)
+    if work_hours_action:
+        return work_hours_action
+
     if not re.search(r"\b(cria|crie|criar|adiciona|adicione|nova tarefa)\b", message, flags=re.IGNORECASE):
         return None
 
@@ -302,7 +354,12 @@ def fallback_prio_response(req: PrioChatRequest):
     completion = round((done / total) * 100) if total else 0
     action = build_fallback_task_action(req.message)
 
-    if action:
+    if action and action.get("type") == "update_work_hours":
+        reply = (
+            "Vou atualizar a tua disponibilidade de trabalho no perfil. "
+            "O cronograma automático passa a usar estes horários, mas podes editar tudo manualmente."
+        )
+    elif action:
         reply = (
             "Perfeito. Vou criar a tarefa com prioridade, checklist, nota importante e estimativa automática. "
             "Depois você pode editar tudo manualmente no Prioriza."
@@ -326,24 +383,26 @@ def build_prio_messages(req: PrioChatRequest):
     now_text = datetime.now().isoformat(timespec="minutes")
     task_context = json.dumps(req.tasks[:80], ensure_ascii=False, indent=2)
     profile_context = json.dumps(req.profile or {}, ensure_ascii=False, indent=2)
+    capabilities_context = json.dumps(req.capabilities or [], ensure_ascii=False, indent=2)
     history_context = json.dumps(req.history[-8:], ensure_ascii=False, indent=2)
     last_created = json.dumps(req.last_created_task or {}, ensure_ascii=False, indent=2)
 
     system_message = """
 Você é o PRIO, assistente pessoal de produtividade do app Prioriza.
-Responda em português, com tom direto, motivador e prático.
+Responda em português de Portugal, com tom direto, claro e prático.
 Você conhece as tarefas enviadas no contexto e pode:
 - fazer mini relatórios de produtividade;
 - responder sobre prazos, prioridades, atrasos, XP e foco;
 - sugerir cronograma automático mantendo tudo editável manualmente;
-- criar tarefas quando o usuário pedir;
-- complementar a última tarefa criada quando o usuário der prazo ou detalhes depois.
+- criar tarefas quando o utilizador pedir;
+- configurar horários de trabalho/disponibilidade quando o utilizador pedir;
+- complementar a última tarefa criada quando o utilizador der prazo ou detalhes depois.
 
 Retorne APENAS JSON válido com esta estrutura:
 {
-  "reply": "mensagem curta ao usuário",
+  "reply": "mensagem curta ao utilizador",
   "action": {
-    "type": "none|create_task|update_last_task",
+    "type": "none|create_task|update_last_task|update_work_hours",
     "task": {
       "title": "string",
       "description": "string",
@@ -352,14 +411,19 @@ Retorne APENAS JSON válido com esta estrutura:
       "due_date": "ISO-8601 ou null",
       "checklist": ["item 1", "item 2"],
       "note": "string"
+    },
+    "work_hours": {
+      "Seg": [{"start": "09:00", "end": "17:00"}],
+      "Ter": [{"start": "09:00", "end": "17:00"}]
     }
   }
 }
 
 Regras:
 - Se não houver ação, use {"type":"none","task":null}.
-- Para nova tarefa, crie checklist com 3 a 6 itens, nota importante e estimativa se o usuário não informar.
-- Se o usuário disser "amanhã" sem hora, use amanhã às 18:00.
+- Para nova tarefa, crie checklist com 3 a 6 itens, nota importante e estimativa se o utilizador não informar.
+- Para update_work_hours, use dias Seg/Ter/Qua/Qui/Sex/Sáb/Dom e intervalos HH:MM. Se o utilizador disser segunda a sexta, preencha Seg a Sex.
+- Se o utilizador disser "amanhã" sem hora, use amanhã às 18:00.
 - Se o objetivo da tarefa estiver claro, não faça perguntas desnecessárias.
 - Só pergunte detalhes se faltar o título/objetivo principal.
 """.strip()
@@ -369,6 +433,9 @@ DATA_ATUAL: {now_text}
 
 PERFIL:
 {profile_context}
+
+CAPACIDADES_EXECUTAVEIS:
+{capabilities_context}
 
 TAREFAS:
 {task_context}
