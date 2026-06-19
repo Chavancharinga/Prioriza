@@ -129,6 +129,18 @@ function buildLocalReport(tasks = [], profile = {}) {
     ].join(' ')
 }
 
+function buildPriorityQuestionsReply(message) {
+    if (!/\b(prioridade|priorizar|mais importante|ordem|foco)\b/i.test(message)) return null
+
+    return [
+        'Para definir a prioridade com rigor, responde a estas 3 perguntas:',
+        '1) Qual é o prazo real e o que acontece se não for feito?',
+        '2) Que impacto esta tarefa tem no teu objetivo principal de hoje ou da semana?',
+        '3) Quanto tempo/esforço precisa e existe algum bloqueio?',
+        'Com isso eu classifico em P1-P5, preparo a ordem de execução, checklist e tempo estimado.'
+    ].join(' ')
+}
+
 function buildFallbackAction(message) {
     const workHoursAction = buildWorkHoursAction(message)
     if (workHoursAction) return workHoursAction
@@ -383,11 +395,12 @@ export default function PrioChat({ profile, onProfileUpdate }) {
                 })
             } catch (error) {
                 const fallbackAction = buildFallbackAction(message)
+                const priorityReply = buildPriorityQuestionsReply(message)
                 const fallbackReply = fallbackAction?.type === 'update_work_hours'
                     ? 'Consigo atualizar esse horÃ¡rio agora. Como o backend da IA nÃ£o respondeu, usei o modo local e apliquei a disponibilidade no seu perfil.'
                     : fallbackAction
                         ? 'Consigo criar isso agora mesmo. Como o backend da IA nÃ£o respondeu, usei meu modo local: sugeri checklist, nota e estimativa automÃ¡tica.'
-                        : buildLocalReport(taskSnapshot, profile)
+                        : priorityReply || buildLocalReport(taskSnapshot, profile)
                 response = {
                     reply: fallbackReply,
                     action: fallbackAction

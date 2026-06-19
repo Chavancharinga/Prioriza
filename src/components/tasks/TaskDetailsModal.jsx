@@ -196,6 +196,26 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
         }
     }
 
+    function autoStartFocusTimer() {
+        if (!task || task.status === 'Feito') return
+        if (isPomodoroActive && pomodoroMode === 'focus') return
+
+        if (pomodoroMode !== 'focus') {
+            setPomodoroMode('focus')
+            setTimeLeft(1500)
+        }
+
+        setIsPomodoroActive(true)
+        setHasChanges(true)
+
+        if (task.status === 'A Fazer') {
+            setTask(prev => prev ? { ...prev, status: 'Em Progresso' } : prev)
+            TaskService.updateTask(currentTaskId, { status: 'Em Progresso' })
+                .then(() => onUpdate?.())
+                .catch(error => console.error('Error auto-starting task status:', error))
+        }
+    }
+
     async function handleSave() {
         try {
             setHasChanges(false)
@@ -428,6 +448,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
 
     // AI suggestions handlers
     async function handleSuggestSubtasks() {
+        autoStartFocusTimer()
         setAiLoading(true)
         setAiResponse(null)
         setAiError('')
@@ -442,6 +463,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
     }
 
     async function handleSummarizeNotes() {
+        autoStartFocusTimer()
         setAiLoading(true)
         setAiResponse(null)
         setAiError('')
@@ -457,6 +479,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
 
     async function handleAddSuggestedSubtask(content) {
         try {
+            autoStartFocusTimer()
             const newItemObj = await TaskService.createChecklistItem(task.id, content)
             setTask(prev => ({
                 ...prev,
@@ -525,6 +548,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
         e.preventDefault()
         if (!newItem.trim()) return
         try {
+            autoStartFocusTimer()
             const newItemObj = await TaskService.createChecklistItem(task.id, newItem)
 
             // Optimistic update or reload silent
@@ -543,6 +567,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
 
     async function handleToggleCheckitem(itemId, isCompleted) {
         try {
+            autoStartFocusTimer()
             const updatedItem = await TaskService.updateChecklistItem(itemId, { is_completed: !isCompleted })
             setTask(prev => ({
                 ...prev,
@@ -558,6 +583,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
 
     async function handleDeleteCheckitem(itemId) {
         try {
+            autoStartFocusTimer()
             await TaskService.deleteChecklistItem(itemId)
             setTask(prev => ({
                 ...prev,
@@ -573,6 +599,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
     async function handleAddNote(e) {
         e.preventDefault()
         if (!newNote.trim()) return
+        autoStartFocusTimer()
         const noteText = newNote
         setNewNote('')
 
@@ -626,6 +653,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
     function handleNoteChange(e) {
         const val = e.target.value
         setNewNote(val)
+        if (val.trim()) autoStartFocusTimer()
 
         const cursorPosition = e.target.selectionStart
         const textBeforeCursor = val.slice(0, cursorPosition)
@@ -645,6 +673,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
     }
 
     function handleSelectSuggestion(suggestedTask) {
+        autoStartFocusTimer()
         const openBracketIndex = newNote.lastIndexOf('[[')
         if (openBracketIndex !== -1) {
             const startText = newNote.slice(0, openBracketIndex)
@@ -1046,6 +1075,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                             onChange={(html) => {
                                                 setDescriptionHtml(html)
                                                 setHasChanges(true)
+                                                if (html && html !== (task?.description || '')) autoStartFocusTimer()
                                             }}
                                             placeholder="Digite aqui anotações importantes para a tarefa... coloque texto em negrito, H1, H2, itálico, ou use o marca-textos!"
                                         />
@@ -1133,7 +1163,10 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                                     <input
                                                         type="text"
                                                         value={newItem}
-                                                        onChange={(e) => setNewItem(e.target.value)}
+                                                        onChange={(e) => {
+                                                            setNewItem(e.target.value)
+                                                            if (e.target.value.trim()) autoStartFocusTimer()
+                                                        }}
                                                         disabled={task.status === 'Feito'}
                                                         placeholder={task.status === 'Feito' ? "Tarefa concluída" : "Adicionar sub-tarefa..."}
                                                         className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all focus:bg-white disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
@@ -1164,7 +1197,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                     </div>
 
                                     <p className="text-[11px] text-gray-550 leading-relaxed">
-                                        Olá! Sou o seu assistente de produtividade. Posso analisar suas anotações e propor sub-tarefas para você focar.
+                                        {'Ol\u00e1! Sou o seu assistente de produtividade. Posso sugerir sub-tarefas e gerar um relat\u00f3rio completo desta tarefa com notas, checklist, links e tempo.'}
                                     </p>
 
                                     <div className="flex flex-col gap-2">
@@ -1182,7 +1215,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                             className="w-full py-2.5 bg-white text-slate-700 border-2 border-slate-200 border-b-[4px] border-b-slate-300 rounded-xl text-xs font-black hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-y-0 disabled:active:border-b-[4px] transition-all cursor-pointer active:translate-y-[2px] active:border-b-[2px] flex items-center justify-center gap-1.5"
                                         >
                                             {aiLoading && aiResponse === null ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MessageSquare className="w-3.5 h-3.5" />}
-                                            Resumir anotações
+                                            {'Gerar relat\u00f3rio da tarefa'}
                                         </button>
                                     </div>
 

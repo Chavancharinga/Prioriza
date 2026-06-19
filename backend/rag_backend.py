@@ -89,32 +89,43 @@ def fetch_task_context(task_id: str):
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    notes_res = supabase.table("task_notes").select("content").eq("task_id", task_id).execute()
+    notes_res = supabase.table("task_notes").select("content, created_at").eq("task_id", task_id).execute()
     checklist_res = supabase.table("checklist_items").select("content, is_completed").eq("task_id", task_id).execute()
+    resources_res = supabase.table("resources").select("title, url").eq("task_id", task_id).execute()
 
     notes = notes_res.data or []
     checklists = checklist_res.data or []
+    resources = resources_res.data or []
 
     context_parts = [
-        f"Tarefa Principal: {task.get('title')}",
-        f"Descrição: {task.get('description', '')}",
+        f"Tema/Nome da tarefa: {task.get('title')}",
+        f"Descri??o: {task.get('description', '')}",
         f"Prioridade: {task.get('priority', 3)}",
         f"Status: {task.get('status', 'A Fazer')}",
+        f"Prazo: {task.get('due_date') or 'Sem prazo'}",
+        f"Tempo estimado: {task.get('estimated_minutes') or 0} minutos",
+        f"Tempo executado: {task.get('time_spent') or 0} segundos",
+        f"Conclu?da em: {task.get('completed_at') or 'Ainda n?o conclu?da'}",
     ]
 
     if notes:
-        context_parts.append("\nNotas do Diário de Bordo:")
+        context_parts.append("\nNotas do di?rio de bordo / bloco de notas:")
         for note in notes:
-            context_parts.append(f"- {note['content']}")
+            created_at = note.get("created_at") or "sem data"
+            context_parts.append(f"- [{created_at}] {note.get('content', '')}")
 
     if checklists:
-        context_parts.append("\nItens do Checklist:")
+        context_parts.append("\nItens do checklist:")
         for item in checklists:
-            status = "Concluído" if item["is_completed"] else "Pendente"
-            context_parts.append(f"- {item['content']} ({status})")
+            status = "Conclu?do" if item.get("is_completed") else "Pendente"
+            context_parts.append(f"- {item.get('content', '')} ({status})")
+
+    if resources:
+        context_parts.append("\nLinks e recursos associados:")
+        for resource in resources:
+            context_parts.append(f"- {resource.get('title') or resource.get('url')}: {resource.get('url')}")
 
     return task, notes, checklists, "\n".join(context_parts)
-
 
 def get_embedding(text: str):
     try:
@@ -136,57 +147,71 @@ def get_embedding(text: str):
 
 
 def build_task_messages(task, full_context: str, mode: str, question: str | None = None):
-    system_message = "Você é um assistente de IA do Prioriza, focado em produtividade e clareza."
+    system_message = """
+\u00c9s o copiloto de produtividade do Prioriza.
+O teu \u00e2mbito \u00e9 exclusivamente: produtividade, tarefas, prioridades, cronograma, estudo/trabalho, notas, checklist, recursos, tempo e pr\u00f3ximos passos.
+Se o pedido fugir deste \u00e2mbito, recusa de forma curta e redireciona para a tarefa atual.
+Responde em portugu\u00eas de Portugal, com clareza e objetividade.
+""".strip()
 
     if mode == "subtasks":
         user_message = f"""
-Você é o copiloto de produtividade do Prioriza.
-Analise o contexto da tarefa e responda em português do Brasil.
+Analisa o contexto da tarefa e gera sugest\u00f5es relacionadas diretamente com o tema/nome da tarefa: {task.get('title')}.
 
-Retorne APENAS um JSON válido com esta estrutura:
-{{"title":"Sub-tarefas Sugeridas","items":["item 1","item 2","item 3"]}}
+Retorna APENAS um JSON v\u00e1lido com esta estrutura:
+{{"title":"Sugest\u00f5es para {task.get('title')}","items":["item 1","item 2","item 3"]}}
 
 Regras:
-- Gere de 3 a 5 itens
-- Cada item deve ser prático, específico e acionável
-- Evite repetir itens já existentes na checklist
-- Não use markdown, numeração ou texto extra
+- Gera de 3 a 5 itens pr\u00e1ticos, espec\u00edficos e acion\u00e1veis.
+- As sugest\u00f5es devem ser relacionadas com a tarefa, notas, checklist, links e estado atual.
+- Evita repetir itens j\u00e1 existentes na checklist.
+- Se faltar informa\u00e7\u00e3o para definir prioridade, inclui uma sugest\u00e3o de clarifica\u00e7\u00e3o.
+- N\u00e3o uses markdown, numera\u00e7\u00e3o ou texto extra.
 
-CONTEXTO DA TAREFA:
+CONTEXTO COMPLETO DA TAREFA:
 {full_context}
 """.strip()
         return [{"role": "system", "content": system_message}, {"role": "user", "content": user_message}]
 
     if mode == "summary":
         user_message = f"""
-Você é o copiloto de produtividade do Prioriza.
-Analise o contexto da tarefa e responda em português do Brasil.
+Gera um relat\u00f3rio completo de trabalho sobre a tarefa: {task.get('title')}.
 
-Retorne APENAS um JSON válido com esta estrutura:
-{{"title":"Resumo do Contexto","text":"resumo objetivo em 2 a 5 frases"}}
+Retorna APENAS um JSON v\u00e1lido com esta estrutura:
+{{"title":"Relat\u00f3rio da tarefa: {task.get('title')}","text":"relat\u00f3rio completo"}}
+
+O relat\u00f3rio deve analisar:
+- tema/nome da tarefa;
+- estado atual e prioridade;
+- notas escritas pelo utilizador;
+- checklist conclu\u00edda e pendente;
+- links/recursos associados;
+- tempo estimado, tempo executado e diferen\u00e7a entre ambos;
+- progresso real;
+- riscos, bloqueios e pr\u00f3ximos passos;
+- recomenda\u00e7\u00f5es objetivas para continuar.
 
 Regras:
-- Seja direto e útil
-- Destaque o estado atual, riscos e próximos passos
-- Não use markdown, listas ou texto extra
+- N\u00e3o inventes dados que n\u00e3o existam no contexto.
+- Se algo estiver vazio, diz que n\u00e3o foi registado.
+- Usa portugu\u00eas de Portugal.
+- Pode usar frases curtas separadas por pontos, mas n\u00e3o markdown.
 
-CONTEXTO DA TAREFA:
+CONTEXTO COMPLETO DA TAREFA:
 {full_context}
 """.strip()
         return [{"role": "system", "content": system_message}, {"role": "user", "content": user_message}]
 
     user_message = f"""
-Você é o copiloto de produtividade do Prioriza.
-Responda em português do Brasil, de forma prática e curta.
+Responde apenas dentro do \u00e2mbito de produtividade e da tarefa atual.
 
 CONTEXTO DA TAREFA:
 {full_context}
 
-PERGUNTA DO USUÁRIO:
+PERGUNTA DO UTILIZADOR:
 {question or ""}
 """.strip()
     return [{"role": "system", "content": system_message}, {"role": "user", "content": user_message}]
-
 
 def parse_json_content(raw_content: str):
     content = (raw_content or "").strip()
@@ -337,6 +362,25 @@ def build_fallback_task_action(message: str):
     }
 
 
+
+def build_priority_questions_response(message: str):
+    normalized = message.lower()
+    if not re.search(r"\b(prioridade|priorizar|priorizar|mais importante|ordem|foco)\b", normalized):
+        return None
+
+    return {
+        "reply": (
+            "Para definir a prioridade com rigor, responde a estas 3 perguntas: "
+            "1) Qual ? o prazo real e o que acontece se n?o for feito? "
+            "2) Que impacto tem esta tarefa no teu objetivo principal de hoje/semana? "
+            "3) Quanto esfor?o/tempo precisa e existe algum bloqueio? "
+            "Com essas respostas eu classifico em P1-P5, proponho checklist, tempo estimado e ordem de execu??o."
+        ),
+        "action": None,
+        "provider": "local-fallback",
+        "model": None,
+    }
+
 def fallback_prio_response(req: PrioChatRequest):
     def is_overdue(task):
         try:
@@ -352,6 +396,10 @@ def fallback_prio_response(req: PrioChatRequest):
     progress = len([task for task in tasks if task.get("status") == "Em Progresso"])
     overdue = len([task for task in tasks if is_overdue(task)])
     completion = round((done / total) * 100) if total else 0
+    priority_response = build_priority_questions_response(req.message)
+    if priority_response and not re.search(r"\b(cria|crie|criar|adiciona|adicione|nova tarefa|hor[a?]rio|disponibilidade)\b", req.message, flags=re.IGNORECASE):
+        return priority_response
+
     action = build_fallback_task_action(req.message)
 
     if action and action.get("type") == "update_work_hours":
@@ -388,17 +436,26 @@ def build_prio_messages(req: PrioChatRequest):
     last_created = json.dumps(req.last_created_task or {}, ensure_ascii=False, indent=2)
 
     system_message = """
-Você é o PRIO, assistente pessoal de produtividade do app Prioriza.
-Responda em português de Portugal, com tom direto, claro e prático.
-Você conhece as tarefas enviadas no contexto e pode:
-- fazer mini relatórios de produtividade;
-- responder sobre prazos, prioridades, atrasos, XP e foco;
-- sugerir cronograma automático mantendo tudo editável manualmente;
-- criar tarefas quando o utilizador pedir;
-- configurar horários de trabalho/disponibilidade quando o utilizador pedir;
-- complementar a última tarefa criada quando o utilizador der prazo ou detalhes depois.
+\u00c9s o PRIO, assistente pessoal de produtividade do app Prioriza.
+O teu papel \u00e9 ajudar o utilizador a decidir prioridades, organizar tarefas, criar cronogramas, analisar produtividade, sugerir checklist e transformar pedidos em a\u00e7\u00f5es seguras no Prioriza.
 
-Retorne APENAS JSON válido com esta estrutura:
+Guardrails obrigat\u00f3rios:
+- Mant\u00e9m-te apenas no dom\u00ednio de produtividade, tarefas, estudo, trabalho, prioridades, hor\u00e1rios, foco, XP e cronograma.
+- Se o utilizador pedir temas fora deste dom\u00ednio, responde curto: "S\u00f3 consigo ajudar com produtividade e tarefas no Prioriza." e redireciona para uma a\u00e7\u00e3o \u00fatil.
+- N\u00e3o inventes dados. Usa apenas PERFIL, TAREFAS, HIST\u00d3RICO_RECENTE e \u00daLTIMA_TAREFA_CRIADA.
+- N\u00e3o executes a\u00e7\u00f5es destrutivas. Nunca apagar tarefas, notas, conta, email, senha ou dados sem confirma\u00e7\u00e3o expl\u00edcita no UI.
+- Para ajudar a definir prioridade, se faltar informa\u00e7\u00e3o, faz exatamente 3 perguntas: prazo/consequ\u00eancia, impacto no objetivo, esfor\u00e7o/bloqueios.
+- Depois de receber respostas suficientes, classifica em P1-P5, sugere ordem de execu\u00e7\u00e3o, checklist e tempo estimado.
+
+Podes:
+- fazer mini relat\u00f3rios de produtividade;
+- responder sobre prazos, prioridades, atrasos, XP e foco;
+- sugerir cronograma autom\u00e1tico mantendo tudo edit\u00e1vel manualmente;
+- criar tarefas quando o utilizador pedir;
+- configurar hor\u00e1rios de trabalho/disponibilidade quando o utilizador pedir;
+- complementar a \u00faltima tarefa criada quando o utilizador der prazo ou detalhes depois.
+
+Retorna APENAS JSON v\u00e1lido com esta estrutura:
 {
   "reply": "mensagem curta ao utilizador",
   "action": {
@@ -413,19 +470,17 @@ Retorne APENAS JSON válido com esta estrutura:
       "note": "string"
     },
     "work_hours": {
-      "Seg": [{"start": "09:00", "end": "17:00"}],
-      "Ter": [{"start": "09:00", "end": "17:00"}]
+      "Seg": [{"start": "09:00", "end": "17:00"}]
     }
   }
 }
 
 Regras:
-- Se não houver ação, use {"type":"none","task":null}.
-- Para nova tarefa, crie checklist com 3 a 6 itens, nota importante e estimativa se o utilizador não informar.
-- Para update_work_hours, use dias Seg/Ter/Qua/Qui/Sex/Sáb/Dom e intervalos HH:MM. Se o utilizador disser segunda a sexta, preencha Seg a Sex.
-- Se o utilizador disser "amanhã" sem hora, use amanhã às 18:00.
-- Se o objetivo da tarefa estiver claro, não faça perguntas desnecessárias.
-- Só pergunte detalhes se faltar o título/objetivo principal.
+- Se n\u00e3o houver a\u00e7\u00e3o, usa {"type":"none","task":null}.
+- Para nova tarefa, cria checklist com 3 a 6 itens, nota importante e estimativa se o utilizador n\u00e3o informar.
+- Para update_work_hours, usa dias Seg/Ter/Qua/Qui/Sex/S\u00e1b/Dom e intervalos HH:MM.
+- Se o utilizador disser "amanh\u00e3" sem hora, usa amanh\u00e3 \u00e0s 18:00.
+- S\u00ea assertivo, mas mant\u00e9m tudo edit\u00e1vel manualmente.
 """.strip()
 
     user_message = f"""
