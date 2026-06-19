@@ -217,7 +217,7 @@ export default function Home({ profile, onNavigate }) {
                             <p className="font-black text-slate-500 text-sm">Todas as missões concluídas por hoje! Bom trabalho!</p>
                         </div>
                     ) : (
-                        <div className="space-y-3.5">
+                        <div className="max-h-[398px] space-y-3.5 overflow-y-auto pr-1">
                             {upcomingTasks.map((task) => {
                                 const xpReward = (6 - (task.priority || 3)) * 20
                                 const shieldColor = {
@@ -275,6 +275,7 @@ export default function Home({ profile, onNavigate }) {
                             <div key={status} className="flex flex-col gap-3">
                                 <h4 className="text-[9px] font-black text-(--color-text-muted) uppercase tracking-widest text-center lg:text-left pl-1">{status}</h4>
 
+                                <div className="max-h-[588px] space-y-3 overflow-y-auto pr-1">
                                 {statusTasks.map((task) => (
                                     <div
                                         key={task.id}
@@ -298,7 +299,7 @@ export default function Home({ profile, onNavigate }) {
                                         <div className="flex items-center gap-3 text-(--color-text-muted)">
                                             <div className="h-1.5 flex-1 bg-(--color-surface-elevated) rounded-full overflow-hidden">
                                                 <div
-                                                    className={`h-full rounded-full ${task.status === 'Feito' ? 'bg-green-400' : 'bg-blue-400'}`}
+                                                    className="h-full rounded-full bg-[var(--color-prioriza-blue)]"
                                                     style={{ width: `${task.status === 'Feito' ? 100 : (task.progress || 0)}%` }}
                                                 />
                                             </div>
@@ -310,6 +311,7 @@ export default function Home({ profile, onNavigate }) {
                                         Vazio
                                     </div>
                                 )}
+                                </div>
                             </div>
                         )
                     })}

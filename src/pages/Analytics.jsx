@@ -76,6 +76,15 @@ export default function Analytics() {
         return `${m}m`
     }
 
+    function formatMinutes(minutes) {
+        const totalMinutes = Math.max(0, Math.round(minutes || 0))
+        if (totalMinutes <= 60) return `${totalMinutes}m`
+
+        const hours = Math.floor(totalMinutes / 60)
+        const remainingMinutes = totalMinutes % 60
+        return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`
+    }
+
     if (loading) {
         return (
             <div className="space-y-6 lg:space-y-8">
@@ -297,14 +306,14 @@ export default function Analytics() {
                                             <div className="h-3.5 flex-1 overflow-hidden rounded-full border border-[rgba(30,58,138,0.18)] bg-[rgba(30,58,138,0.08)] shadow-inner">
                                                 <div className="h-full rounded-full bg-(--color-prioriza-blue) transition-all duration-500" style={{ width: estWidth }} />
                                             </div>
-                                            <span className="w-14 text-right text-xs font-black text-(--color-prioriza-blue)">{estimatedMin}m</span>
+                                            <span className="w-20 text-right text-xs font-black text-(--color-prioriza-blue)">{formatMinutes(estimatedMin)}</span>
                                         </div>
                                         {/* Actual Bar */}
                                         <div className="flex items-center gap-3">
                                             <div className="h-3.5 flex-1 overflow-hidden rounded-full border border-[rgba(30,58,138,0.18)] bg-[rgba(30,58,138,0.08)] shadow-inner">
                                                 <div className="h-full rounded-full bg-(--color-prioriza-blue) opacity-70 transition-all duration-500" style={{ width: actWidth }} />
                                             </div>
-                                            <span className="w-14 text-right text-xs font-black text-(--color-prioriza-blue)">{actualMin}m</span>
+                                            <span className="w-20 text-right text-xs font-black text-(--color-prioriza-blue)">{formatMinutes(actualMin)}</span>
                                         </div>
                                     </div>
                                 </div>

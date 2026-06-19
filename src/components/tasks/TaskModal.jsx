@@ -12,7 +12,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
         status: 'A Fazer',
         due_date: '',
         reminder: '',
-        estimated_minutes: ''
+        estimated_minutes: 30
     })
 
     useEffect(() => {
@@ -25,7 +25,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
                 status: taskToEdit.status || 'A Fazer',
                 due_date: taskToEdit.due_date ? new Date(taskToEdit.due_date).toISOString().slice(0, 16) : '',
                 reminder: taskToEdit.reminder ? new Date(taskToEdit.reminder).toISOString().slice(0, 16) : '',
-                estimated_minutes: taskToEdit.estimated_minutes || ''
+                estimated_minutes: taskToEdit.estimated_minutes || 30
             })
         } else {
             // Reset form for create mode
@@ -36,7 +36,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
                 status: 'A Fazer',
                 due_date: '',
                 reminder: '',
-                estimated_minutes: ''
+                estimated_minutes: 30
             })
         }
     }, [taskToEdit, isOpen])
@@ -51,7 +51,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
             ...formData,
             due_date: formData.due_date ? new Date(formData.due_date).toISOString() : null,
             reminder: formData.reminder ? new Date(formData.reminder).toISOString() : null,
-            estimated_minutes: formData.estimated_minutes ? parseInt(formData.estimated_minutes) : null
+            estimated_minutes: formData.estimated_minutes ? parseInt(formData.estimated_minutes) : 30
         }
         onSubmit(payload)
     }
@@ -131,7 +131,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Est. Minutos</label>
                                 <input
                                     type="number"
-                                    min="0"
+                                    min="1"
                                     value={formData.estimated_minutes}
                                     onChange={(e) => setFormData({ ...formData, estimated_minutes: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"

@@ -29,6 +29,9 @@ export const TaskService = {
             .from('tasks')
             .insert([{
                 ...taskData,
+                estimated_minutes: Number(taskData.estimated_minutes) > 0
+                    ? Number(taskData.estimated_minutes)
+                    : 30,
                 user_id: user.id,
                 created_at: new Date().toISOString()
             }])

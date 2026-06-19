@@ -947,7 +947,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                                     <div className="space-y-1.5">
                                                         <div className="h-2.5 w-full bg-slate-100 border border-slate-200 rounded-full overflow-hidden flex items-center p-[0.5px] shadow-inner">
                                                             <div
-                                                                className={`h-full rounded-full transition-all duration-300 ${isOver ? 'bg-linear-to-r from-orange-400 to-amber-500' : 'bg-linear-to-r from-blue-400 to-indigo-500'}`}
+                                                                className="h-full rounded-full bg-[var(--color-prioriza-blue)] transition-all duration-300"
                                                                 style={{ width: `${percent}%` }}
                                                             />
                                                         </div>
@@ -1112,7 +1112,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                             </div>
                                             <div className="h-3.5 w-full bg-slate-100 border border-slate-200 rounded-full overflow-hidden flex items-center p-[0.5px] shadow-inner">
                                                 <div
-                                                    className="h-full bg-linear-to-r from-emerald-400 to-green-500 rounded-full transition-all duration-300"
+                                                    className="h-full rounded-full bg-[var(--color-prioriza-blue)] transition-all duration-300"
                                                     style={{
                                                         width: `${task.checklist_items?.length > 0
                                                             ? (task.checklist_items.filter(i => i.is_completed).length / task.checklist_items.length) * 100

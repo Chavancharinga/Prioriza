@@ -455,10 +455,10 @@ export default function Planning() {
 
 
     return (
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 items-stretch gap-6 lg:gap-8 xl:grid-cols-12">
             {/* Calendar */}
-            <div className="xl:col-span-8">
-                <div className="bg-white rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 lg:p-8 shadow-[0_2px_40px_-10px_rgba(0,0,0,0.05)]">
+            <div className="min-h-0 xl:col-span-8">
+                <div className="h-full bg-white rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 lg:p-8 shadow-[0_2px_40px_-10px_rgba(0,0,0,0.05)]">
                     {/* Header */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                         <h2 className="text-xl sm:text-2xl font-black text-gray-900">
@@ -710,8 +710,9 @@ export default function Planning() {
             </div>
 
             {/* Selected Day Detail */}
-            <div className="xl:col-span-4">
-                <div className="bg-white rounded-[24px] sm:rounded-[32px] p-6 shadow-[0_2px_40px_-10px_rgba(0,0,0,0.05)] sticky top-6 space-y-6">
+            <div className="min-h-0 overflow-hidden xl:col-span-4">
+                <div className="sticky top-6 h-full min-h-0 overflow-y-auto rounded-[24px] bg-white p-6 shadow-[0_2px_40px_-10px_rgba(0,0,0,0.05)] sm:rounded-[32px]">
+                    <div className="space-y-6">
                     <div>
                         <h3 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
                             <Calendar className="w-5 h-5 text-blue-500" />
@@ -896,6 +897,7 @@ export default function Planning() {
                             )}
                         </>
                     )}
+                    </div>
                 </div>
             </div>
         </div>

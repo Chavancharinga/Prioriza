@@ -160,7 +160,7 @@ function buildFallbackAction(message) {
             title: title.charAt(0).toUpperCase() + title.slice(1),
             description: 'Tarefa criada por conversa com o PRIO. Ajuste os detalhes manualmente se quiser.',
             priority: text.includes('urgente') || text.includes('crítico') || text.includes('critico') ? 1 : 3,
-            estimated_minutes: text.includes('rápido') || text.includes('rapido') ? 30 : 60,
+            estimated_minutes: 30,
             due_date: dueDate,
             checklist: [
                 'Confirmar o objetivo da tarefa',
@@ -206,7 +206,7 @@ function normalizeAction(action) {
             title: action.task?.title || 'Nova tarefa criada pelo PRIO',
             description: action.task?.description || '',
             priority: normalizePriority(action.task?.priority),
-            estimated_minutes: Number(action.task?.estimated_minutes) || 60,
+            estimated_minutes: Number(action.task?.estimated_minutes) || 30,
             due_date: action.task?.due_date || null,
             checklist: Array.isArray(action.task?.checklist) ? action.task.checklist.filter(Boolean).slice(0, 8) : [],
             note: action.task?.note || ''
@@ -274,9 +274,9 @@ export default function PrioChat({ profile, onProfileUpdate }) {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages])
 
-    function updateActiveChatMessages(updater) {
+    function updateActiveChatMessages(updater, chatId = activeChat.id) {
         setChats(prev => prev.map(chat => {
-            if (chat.id !== activeChat.id) return chat
+            if (chat.id !== chatId) return chat
             const nextMessages = typeof updater === 'function' ? updater(chat.messages || initialMessages) : updater
             return {
                 ...chat,
@@ -323,7 +323,7 @@ export default function PrioChat({ profile, onProfileUpdate }) {
                 ? ` · prazo ${new Intl.DateTimeFormat('pt-PT', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(created.due_date))}`
                 : ''
 
-            return `Tarefa criada: "${created.title}" · P${created.priority} · ${created.estimated_minutes || 60}min${dueText}.`
+            return `Tarefa criada: "${created.title}" · P${created.priority} · ${created.estimated_minutes || 30}min${dueText}.`
         }
 
         if (action.type === 'update_work_hours') {
@@ -376,9 +376,11 @@ export default function PrioChat({ profile, onProfileUpdate }) {
         const message = (forcedMessage || input).trim()
         if (!message || loading) return
 
+        const chatId = activeChat.id
+
         setInput('')
         setLoading(true)
-        updateActiveChatMessages(prev => [...prev, { role: 'user', content: message }])
+        updateActiveChatMessages(prev => [...prev, { role: 'user', content: message }], chatId)
 
         try {
             const taskSnapshot = await loadTasks()
@@ -408,13 +410,13 @@ export default function PrioChat({ profile, onProfileUpdate }) {
                 console.warn('PRIO local fallback:', error)
             }
 
-            updateActiveChatMessages(prev => [...prev, { role: 'assistant', content: response.reply || buildLocalReport(taskSnapshot, profile) }])
+            updateActiveChatMessages(prev => [...prev, { role: 'assistant', content: response.reply || buildLocalReport(taskSnapshot, profile) }], chatId)
             const actionResult = await applyAction(response.action)
             if (actionResult) {
-                updateActiveChatMessages(prev => [...prev, { role: 'assistant', content: actionResult }])
+                updateActiveChatMessages(prev => [...prev, { role: 'assistant', content: actionResult }], chatId)
             }
         } catch (error) {
-            updateActiveChatMessages(prev => [...prev, { role: 'assistant', content: `Não consegui concluir agora: ${error.message}` }])
+            updateActiveChatMessages(prev => [...prev, { role: 'assistant', content: `Não consegui concluir agora: ${error.message}` }], chatId)
         } finally {
             setLoading(false)
         }
@@ -446,7 +448,7 @@ export default function PrioChat({ profile, onProfileUpdate }) {
                 <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-5 sm:py-6">
                     {messages.map((message, index) => (
                         <div key={`${message.role}-${index}`} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[88%] rounded-[24px] px-4 py-3 text-sm leading-relaxed shadow-sm sm:max-w-[82%] ${message.role === 'user' ? 'bg-(--color-prioriza-blue) text-white' : 'border border-slate-100 bg-white text-slate-700'}`}>
+                            <div className={`max-w-[88%] rounded-xl px-4 py-3 text-sm leading-relaxed shadow-sm sm:max-w-[82%] ${message.role === 'user' ? 'bg-[var(--color-prioriza-blue)] text-white' : 'border border-slate-100 bg-white text-slate-700'}`}>
                                 <p className="whitespace-pre-wrap font-medium">{message.content}</p>
                             </div>
                         </div>
@@ -454,7 +456,7 @@ export default function PrioChat({ profile, onProfileUpdate }) {
 
                     {loading && (
                         <div className="flex justify-start">
-                            <div className="flex items-center gap-2 rounded-[24px] border border-slate-100 bg-white px-4 py-3 text-sm font-bold text-slate-500 shadow-sm">
+                            <div className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-4 py-3 text-sm font-bold text-slate-500 shadow-sm">
                                 <Loader2 className="h-4 w-4 animate-spin" />
                                 PRIO está pensando...
                             </div>
