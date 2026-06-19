@@ -11,7 +11,6 @@ import Skeleton from '../ui/Skeleton'
 export default function Profile({ profile: appProfile, onProfileUpdate }) {
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
-    const [generatingMocks, setGeneratingMocks] = useState(false)
     const [confirmation, setConfirmation] = useState({
         isOpen: false,
         type: 'info',
@@ -129,36 +128,6 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
             prefs.work_hours = hours
             return { ...prev, preferências: prefs }
         })
-    }
-
-    async function handleGenerateMockTasks() {
-        try {
-            setGeneratingMocks(true)
-            await TaskService.generateMockTasks()
-            
-            setConfirmation({
-                isOpen: true,
-                type: 'success',
-                title: 'Dados de Teste Gerados',
-                message: 'Inserimos várias tarefas com tempos, estimativas, checklist e prioridades variadas em sua conta para você testar.',
-                onConfirm: () => {
-                    setConfirmation(prev => ({ ...prev, isOpen: false }))
-                    loadProfile()
-                }
-            })
-        } catch (err) {
-            console.error('Error generating mock tasks:', err)
-            setConfirmation({
-                isOpen: true,
-                type: 'danger',
-                title: 'Erro ao Gerar Tarefas',
-                message: err.message,
-                onConfirm: () => setConfirmation(prev => ({ ...prev, isOpen: false })),
-                cancelText: null
-            })
-        } finally {
-            setGeneratingMocks(false)
-        }
     }
 
     async function handleLogout() {
@@ -346,23 +315,6 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
                     </Card>
 
                     <Card className="p-6 space-y-4">
-                        <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                            <Plus className="w-4 h-4 text-blue-600" />
-                            Ações de Desenvolvedor
-                        </h3>
-                        <p className="text-xs text-gray-500 leading-relaxed">
-                            Gere dados fictícios no banco de dados para testar os cronômetros, gráficos de telemetria e o autoplanejamento.
-                        </p>
-                        <Button
-                            onClick={handleGenerateMockTasks}
-                            disabled={generatingMocks}
-                            variant="secondary"
-                            className="w-full flex items-center justify-center gap-2 border-dashed border-2 hover:border-solid py-2 text-xs font-bold"
-                            type="button"
-                        >
-                            {generatingMocks ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                            Gerar Tarefas de Teste
-                        </Button>
                         <Button
                             onClick={handleLogout}
                             variant="danger"

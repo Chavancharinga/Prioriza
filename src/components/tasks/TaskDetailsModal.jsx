@@ -709,8 +709,8 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
             {showExitAlert && (
                 <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4 animate-in fade-in duration-200">
                     <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 border border-gray-100 animate-in zoom-in-95 duration-200 scale-100">
-                        <div className="flex items-center gap-3 mb-4 text-amber-600">
-                            <div className="p-2 bg-amber-50 rounded-full">
+                        <div className="flex items-center gap-3 mb-4 text-(--color-prioriza-blue)">
+                            <div className="p-2 bg-[rgba(30,58,138,0.10)] rounded-full">
                                 <AlertTriangle className="w-6 h-6" />
                             </div>
                             <h3 className="text-lg font-bold text-gray-900">Atenção!</h3>
@@ -1220,7 +1220,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                     </div>
 
                                     {aiError && (
-                                        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
+                                        <div className="rounded-2xl border border-[rgba(30,58,138,0.20)] bg-[rgba(30,58,138,0.08)] px-4 py-3 text-xs font-semibold text-(--color-prioriza-blue)">
                                             {aiError}
                                         </div>
                                     )}
@@ -1370,7 +1370,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                         transition={{ type: "spring", stiffness: 300, damping: 25 }}
                         className="fixed bottom-6 right-6 z-100 flex items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-800"
                     >
-                        <div className="p-1 bg-emerald-500 rounded-full text-white">
+                        <div className="p-1 bg-(--color-prioriza-blue) rounded-full text-white">
                             <CheckCircle className="w-4 h-4" />
                         </div>
                         <div className="flex flex-col">
