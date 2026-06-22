@@ -398,9 +398,9 @@ export default function Planning() {
 
     if (loading) {
         return (
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 gap-6 lg:gap-8 xl:grid-cols-[minmax(0,1fr)_360px] 2xl:grid-cols-[minmax(0,1fr)_400px]">
                 {/* Calendar skeleton */}
-                <div className="xl:col-span-8">
+                <div className="min-w-0">
                     <Skeleton.Card className="p-4 sm:p-6 lg:p-8 rounded-[24px] sm:rounded-[32px] shadow-[0_2px_40px_-10px_rgba(0,0,0,0.05)]">
                         {/* Header row */}
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -433,7 +433,7 @@ export default function Planning() {
                 </div>
 
                 {/* Planning sidebar skeleton */}
-                <div className="xl:col-span-4 space-y-6">
+                <div className="min-w-0 space-y-6">
                     <Skeleton.Card className="p-6 rounded-[24px] sm:rounded-[32px] shadow-[0_2px_40px_-10px_rgba(0,0,0,0.05)]">
                         <Skeleton className="h-5 w-32 mb-4" />
                         <div className="space-y-3">
@@ -455,9 +455,9 @@ export default function Planning() {
 
 
     return (
-        <div className="grid grid-cols-1 items-stretch gap-6 lg:gap-8 xl:grid-cols-12">
+        <div className="grid grid-cols-1 items-stretch gap-6 lg:gap-8 xl:grid-cols-[minmax(0,1fr)_360px] 2xl:grid-cols-[minmax(0,1fr)_400px]">
             {/* Calendar */}
-            <div className="min-h-0 xl:col-span-8">
+            <div className="min-h-0 min-w-0">
                 <div className="h-full bg-white rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 lg:p-8 shadow-[0_2px_40px_-10px_rgba(0,0,0,0.05)]">
                     {/* Header */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -710,7 +710,7 @@ export default function Planning() {
             </div>
 
             {/* Selected Day Detail */}
-            <div className="min-h-0 overflow-hidden xl:col-span-4">
+            <div className="min-h-0 min-w-0 overflow-hidden">
                 <div className="sticky top-6 h-full min-h-0 overflow-y-auto rounded-[24px] bg-white p-6 shadow-[0_2px_40px_-10px_rgba(0,0,0,0.05)] sm:rounded-[32px]">
                     <div className="space-y-6">
                     <div>
