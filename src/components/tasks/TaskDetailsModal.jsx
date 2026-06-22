@@ -50,6 +50,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
 
     // Toast notification state
     const [showToast, setShowToast] = useState(false)
+    const [isCompleting, setIsCompleting] = useState(false)
     const toastTimeoutRef = useRef(null)
 
     useEffect(() => {
@@ -319,32 +320,35 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
         setSessionTimeSpent(0)
 
         try {
-            const taskWrites = [
-                TaskService.completeTask(task.id, finalTimeSpent, null),
-                TaskService.updateTask(currentTaskId, { description: descriptionHtml })
+            setIsCompleting(true)
+            const completedTask = await TaskService.completeTask(task.id, finalTimeSpent, null)
+            if (!completedTask) throw new Error('A tarefa não foi atualizada.')
+
+            setTask(prev => prev ? {
+                ...prev,
+                ...completedTask,
+                status: 'Feito',
+                completed_at: completedTask.completed_at || new Date().toISOString(),
+                time_spent: finalTimeSpent
+            } : prev)
+            onUpdate?.()
+
+            const secondaryWrites = [
+                TaskService.updateTask(currentTaskId, { description: descriptionHtml }),
+                GamificationService.awardXp(finalXpAward)
             ]
 
             if (newNote.trim()) {
-                taskWrites.push(TaskService.createNote(currentTaskId, newNote))
+                secondaryWrites.push(TaskService.createNote(currentTaskId, newNote))
                 setNewItem('')
                 setNewNote('')
             }
 
-            await Promise.all(taskWrites)
-
-            try {
-                await GamificationService.awardXp(finalXpAward)
-            } catch (gameError) {
-                console.error('Error awarding completion XP:', gameError)
-            }
-
-            setTask(prev => prev ? {
-                ...prev,
-                status: 'Feito',
-                completed_at: new Date().toISOString(),
-                time_spent: finalTimeSpent
-            } : prev)
-            onUpdate?.()
+            Promise.allSettled(secondaryWrites).then(results => {
+                results.forEach(result => {
+                    if (result.status === 'rejected') console.error('Secondary completion action failed:', result.reason)
+                })
+            })
 
             setConfirmation({
                 isOpen: true,
@@ -368,6 +372,8 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                 confirmText: 'Ok',
                 onConfirm: () => setConfirmation(prev => ({ ...prev, isOpen: false }))
             })
+        } finally {
+            setIsCompleting(false)
         }
     }
 
@@ -390,37 +396,27 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                 }
             })
         } else {
-            setConfirmation({
-                isOpen: true,
-                type: 'info',
-                title: 'Concluir Tarefa',
-                message: 'Tem certeza que deseja marcar esta tarefa como concluída? O cronômetro será parado.',
-                confirmText: 'Concluir Tarefa',
-                onConfirm: () => {
-                    setConfirmation(prev => ({ ...prev, isOpen: false }))
-                    const priorityXp = (6 - (task.priority || 3)) * 50
-                    let finalXpAward = priorityXp
-                    let feedbackMessage = ''
-                    let isPenalty = false
+            const priorityXp = (6 - (task.priority || 3)) * 50
+            let finalXpAward = priorityXp
+            let feedbackMessage = ''
+            let isPenalty = false
 
-                    if (task.due_date) {
-                        const now = new Date()
-                        const due = new Date(task.due_date)
-                        if (now <= due) {
-                            finalXpAward += 150
-                            feedbackMessage = `Sensacional! Tarefa concluída antes do prazo. Você ganhou ${priorityXp} XP (prioridade) + 150 XP de bônus de pontualidade!`
-                        } else {
-                            finalXpAward = -100
-                            isPenalty = true
-                            feedbackMessage = `Tarefa concluída após o prazo! Você perdeu 100 XP de penalidade.`
-                        }
-                    } else {
-                        feedbackMessage = `Tarefa concluída com sucesso! Você ganhou ${priorityXp} XP de prioridade.`
-                    }
-
-                    executeCompletion(finalXpAward, feedbackMessage, isPenalty, false)
+            if (task.due_date) {
+                const now = new Date()
+                const due = new Date(task.due_date)
+                if (now <= due) {
+                    finalXpAward += 150
+                    feedbackMessage = `Sensacional! Tarefa concluída antes do prazo. Você ganhou ${priorityXp} XP (prioridade) + 150 XP de bônus de pontualidade!`
+                } else {
+                    finalXpAward = -100
+                    isPenalty = true
+                    feedbackMessage = 'Tarefa concluída após o prazo! Você perdeu 100 XP de penalidade.'
                 }
-            })
+            } else {
+                feedbackMessage = `Tarefa concluída com sucesso! Você ganhou ${priorityXp} XP de prioridade.`
+            }
+
+            executeCompletion(finalXpAward, feedbackMessage, isPenalty, false)
         }
     }
 
@@ -807,10 +803,11 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                         {task && task.status !== 'Feito' && (
                             <button
                                 onClick={handleComplete}
+                                disabled={isCompleting}
                                 className="px-3.5 py-2 sm:px-5 sm:py-2 bg-(--color-prioriza-blue) text-white rounded-2xl text-xs sm:text-sm font-black border-2 border-(--color-prioriza-blue-deep) border-b-[5px] border-b-(--color-prioriza-blue-deep) flex items-center gap-2 transition-all cursor-pointer active:translate-y-[2px] active:border-b-[2px]"
                             >
-                                <CheckCircle className="w-4 h-4" />
-                                <span className="hidden md:inline">Concluir</span>
+                                {isCompleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                                <span className="hidden md:inline">{isCompleting ? 'A concluir...' : 'Concluir'}</span>
                             </button>
                         )}
                         {task && task.status === 'Feito' && (!task.due_date || new Date() <= new Date(task.due_date)) && (

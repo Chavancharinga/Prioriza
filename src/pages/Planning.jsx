@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { ChevronLeft, ChevronRight, Calendar, Clock, AlertTriangle, CheckCircle, ExternalLink } from 'lucide-react'
 import { TaskService } from '../services/TaskService'
 import { ProfileService } from '../services/ProfileService'
@@ -26,10 +26,31 @@ export default function Planning() {
         return 'month'
     }) // 'month', 'week', 'day'
     const [sortBy, setSortBy] = useState('planning') // 'planning', 'due_date', 'priority', 'duration'
+    const [calendarCardHeight, setCalendarCardHeight] = useState(0)
+    const calendarCardRef = useRef(null)
 
     useEffect(() => {
         loadData()
     }, [])
+
+    useEffect(() => {
+        const calendarCard = calendarCardRef.current
+        if (!calendarCard) return undefined
+
+        const updateHeight = () => setCalendarCardHeight(calendarCard.getBoundingClientRect().height)
+        updateHeight()
+
+        const resizeObserver = typeof ResizeObserver !== 'undefined'
+            ? new ResizeObserver(updateHeight)
+            : null
+        resizeObserver?.observe(calendarCard)
+        window.addEventListener('resize', updateHeight)
+
+        return () => {
+            resizeObserver?.disconnect()
+            window.removeEventListener('resize', updateHeight)
+        }
+    }, [loading, viewMode])
 
     async function loadData() {
         try {
@@ -455,10 +476,13 @@ export default function Planning() {
 
 
     return (
-        <div className="grid grid-cols-1 items-stretch gap-6 lg:gap-8 xl:grid-cols-[minmax(0,1fr)_360px] 2xl:grid-cols-[minmax(0,1fr)_400px]">
+        <div
+            className="grid grid-cols-1 items-start gap-6 lg:gap-8 xl:grid-cols-[minmax(0,1fr)_360px] 2xl:grid-cols-[minmax(0,1fr)_400px]"
+            style={calendarCardHeight ? { '--calendar-card-height': `${calendarCardHeight}px` } : undefined}
+        >
             {/* Calendar */}
             <div className="min-h-0 min-w-0">
-                <div className="h-full bg-white rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 lg:p-8 shadow-[0_2px_40px_-10px_rgba(0,0,0,0.05)]">
+                <div ref={calendarCardRef} className="bg-white rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 lg:p-8 shadow-[0_2px_40px_-10px_rgba(0,0,0,0.05)]">
                     {/* Header */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                         <h2 className="text-xl sm:text-2xl font-black text-gray-900">
@@ -710,7 +734,7 @@ export default function Planning() {
             </div>
 
             {/* Selected Day Detail */}
-            <div className="min-h-0 min-w-0 overflow-hidden">
+            <div className="min-h-0 min-w-0 overflow-hidden xl:h-[var(--calendar-card-height)]">
                 <div className="sticky top-6 h-full min-h-0 overflow-y-auto rounded-[24px] bg-white p-6 shadow-[0_2px_40px_-10px_rgba(0,0,0,0.05)] sm:rounded-[32px]">
                     <div className="space-y-6">
                     <div>
