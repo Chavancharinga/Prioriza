@@ -171,12 +171,33 @@
     text-wrap: balance;
   }
 
-  /* Hide scrollbars globally */
+  /* Minimal scroll indicator for internal scrollable areas */
   * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-prioriza-blue) transparent;
+  }
+  *::-webkit-scrollbar {
+    display: block;
+    width: 1px;
+    height: 1px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--color-prioriza-blue);
+    border-radius: 9999px;
+  }
+
+  html,
+  body,
+  #root {
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
-  *::-webkit-scrollbar {
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  #root::-webkit-scrollbar {
     display: none;
   }
 
@@ -188,18 +209,18 @@
 /* Scrollbar fix for custom-scrollbar class */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(100, 116, 139, 0.35) transparent;
+  scrollbar-color: var(--color-prioriza-blue) transparent;
 }
 .custom-scrollbar::-webkit-scrollbar {
   display: block !important;
-  width: 6px;
-  height: 6px;
+  width: 1px;
+  height: 1px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(100, 116, 139, 0.35);
+  background-color: var(--color-prioriza-blue);
   border-radius: 9999px;
 }
 
