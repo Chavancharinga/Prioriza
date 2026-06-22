@@ -397,9 +397,9 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
                             {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map(day => {
                                 const slots = profile.preferências?.work_hours?.[day] || []
                                 return (
-                                    <div key={day} className="flex flex-col sm:flex-row sm:items-start gap-4 border-b border-gray-100 pb-4 last:border-0">
+                                    <div key={day} className="flex flex-col gap-4 border-b border-gray-100 pb-4 last:border-0 md:grid md:grid-cols-[48px_minmax(0,384px)_48px] md:items-start md:justify-center">
                                         <span className="w-12 text-xs font-bold text-gray-700 pt-2 shrink-0">{day}</span>
-                                        <div className="flex-1 space-y-2">
+                                        <div className="w-full space-y-2">
                                             {slots.map((slot, index) => (
                                                 <div key={index} className="flex items-center gap-2">
                                                     <input
