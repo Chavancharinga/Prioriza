@@ -218,6 +218,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
 
     async function handleSave() {
         try {
+            setIsPomodoroActive(false)
             setHasChanges(false)
 
             const promises = []
@@ -279,7 +280,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
         }
     }
 
-    function executeCompletion(finalXpAward, feedbackMessage, isPenalty, noCelebration = false) {
+    async function executeCompletion(finalXpAward, feedbackMessage, isPenalty, noCelebration = false) {
         // Optimistically calculate projected Level & XP
         const currentXp = profile?.xp || 0
         const currentLevel = profile?.level || 1
@@ -313,45 +314,61 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
             levelMsg = `\n\nLEVEL DOWN!\nVocê caiu para o Nível ${projectedLevel} devido às penalidades.`
         }
 
-        // Immediately display celebration ConfirmationModal
-        setConfirmation({
-            isOpen: true,
-            type: noCelebration ? 'info' : (isPenalty ? 'danger' : 'success'),
-            title: noCelebration ? 'Tarefa Concluída' : (isPenalty ? 'Tarefa Concluída com Atraso' : 'Parabéns!'),
-            message: `${feedbackMessage}${levelMsg}`,
-            confirmText: 'Ok',
-            onConfirm: () => {
-                setConfirmation(prev => ({ ...prev, isOpen: false }))
-                onClose()
-                if (onNavigate && !isPenalty) {
-                    // Change menu on completion! Redirect to planning
-                    onNavigate('planning')
-                }
-            }
-        })
-
-        // Run database writes in background in parallel
         setIsPomodoroActive(false)
         const finalTimeSpent = (task.time_spent || 0) + sessionTimeSpent
         setSessionTimeSpent(0)
 
-        const bgPromises = []
+        try {
+            const taskWrites = [
+                TaskService.completeTask(task.id, finalTimeSpent, null),
+                TaskService.updateTask(currentTaskId, { description: descriptionHtml })
+            ]
 
-        if (newNote.trim()) {
-            bgPromises.push(TaskService.createNote(currentTaskId, newNote))
-            setNewItem('')
-            setNewNote('')
-        }
+            if (newNote.trim()) {
+                taskWrites.push(TaskService.createNote(currentTaskId, newNote))
+                setNewItem('')
+                setNewNote('')
+            }
 
-        bgPromises.push(TaskService.completeTask(task.id, finalTimeSpent, null))
-        bgPromises.push(TaskService.updateTask(currentTaskId, { description: descriptionHtml }))
-        bgPromises.push(GamificationService.awardXp(finalXpAward))
+            await Promise.all(taskWrites)
 
-        Promise.all(bgPromises).then(() => {
+            try {
+                await GamificationService.awardXp(finalXpAward)
+            } catch (gameError) {
+                console.error('Error awarding completion XP:', gameError)
+            }
+
+            setTask(prev => prev ? {
+                ...prev,
+                status: 'Feito',
+                completed_at: new Date().toISOString(),
+                time_spent: finalTimeSpent
+            } : prev)
             onUpdate?.()
-        }).catch(err => {
-            console.error("Background task completion failed:", err)
-        })
+
+            setConfirmation({
+                isOpen: true,
+                type: noCelebration ? 'info' : (isPenalty ? 'danger' : 'success'),
+                title: noCelebration ? 'Tarefa Concluída' : (isPenalty ? 'Tarefa Concluída com Atraso' : 'Parabéns!'),
+                message: `${feedbackMessage}${levelMsg}`,
+                confirmText: 'Ok',
+                onConfirm: () => {
+                    setConfirmation(prev => ({ ...prev, isOpen: false }))
+                    onClose()
+                    if (onNavigate && !isPenalty) onNavigate('planning')
+                }
+            })
+        } catch (error) {
+            console.error('Error completing task:', error)
+            setConfirmation({
+                isOpen: true,
+                type: 'danger',
+                title: 'Erro ao Concluir Tarefa',
+                message: error.message || 'Não foi possível concluir a tarefa.',
+                confirmText: 'Ok',
+                onConfirm: () => setConfirmation(prev => ({ ...prev, isOpen: false }))
+            })
+        }
     }
 
     function handleComplete() {
@@ -903,7 +920,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                 <div className="card-3d p-5 space-y-4">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
-                                            <div className="p-1 bg-amber-50 rounded text-amber-600">
+                                            <div className="rounded bg-[rgba(30,58,138,0.10)] p-1 text-(--color-prioriza-blue)">
                                                 <Activity className="w-4 h-4" />
                                             </div>
                                             <h4 className="text-xs text-gray-500 uppercase font-bold">
@@ -912,8 +929,8 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                         </div>
                                         {isPomodoroActive && pomodoroMode === 'focus' && (
                                             <span className="flex h-2 w-2 relative">
-                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-prioriza-blue)] opacity-50"></span>
+                                                <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-prioriza-blue)]"></span>
                                             </span>
                                         )}
                                     </div>
@@ -1086,7 +1103,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                 <div>
                                     <div className="flex items-center justify-between mb-3">
                                         <div className="flex items-center gap-2">
-                                            <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg">
+                                            <div className="rounded-lg bg-[rgba(30,58,138,0.10)] p-1.5 text-(--color-prioriza-blue)">
                                                 <CheckSquare className="w-4 h-4" />
                                             </div>
                                             <h4 className="text-xs text-slate-500 uppercase font-bold tracking-wider">

@@ -9,9 +9,10 @@ export const TaskService = {
         const { data, error } = await supabase
             .from('tasks')
             .select(`
-        *,
-        subtasks:tasks(*)
-      `)
+                *,
+                checklist_items(*),
+                subtasks:tasks(*, checklist_items(*))
+            `)
             .eq('user_id', user.id)
             .is('parent_id', null) // Fetch top-level tasks
             .order('created_at', { ascending: false })

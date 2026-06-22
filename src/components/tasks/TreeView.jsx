@@ -48,15 +48,21 @@ function TaskNode({ task, level = 0, children, onTaskClick, allTasks, checklistB
     const [expanded, setExpanded] = useState(false)
     const hasChildren = children && children.length > 0
     const StatusIcon = statusIcons[task.status] || Circle
-    const checklist = checklistByTask[task.id] || []
+    const checklist = checklistByTask[task.id] || task.checklist_items || []
+    const hasChecklist = checklist.length > 0
+    const canExpand = hasChecklist || hasChildren
     const isLoadingChecklist = loadingChecklist[task.id]
-    const hasChecklistData = Object.prototype.hasOwnProperty.call(checklistByTask, task.id)
     const style = priorityColors[task.priority] || { card: 'border-l-neutral-300 bg-white', badge: 'bg-neutral-100 text-neutral-700' }
 
     async function handleToggle() {
+        if (!canExpand) {
+            onTaskClick?.(task)
+            return
+        }
+
         const nextExpanded = !expanded
         setExpanded(nextExpanded)
-        if (nextExpanded) {
+        if (nextExpanded && !hasChecklist) {
             await onToggleChecklist(task.id)
         }
     }
@@ -69,17 +75,15 @@ function TaskNode({ task, level = 0, children, onTaskClick, allTasks, checklistB
                 style={{ marginLeft: `${level * 20}px` }}
                 title="Clique para abrir a checklist desta tarefa"
             >
-                <button
-                    onClick={(e) => { e.stopPropagation(); handleToggle() }}
-                    className="flex h-5 w-5 items-center justify-center rounded hover:bg-white/70"
-                    aria-label={expanded ? 'Fechar checklist' : 'Abrir checklist'}
-                >
-                    {expanded ? (
-                        <ChevronDown className="h-4 w-4 text-neutral-500" />
-                    ) : (
-                        <ChevronRight className="h-4 w-4 text-neutral-500" />
-                    )}
-                </button>
+                {canExpand && (
+                    <button
+                        onClick={(e) => { e.stopPropagation(); handleToggle() }}
+                        className="flex h-5 w-5 items-center justify-center rounded text-(--color-prioriza-blue) hover:bg-white/70"
+                        aria-label={expanded ? 'Fechar checklist' : 'Abrir checklist'}
+                    >
+                        {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                    </button>
+                )}
 
                 {hasChildren ? (
                     <ListChecks className="h-4 w-4 text-(--color-prioriza-blue)" />
@@ -127,10 +131,6 @@ function TaskNode({ task, level = 0, children, onTaskClick, allTasks, checklistB
 
                     {isLoadingChecklist && (
                         <p className="text-xs font-semibold text-slate-400">A carregar checklist...</p>
-                    )}
-
-                    {!isLoadingChecklist && hasChecklistData && checklist.length === 0 && (
-                        <p className="text-xs font-semibold italic text-slate-400">Esta tarefa ainda não tem checklist.</p>
                     )}
 
                     {!isLoadingChecklist && checklist.length > 0 && (

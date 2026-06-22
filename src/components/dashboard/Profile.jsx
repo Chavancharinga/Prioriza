@@ -451,7 +451,7 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
                 title={confirmation.title}
                 message={confirmation.message}
                 onConfirm={confirmation.onConfirm}
-                onCancel={() => setConfirmation(prev => ({ ...prev, isOpen: false }))}
+                onClose={() => setConfirmation(prev => ({ ...prev, isOpen: false }))}
                 cancelText={confirmation.cancelText === undefined ? null : confirmation.cancelText}
             />
         </div>
