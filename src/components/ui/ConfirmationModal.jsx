@@ -39,7 +39,7 @@ export default function ConfirmationModal({
     const Icon = style.icon
 
     return createPortal(
-        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/45 backdrop-blur-md p-4">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/45 backdrop-blur-md p-4">
             {/* Backdrop click */}
             <div className="absolute inset-0" onClick={onClose} />
 
