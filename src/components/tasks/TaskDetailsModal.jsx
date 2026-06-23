@@ -810,7 +810,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                 <span className="hidden md:inline">{isCompleting ? 'A concluir...' : 'Concluir'}</span>
                             </button>
                         )}
-                        {task && task.status === 'Feito' && (!task.due_date || new Date() <= new Date(task.due_date)) && (
+                        {task && task.status === 'Feito' && (
                             <button
                                 onClick={handleReactivate}
                                 className="px-3.5 py-2 sm:px-5 sm:py-2 bg-blue-500 text-white rounded-2xl text-xs sm:text-sm font-black border-2 border-blue-600 border-b-[5px] border-b-blue-700 flex items-center gap-2 transition-all cursor-pointer active:translate-y-[2px] active:border-b-[2px]"
