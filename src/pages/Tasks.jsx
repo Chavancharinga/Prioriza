@@ -188,7 +188,7 @@ export default function Tasks({ profile, onNavigate }) {
             </Card>
 
             {/* View Content */}
-            <div className="min-h-[400px]">
+            <div className="h-[calc(100dvh-300px)] min-h-[400px] max-h-[720px] overflow-y-auto pr-1">
                 {activeView === 'list' && (
                     <TaskList
                         tasks={filteredTasks}
