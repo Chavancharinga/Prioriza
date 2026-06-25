@@ -167,6 +167,12 @@ function buildFallbackAction(message) {
                 'Executar a alteração principal',
                 'Testar e registrar o resultado'
             ],
+            due_date: dueDate,
+            checklist: [
+                'Confirmar o objetivo da tarefa',
+                'Executar a alteração principal',
+                'Testar e registrar o resultado'
+            ],
             note: 'Nota do PRIO: estimativa e checklist sugeridos automaticamente. Você pode editar tudo manualmente.'
         }
     }
@@ -174,7 +180,7 @@ function buildFallbackAction(message) {
 
 function normalizeAction(action) {
     if (!action || typeof action !== 'object') return null
-    if (!['create_task', 'update_last_task', 'update_work_hours'].includes(action.type)) return null
+    if (!['create_task', 'update_last_task', 'update_task', 'update_work_hours'].includes(action.type)) return null
 
     if (action.type === 'update_work_hours') {
         const workHours = action.work_hours && typeof action.work_hours === 'object' ? action.work_hours : {}
@@ -203,6 +209,7 @@ function normalizeAction(action) {
     return {
         type: action.type,
         task: {
+            id: action.task?.id || null,
             title: action.task?.title || 'Nova tarefa criada pelo PRIO',
             description: action.task?.description || '',
             priority: normalizePriority(action.task?.priority),
@@ -369,6 +376,27 @@ export default function PrioChat({ profile, onProfileUpdate }) {
             return `Atualizei a última tarefa: "${updated.title}".`
         }
 
+        if (action.type === 'update_task' && action.task?.id) {
+            const updated = await TaskService.updateTask(action.task.id, {
+                title: action.task.title,
+                description: action.task.description,
+                priority: action.task.priority,
+                estimated_minutes: action.task.estimated_minutes,
+                due_date: action.task.due_date
+            })
+
+            for (const item of action.task.checklist) {
+                await TaskService.createChecklistItem(updated.id, item)
+            }
+
+            if (action.task.note) {
+                await TaskService.createNote(updated.id, action.task.note)
+            }
+
+            await loadTasks()
+            return `Atualizei a tarefa solicitada: "${updated.title || 'Sem título'}".`
+        }
+
         return null
     }
 
@@ -391,7 +419,7 @@ export default function PrioChat({ profile, onProfileUpdate }) {
                     message,
                     tasks: summarizeTasks(taskSnapshot),
                     profile,
-                    capabilities: ['create_task', 'update_last_task', 'update_work_hours', 'suggest_schedule', 'report_productivity'],
+                    capabilities: ['create_task', 'update_last_task', 'update_task', 'update_work_hours', 'suggest_schedule', 'report_productivity'],
                     history: messages.slice(-8),
                     last_created_task: lastCreatedTask
                 })
@@ -399,9 +427,9 @@ export default function PrioChat({ profile, onProfileUpdate }) {
                 const fallbackAction = buildFallbackAction(message)
                 const priorityReply = buildPriorityQuestionsReply(message)
                 const fallbackReply = fallbackAction?.type === 'update_work_hours'
-                    ? 'Consigo atualizar esse horÃ¡rio agora. Como o backend da IA nÃ£o respondeu, usei o modo local e apliquei a disponibilidade no seu perfil.'
+                    ? 'Consigo atualizar esse horário agora. Como o backend da IA não respondeu, usei o modo local e apliquei a disponibilidade no seu perfil.'
                     : fallbackAction
-                        ? 'Consigo criar isso agora mesmo. Como o backend da IA nÃ£o respondeu, usei meu modo local: sugeri checklist, nota e estimativa automÃ¡tica.'
+                        ? 'Consigo criar isso agora mesmo. Como o backend da IA não respondeu, usei meu modo local: sugeri checklist, nota e estimativa automática.'
                         : priorityReply || buildLocalReport(taskSnapshot, profile)
                 response = {
                     reply: fallbackReply,
@@ -448,7 +476,7 @@ export default function PrioChat({ profile, onProfileUpdate }) {
                 <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-5 sm:py-6">
                     {messages.map((message, index) => (
                         <div key={`${message.role}-${index}`} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[88%] rounded-xl px-4 py-3 text-sm leading-relaxed shadow-sm sm:max-w-[82%] ${message.role === 'user' ? 'bg-[var(--color-prioriza-blue)] text-white' : 'border border-slate-100 bg-white text-slate-700'}`}>
+                            <div className={`max-w-[88%] rounded-xl px-4 py-3 text-sm leading-relaxed shadow-sm sm:max-w-[82%] ${message.role === 'user' ? 'bg-(--color-prioriza-blue) text-white' : 'border border-slate-100 bg-white text-slate-700'}`}>
                                 <p className="whitespace-pre-wrap font-medium">{message.content}</p>
                             </div>
                         </div>

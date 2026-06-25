@@ -7,6 +7,7 @@ import DashboardHeader from './components/layout/DashboardHeader'
 import Home from './pages/Home'
 import Tasks from './pages/Tasks'
 import Auth from './pages/Auth'
+
 import Planning from './pages/Planning'
 import Analytics from './pages/Analytics'
 import PrioChat from './pages/PrioChat'
@@ -15,6 +16,7 @@ import { ProfileService } from './services/ProfileService'
 import { GamificationService } from './services/GamificationService'
 import Skeleton from './components/ui/Skeleton'
 import ConfirmationModal from './components/ui/ConfirmationModal'
+import Button from './components/ui/Button'
 
 export default function App() {
   const [session, setSession] = useState(null)
@@ -28,6 +30,9 @@ export default function App() {
   })
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 1024 : true) // Start collapsed (desktop) or hidden (mobile)
   const [profile, setProfile] = useState(null)
+  const [requirePasswordUpdate, setRequirePasswordUpdate] = useState(false)
+  const [newPassword, setNewPassword] = useState('')
+  const [updatingPassword, setUpdatingPassword] = useState(false)
   const [alertConfig, setAlertConfig] = useState({
     isOpen: false,
     title: '',
@@ -176,6 +181,9 @@ export default function App() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (_event === 'PASSWORD_RECOVERY') {
+        setRequirePasswordUpdate(true)
+      }
       setSession(session)
       if (session) {
         loadProfile()
@@ -442,6 +450,50 @@ export default function App() {
         confirmText={alertConfig.confirmText}
         cancelText={alertConfig.cancelText}
       />
+
+      <AnimatePresence>
+        {requirePasswordUpdate && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl"
+            >
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">Redefinir Senha</h2>
+              <p className="text-slate-600 mb-6 text-sm">Por favor, insira a sua nova senha.</p>
+              <form onSubmit={async (e) => {
+                e.preventDefault()
+                setUpdatingPassword(true)
+                const { error } = await supabase.auth.updateUser({ password: newPassword })
+                setUpdatingPassword(false)
+                if (error) {
+                  alert('Erro ao atualizar senha: ' + error.message)
+                } else {
+                  alert('Senha atualizada com sucesso!')
+                  setRequirePasswordUpdate(false)
+                  setNewPassword('')
+                }
+              }} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700">Nova Senha</label>
+                  <input
+                    type="password"
+                    required
+                    minLength={6}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="mt-2 block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium shadow-sm focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+                  />
+                </div>
+                <Button type="submit" variant="primary" loading={updatingPassword} className="w-full flex justify-center">
+                  Atualizar Senha
+                </Button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

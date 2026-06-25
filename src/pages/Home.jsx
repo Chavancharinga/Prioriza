@@ -52,6 +52,12 @@ export default function Home({ profile, onNavigate }) {
             await TaskService.createTask(taskData)
             setIsModalOpen(false)
             loadData() // Reload to update stats and timeline
+            setFeedback({
+                isOpen: true,
+                type: 'success',
+                title: 'Tarefa Criada!',
+                message: 'A sua tarefa foi adicionada com sucesso e o lembrete programado.'
+            })
         } catch (err) {
             console.error('Error creating task:', err)
             setFeedback({
@@ -289,7 +295,7 @@ export default function Home({ profile, onNavigate }) {
                                             </span>
                                             {task.due_date && (
                                                 <span className="text-[10px] font-bold text-gray-400">
-                                                    {new Date(task.due_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+                                                    {new Date(task.due_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) }
                                                 </span>
                                             )}
                                         </div>
@@ -299,7 +305,7 @@ export default function Home({ profile, onNavigate }) {
                                         <div className="flex items-center gap-3 text-(--color-text-muted)">
                                             <div className="h-1.5 flex-1 bg-(--color-surface-elevated) rounded-full overflow-hidden">
                                                 <div
-                                                    className="h-full rounded-full bg-[var(--color-prioriza-blue)]"
+                                                    className="h-full rounded-full bg-(--color-prioriza-blue)"
                                                     style={{ width: `${task.status === 'Feito' ? 100 : (task.progress || 0)}%` }}
                                                 />
                                             </div>

@@ -6,6 +6,7 @@ import { CheckCircle2, AlertTriangle } from 'lucide-react'
 
 export default function Auth({ onLogin }) {
     const [isLogin, setIsLogin] = useState(true)
+    const [isForgotPassword, setIsForgotPassword] = useState(false)
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState(null)
     const [email, setEmail] = useState('')
@@ -27,6 +28,16 @@ export default function Auth({ onLogin }) {
         try {
             if (typeof window !== 'undefined') {
                 window.localStorage.setItem(REMEMBER_LOGIN_KEY, rememberLogin ? 'true' : 'false')
+            }
+
+            if (isForgotPassword) {
+                const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+                    redirectTo: `${window.location.origin}/`,
+                })
+                if (error) throw error
+                setMessage({ type: 'success', text: 'Email de recuperação enviado! Verifique sua caixa de entrada.' })
+                setLoading(false)
+                return
             }
 
             if (isLogin) {
@@ -95,7 +106,7 @@ export default function Auth({ onLogin }) {
                     </div>
 
                     <form onSubmit={handleAuth} className="space-y-6 flex-1 flex flex-col justify-center">
-                        {!isLogin && (
+                        {!isLogin && !isForgotPassword && (
                             <>
                                 <div>
                                     <label className="block text-sm font-semibold text-slate-700">Nome Completo</label>
@@ -133,18 +144,20 @@ export default function Auth({ onLogin }) {
                             />
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Senha</label>
-                            <input
-                                type="password"
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="mt-2 block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium shadow-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
-                            />
-                        </div>
+                        {!isForgotPassword && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Senha</label>
+                                <input
+                                    type="password"
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="mt-2 block w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium shadow-sm placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+                                />
+                            </div>
+                        )}
 
-                        {isLogin && (
+                        {isLogin && !isForgotPassword && (
                             <label className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
                                 <span className="flex flex-col">
                                     <span>Permanecer logado</span>
@@ -172,19 +185,37 @@ export default function Auth({ onLogin }) {
                             loading={loading}
                             className="w-full flex justify-center"
                         >
-                            {isLogin ? 'Entrar' : 'Cadastrar'}
+                            {isForgotPassword ? 'Enviar Link' : isLogin ? 'Entrar' : 'Cadastrar'}
                         </Button>
                     </form>
 
-                    <div className="mt-6 text-center">
+                    <div className="mt-6 text-center space-y-3 flex flex-col">
+                        {!isForgotPassword && isLogin && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setIsForgotPassword(true)
+                                    setMessage(null)
+                                }}
+                                className="text-sm font-semibold text-slate-600 hover:text-blue-600"
+                            >
+                                Esqueci a minha senha
+                            </button>
+                        )}
                         <button
+                            type="button"
                             onClick={() => {
-                                setIsLogin(!isLogin)
+                                if (isForgotPassword) {
+                                    setIsForgotPassword(false)
+                                    setIsLogin(true)
+                                } else {
+                                    setIsLogin(!isLogin)
+                                }
                                 setMessage(null)
                             }}
                             className="text-sm font-semibold text-slate-600 hover:text-blue-600"
                         >
-                            {isLogin ? 'Não tem uma conta? Cadastre-se' : 'Já tem uma conta? Entre'}
+                            {isForgotPassword ? 'Voltar ao Login' : isLogin ? 'Não tem uma conta? Cadastre-se' : 'Já tem uma conta? Entre'}
                         </button>
                     </div>
                 </Card>

@@ -14,7 +14,7 @@ import ConfirmationModal from '../components/ui/ConfirmationModal'
 const views = [
     { id: 'list', label: 'Lista', icon: LayoutList },
     { id: 'kanban', label: 'Kanban', icon: LayoutGrid },
-    { id: 'tree', label: '\u00c1rvore', icon: Network },
+    { id: 'tree', label: 'Árvore', icon: Network },
 ]
 
 export default function Tasks({ profile, onNavigate }) {
@@ -59,9 +59,10 @@ export default function Tasks({ profile, onNavigate }) {
             const newTask = await TaskService.createTask(taskData)
             setTasks([newTask, ...tasks])
             setIsModalOpen(false)
+            showFeedback('Tarefa Criada!', 'A sua tarefa foi adicionada com sucesso e o lembrete programado.', 'success')
         } catch (err) {
             console.error('Error creating task:', err)
-            showFeedback('Falha ao criar tarefa', 'N\u00e3o foi poss\u00edvel criar a tarefa. Tente novamente.', 'danger')
+            showFeedback('Falha ao criar tarefa', 'Não foi possível criar a tarefa. Tente novamente.', 'danger')
         }
     }
 
@@ -74,7 +75,7 @@ export default function Tasks({ profile, onNavigate }) {
             setTaskToEdit(null)
         } catch (err) {
             console.error('Error updating task:', err)
-            showFeedback('Falha ao atualizar tarefa', 'N\u00e3o foi poss\u00edvel guardar as altera\u00e7\u00f5es. Tente novamente.', 'danger')
+            showFeedback('Falha ao atualizar tarefa', 'Não foi possível guardar as alterações. Tente novamente.', 'danger')
         }
     }
 
@@ -90,7 +91,7 @@ export default function Tasks({ profile, onNavigate }) {
             setTasks(tasks.filter(t => t.id !== taskId))
         } catch (err) {
             console.error('Error deleting task:', err)
-            showFeedback('Falha ao excluir tarefa', 'N\u00e3o foi poss\u00edvel excluir a tarefa. Tente novamente.', 'danger')
+            showFeedback('Falha ao excluir tarefa', 'Não foi possível excluir a tarefa. Tente novamente.', 'danger')
         } finally {
             setDeleteConfirm({ isOpen: false, taskId: null })
         }
@@ -175,7 +176,7 @@ export default function Tasks({ profile, onNavigate }) {
                             <option value="all">Todas</option>
                             <option value="pending">A Fazer</option>
                             <option value="in_progress">Progresso</option>
-                            <option value="completed">Conclu\u00eddas</option>
+                            <option value="completed">Concluídas</option>
                         </select>
 
                         {/* Add Button */}
@@ -277,7 +278,7 @@ export default function Tasks({ profile, onNavigate }) {
                 onClose={() => setDeleteConfirm({ isOpen: false, taskId: null })}
                 onConfirm={handleConfirmDelete}
                 title="Excluir Tarefa"
-                message="Tem certeza de que deseja excluir esta tarefa? Esta a\u00e7\u00e3o n\u00e3o pode ser desfeita."
+                message="Tem certeza de que deseja excluir esta tarefa? Esta ação não pode ser desfeita."
                 confirmText="Excluir"
                 cancelText="Cancelar"
                 type="danger"
