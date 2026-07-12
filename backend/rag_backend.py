@@ -25,7 +25,7 @@ SUPABASE_KEY = os.getenv("VITE_SUPABASE_ANON_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "mock-key-if-no-env")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
-OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "deepseek/deepseek-v4-flash")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "tencent/hy3:free")
 OPENROUTER_HTTP_REFERER = os.getenv("OPENROUTER_HTTP_REFERER", "http://127.0.0.1:5173")
 OPENROUTER_APP_TITLE = os.getenv("OPENROUTER_APP_TITLE", "Prioriza")
 
