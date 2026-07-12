@@ -1,4 +1,4 @@
-const AI_API_BASE_URL = import.meta.env.VITE_AI_API_URL || 'http://127.0.0.1:8000'
+const AI_API_BASE_URL = import.meta.env.VITE_AI_API_URL || 'http://localhost:8000'
 
 async function requestTaskInsight(taskId, mode) {
     const response = await fetch(`${AI_API_BASE_URL}/ai/task-insight`, {
