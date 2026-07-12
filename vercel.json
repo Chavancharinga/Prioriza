@@ -1,0 +1,22 @@
+{
+  "builds": [
+    {
+      "src": "backend/rag_backend.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/vite"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/ai/(.*)",
+      "destination": "/backend/rag_backend.py"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
