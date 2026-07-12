@@ -167,12 +167,6 @@ function buildFallbackAction(message) {
                 'Executar a alteração principal',
                 'Testar e registrar o resultado'
             ],
-            due_date: dueDate,
-            checklist: [
-                'Confirmar o objetivo da tarefa',
-                'Executar a alteração principal',
-                'Testar e registrar o resultado'
-            ],
             note: 'Nota do PRIO: estimativa e checklist sugeridos automaticamente. Você pode editar tudo manualmente.'
         }
     }

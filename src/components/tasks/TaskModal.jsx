@@ -4,14 +4,84 @@ import { X, Calendar, Clock, AlertTriangle, Save } from 'lucide-react'
 import Button from '../ui/Button'
 import Card from '../ui/Card'
 
+function formatDateForInput(value) {
+    if (!value) return ''
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return ''
+    const day = String(date.getDate()).padStart(2, '0')
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
+}
+
+function formatTimeForInput(value) {
+    if (!value) return ''
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return ''
+    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+}
+
+function parseDateTimeToIso(dateText, timeText, defaultTime = '23:59') {
+    const cleanDate = String(dateText || '').trim()
+    if (!cleanDate) return null
+
+    const currentYear = new Date().getFullYear()
+    const normalized = cleanDate.replace(/\s+/g, '')
+    let day
+    let month
+    let year = currentYear
+
+    const isoMatch = normalized.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/)
+    const ptMatch = normalized.match(/^(\d{1,2})[/-](\d{1,2})(?:[/-](\d{2,4}))?$/)
+
+    if (isoMatch) {
+        year = Number(isoMatch[1])
+        month = Number(isoMatch[2])
+        day = Number(isoMatch[3])
+    } else if (ptMatch) {
+        day = Number(ptMatch[1])
+        month = Number(ptMatch[2])
+        if (ptMatch[3]) {
+            year = Number(ptMatch[3])
+            if (year < 100) year += 2000
+        }
+    } else {
+        throw new Error('Use a data no formato dd/mm, por exemplo 21/07. O ano é preenchido automaticamente.')
+    }
+
+    if (year < currentYear) year = currentYear
+
+    const cleanTime = String(timeText || defaultTime).trim() || defaultTime
+    const timeMatch = cleanTime.match(/^(\d{1,2}):(\d{2})$/)
+    if (!timeMatch) throw new Error('Use a hora no formato HH:mm ou deixe em branco.')
+
+    const hour = Number(timeMatch[1])
+    const minute = Number(timeMatch[2])
+    const parsed = new Date(year, month - 1, day, hour, minute, 0, 0)
+    const validDate =
+        parsed.getFullYear() === year &&
+        parsed.getMonth() === month - 1 &&
+        parsed.getDate() === day &&
+        hour >= 0 &&
+        hour <= 23 &&
+        minute >= 0 &&
+        minute <= 59
+
+    if (!validDate) throw new Error('Data inválida. Use dia/mês correto, por exemplo 21/07.')
+    return parsed.toISOString()
+}
+
 export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null }) {
+    const [dateError, setDateError] = useState('')
     const [formData, setFormData] = useState({
         title: '',
         description: '',
         priority: 3, // Default Medium
         status: 'A Fazer',
         due_date: '',
+        due_time: '',
         reminder: '',
+        reminder_time: '',
         estimated_minutes: 30
     })
 
@@ -23,8 +93,10 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
                 description: taskToEdit.description || '',
                 priority: taskToEdit.priority || 3,
                 status: taskToEdit.status || 'A Fazer',
-                due_date: taskToEdit.due_date ? new Date(taskToEdit.due_date).toISOString().slice(0, 16) : '',
-                reminder: taskToEdit.reminder ? new Date(taskToEdit.reminder).toISOString().slice(0, 16) : '',
+                due_date: formatDateForInput(taskToEdit.due_date),
+                due_time: formatTimeForInput(taskToEdit.due_date),
+                reminder: formatDateForInput(taskToEdit.reminder),
+                reminder_time: formatTimeForInput(taskToEdit.reminder),
                 estimated_minutes: taskToEdit.estimated_minutes || 30
             })
         } else {
@@ -35,22 +107,38 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
                 priority: 3,
                 status: 'A Fazer',
                 due_date: '',
+                due_time: '',
                 reminder: '',
+                reminder_time: '',
                 estimated_minutes: 30
             })
         }
+        setDateError('')
     }, [taskToEdit, isOpen])
 
     if (!isOpen || typeof document === 'undefined') return null
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        // Format dates correctly for Supabase (or leave as ISO string from input datetime-local)
-        // input type="datetime-local" gives "YYYY-MM-DDTHH:mm" which is ISO compatible
+        setDateError('')
+
+        let dueDate = null
+        let reminderDate = null
+        try {
+            dueDate = parseDateTimeToIso(formData.due_date, formData.due_time, '23:59')
+            reminderDate = parseDateTimeToIso(formData.reminder, formData.reminder_time, '09:00')
+        } catch (error) {
+            setDateError(error.message)
+            return
+        }
+
         const payload = {
-            ...formData,
-            due_date: formData.due_date ? new Date(formData.due_date).toISOString() : null,
-            reminder: formData.reminder ? new Date(formData.reminder).toISOString() : null,
+            title: formData.title,
+            description: formData.description,
+            priority: formData.priority,
+            status: formData.status,
+            due_date: dueDate,
+            reminder: reminderDate,
             estimated_minutes: formData.estimated_minutes ? parseInt(formData.estimated_minutes) : 30
         }
         onSubmit(payload)
@@ -147,10 +235,19 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
                                     <Calendar className="w-4 h-4" /> Prazo Final
                                 </label>
                                 <input
-                                    type="datetime-local"
+                                    type="text"
                                     value={formData.due_date}
                                     onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm"
+                                    placeholder="dd/mm"
+                                    inputMode="numeric"
+                                />
+                                <input
+                                    type="time"
+                                    value={formData.due_time}
+                                    onChange={(e) => setFormData({ ...formData, due_time: e.target.value })}
+                                    className="mt-2 w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm"
+                                    aria-label="Hora opcional do prazo"
                                 />
                             </div>
                             <div>
@@ -158,13 +255,28 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
                                     <AlertTriangle className="w-4 h-4" /> Lembrete
                                 </label>
                                 <input
-                                    type="datetime-local"
+                                    type="text"
                                     value={formData.reminder}
                                     onChange={(e) => setFormData({ ...formData, reminder: e.target.value })}
                                     className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm"
+                                    placeholder="dd/mm"
+                                    inputMode="numeric"
+                                />
+                                <input
+                                    type="time"
+                                    value={formData.reminder_time}
+                                    onChange={(e) => setFormData({ ...formData, reminder_time: e.target.value })}
+                                    className="mt-2 w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm"
+                                    aria-label="Hora opcional do lembrete"
                                 />
                             </div>
                         </div>
+
+                        {dateError && (
+                            <div className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-900">
+                                {dateError}
+                            </div>
+                        )}
 
                         {/* Status */}
                         <div>

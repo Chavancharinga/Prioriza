@@ -221,12 +221,19 @@ export default function Planning() {
                 remainingMinutes: t.estimated_minutes || 30
             }))
 
-        // Sort globally: Critical priority first (1 is most critical), then by due date
+        // Sort globally: Due date first (chronological), then priority (1 is critical), then estimated time
         incompleteTasks.sort((a, b) => {
+            const dateA = new Date(a.due_date)
+            const dateB = new Date(b.due_date)
+            if (dateA.getTime() !== dateB.getTime()) {
+                return dateA - dateB
+            }
             const prioA = a.priority || 3
             const prioB = b.priority || 3
-            if (prioA !== prioB) return prioA - prioB
-            return new Date(a.due_date) - new Date(b.due_date)
+            if (prioA !== prioB) {
+                return prioA - prioB
+            }
+            return (b.estimated_minutes || 0) - (a.estimated_minutes || 0)
         })
 
         const scheduleByDate = {} // dateStr -> { slots: [], scheduled: [], waitlist: [] }

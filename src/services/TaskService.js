@@ -1,5 +1,32 @@
 import { supabase } from '../lib/supabase'
 
+async function ensureProfileExists(user) {
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle()
+
+    if (error) throw error
+    if (data?.id) return
+
+    const fallbackUsername = (user.user_metadata?.username || user.email?.split('@')[0] || 'utilizador')
+        .replace(/[^a-zA-Z0-9_.-]/g, '')
+        .slice(0, 30) || 'utilizador'
+
+    const { error: upsertError } = await supabase
+        .from('profiles')
+        .upsert({
+            id: user.id,
+            full_name: user.user_metadata?.full_name || fallbackUsername,
+            username: fallbackUsername,
+            avatar_url: user.user_metadata?.avatar_url || null,
+            updated_at: new Date().toISOString(),
+        }, { onConflict: 'id' })
+
+    if (upsertError) throw upsertError
+}
+
 export const TaskService = {
     // Fetch all tasks for the current user
     async getTasks() {
@@ -25,6 +52,7 @@ export const TaskService = {
     async createTask(taskData) {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) throw new Error('User not authenticated')
+        await ensureProfileExists(user)
 
         const { data, error } = await supabase
             .from('tasks')
