@@ -140,6 +140,22 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
         try {
             dueDate = parseDateTimeToIso(formData.due_date, formData.due_time, '23:59')
             reminderDate = parseDateTimeToIso(formData.reminder, formData.reminder_time, '09:00')
+
+            // Anti-error: prevent setting past dates so user doesn't lose XP
+            if (dueDate) {
+                const dueObj = new Date(dueDate)
+                const now = new Date()
+                now.setHours(0, 0, 0, 0) // Start of today
+                
+                if (dueObj < now) {
+                    const isExistingPastDate = taskToEdit && taskToEdit.due_date && 
+                        new Date(taskToEdit.due_date).getTime() === dueObj.getTime()
+                        
+                    if (!isExistingPastDate) {
+                        throw new Error('A data não pode estar no passado, senão perdes XP! 😅 Verifica o ano ou o mês.')
+                    }
+                }
+            }
         } catch (error) {
             setDateError(error.message)
             return
