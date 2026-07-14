@@ -444,8 +444,8 @@ def fallback_prio_response(req: PrioChatRequest):
 
 
 def build_prio_messages(req: PrioChatRequest):
-    now_text = datetime.now().isoformat(timespec="minutes")
-    task_context = json.dumps(req.tasks[:80], ensure_ascii=False, indent=2)
+    now_text = datetime.now().strftime("%Y-%m-%d %H:%M")
+    task_context = json.dumps(req.tasks[:15], ensure_ascii=False, indent=2)
     profile_context = json.dumps(req.profile or {}, ensure_ascii=False, indent=2)
     capabilities_context = json.dumps(req.capabilities or [], ensure_ascii=False, indent=2)
     history_context = json.dumps(req.history[-8:], ensure_ascii=False, indent=2)
