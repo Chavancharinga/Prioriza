@@ -3,6 +3,7 @@ import { Bot, CalendarClock, CheckCircle2, Clock, Loader2, MessageSquarePlus, Pl
 import { AIService } from '../services/AIService'
 import { TaskService } from '../services/TaskService'
 import { ProfileService } from '../services/ProfileService'
+import { ResourceService } from '../services/ResourceService'
 
 const quickPrompts = [
     'PRIO, faz um mini relatório da minha produtividade.',
@@ -174,7 +175,7 @@ function buildFallbackAction(message) {
 
 function normalizeAction(action) {
     if (!action || typeof action !== 'object') return null
-    if (!['create_task', 'update_last_task', 'update_task', 'update_work_hours'].includes(action.type)) return null
+    if (!['create_task', 'update_last_task', 'update_task', 'update_work_hours', 'add_resources'].includes(action.type)) return null
 
     if (action.type === 'update_work_hours') {
         const workHours = action.work_hours && typeof action.work_hours === 'object' ? action.work_hours : {}
@@ -198,6 +199,15 @@ function normalizeAction(action) {
         return Object.keys(normalizedHours).length
             ? { type: 'update_work_hours', work_hours: normalizedHours }
             : null
+    }
+
+    if (action.type === 'add_resources') {
+        const resources = Array.isArray(action.task?.resources) ? action.task.resources.filter(r => r?.url) : []
+        return resources.length ? {
+            type: 'add_resources',
+            taskId: action.task?.id || null,
+            resources
+        } : null
     }
 
     return {
@@ -348,6 +358,21 @@ export default function PrioChat({ profile, onProfileUpdate }) {
             return `Horários de trabalho atualizados: ${days}. O cronograma automático passa a usar esta disponibilidade.`
         }
 
+        if (action.type === 'add_resources' && action.taskId) {
+            const added = []
+            for (const resource of action.resources) {
+                try {
+                    await ResourceService.createResource(action.taskId, resource.url, resource.title || '')
+                    added.push(resource.title || resource.url)
+                } catch (err) {
+                    console.error('Error adding resource:', err)
+                }
+            }
+            await loadTasks()
+            if (added.length === 0) return null
+            return `Adicionei ${added.length} link(s) à tarefa: ${added.join(', ')}.`
+        }
+
         if (action.type === 'update_last_task' && lastCreatedTask?.id) {
             const updated = await TaskService.updateTask(lastCreatedTask.id, {
                 title: action.task.title || lastCreatedTask.title,
@@ -413,7 +438,7 @@ export default function PrioChat({ profile, onProfileUpdate }) {
                     message,
                     tasks: summarizeTasks(taskSnapshot),
                     profile,
-                    capabilities: ['create_task', 'update_last_task', 'update_task', 'update_work_hours', 'suggest_schedule', 'report_productivity'],
+                    capabilities: ['create_task', 'update_last_task', 'update_task', 'update_work_hours', 'add_resources', 'suggest_schedule', 'report_productivity'],
                     history: messages.slice(-8),
                     last_created_task: lastCreatedTask
                 })

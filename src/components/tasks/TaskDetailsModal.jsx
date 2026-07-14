@@ -467,6 +467,13 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
         setAiError('')
         try {
             const response = await AIService.suggestSubtasks(task.id)
+            if (response?.type === 'subtasks' && Array.isArray(response.items)) {
+                const existingItems = (task.checklist_items || []).map(ci => ci.content?.toLowerCase().trim())
+                response.items = response.items.filter(item => {
+                    const normalized = item?.toLowerCase().trim()
+                    return !existingItems.some(existing => existing === normalized || existing?.includes(normalized) || normalized?.includes(existing))
+                })
+            }
             setAiResponse(response)
         } catch (error) {
             setAiError(error.message || 'Falha ao gerar sugestões com a IA.')

@@ -1,8 +1,21 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { X, Calendar, Clock, AlertTriangle, Save } from 'lucide-react'
 import Button from '../ui/Button'
 import Card from '../ui/Card'
+
+function autoFormatDate(raw) {
+    const digits = raw.replace(/\D/g, '').slice(0, 8)
+    if (digits.length <= 2) return digits
+    if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`
+    return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`
+}
+
+function autoFormatTime(raw) {
+    const digits = raw.replace(/\D/g, '').slice(0, 4)
+    if (digits.length <= 2) return digits
+    return `${digits.slice(0, 2)}:${digits.slice(2)}`
+}
 
 function formatDateForInput(value) {
     if (!value) return ''
@@ -237,16 +250,20 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
                                 <input
                                     type="text"
                                     value={formData.due_date}
-                                    onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
+                                    onChange={(e) => setFormData({ ...formData, due_date: autoFormatDate(e.target.value) })}
                                     className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm"
-                                    placeholder="dd/mm"
+                                    placeholder="dd/mm/aaaa"
                                     inputMode="numeric"
+                                    maxLength={10}
                                 />
                                 <input
-                                    type="time"
+                                    type="text"
                                     value={formData.due_time}
-                                    onChange={(e) => setFormData({ ...formData, due_time: e.target.value })}
+                                    onChange={(e) => setFormData({ ...formData, due_time: autoFormatTime(e.target.value) })}
                                     className="mt-2 w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm"
+                                    placeholder="HH:mm"
+                                    inputMode="numeric"
+                                    maxLength={5}
                                     aria-label="Hora opcional do prazo"
                                 />
                             </div>
@@ -257,16 +274,20 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
                                 <input
                                     type="text"
                                     value={formData.reminder}
-                                    onChange={(e) => setFormData({ ...formData, reminder: e.target.value })}
+                                    onChange={(e) => setFormData({ ...formData, reminder: autoFormatDate(e.target.value) })}
                                     className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm"
-                                    placeholder="dd/mm"
+                                    placeholder="dd/mm/aaaa"
                                     inputMode="numeric"
+                                    maxLength={10}
                                 />
                                 <input
-                                    type="time"
+                                    type="text"
                                     value={formData.reminder_time}
-                                    onChange={(e) => setFormData({ ...formData, reminder_time: e.target.value })}
+                                    onChange={(e) => setFormData({ ...formData, reminder_time: autoFormatTime(e.target.value) })}
                                     className="mt-2 w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm"
+                                    placeholder="HH:mm"
+                                    inputMode="numeric"
+                                    maxLength={5}
                                     aria-label="Hora opcional do lembrete"
                                 />
                             </div>

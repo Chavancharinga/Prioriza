@@ -7,7 +7,7 @@ from typing import Any, Literal
 
 import uvicorn
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from openai import OpenAI
 from pydantic import BaseModel, Field
@@ -83,15 +83,15 @@ class PrioChatRequest(BaseModel):
     last_created_task: dict[str, Any] | None = None
 
 
-def fetch_task_context(task_id: str):
-    task_res = supabase.table("tasks").select("*").eq("id", task_id).single().execute()
+def fetch_task_context(task_id: str, client: Client):
+    task_res = client.table("tasks").select("*").eq("id", task_id).single().execute()
     task = task_res.data
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    notes_res = supabase.table("task_notes").select("content, created_at").eq("task_id", task_id).execute()
-    checklist_res = supabase.table("checklist_items").select("content, is_completed").eq("task_id", task_id).execute()
-    resources_res = supabase.table("resources").select("title, url").eq("task_id", task_id).execute()
+    notes_res = client.table("task_notes").select("content, created_at").eq("task_id", task_id).execute()
+    checklist_res = client.table("checklist_items").select("content, is_completed").eq("task_id", task_id).execute()
+    resources_res = client.table("resources").select("title, url").eq("task_id", task_id).execute()
 
     notes = notes_res.data or []
     checklists = checklist_res.data or []
@@ -127,6 +127,14 @@ def fetch_task_context(task_id: str):
 
     return task, notes, checklists, "\n".join(context_parts)
 
+def get_user_client(request: Request) -> Client:
+    auth_header = request.headers.get("Authorization")
+    if auth_header:
+        client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        client.postgrest.auth(auth_header.replace("Bearer ", ""))
+        return client
+    return supabase
+
 def get_embedding(text: str):
     try:
         if not openai_client:
@@ -146,7 +154,7 @@ def get_embedding(text: str):
         return [random.uniform(-0.1, 0.1) for _ in range(1536)]
 
 
-def build_task_messages(task, full_context: str, mode: str, question: str | None = None):
+def build_task_messages(task, full_context: str, mode: str, question: str | None = None, checklists: list | None = None):
     system_message = """
 \u00c9s o copiloto de produtividade do Prioriza.
 O teu \u00e2mbito \u00e9 exclusivamente: produtividade, tarefas, prioridades, cronograma, estudo/trabalho, notas, checklist, recursos, tempo e pr\u00f3ximos passos.
@@ -155,18 +163,24 @@ Responde em portugu\u00eas de Portugal, com clareza e objetividade.
 """.strip()
 
     if mode == "subtasks":
+        existing_items = "\n".join(
+            f"- {item.get('content', '')}" for item in (checklists if isinstance(checklists, list) else [])
+        ) or "Nenhum item existente."
         user_message = f"""
-Analisa o contexto da tarefa e gera sugest\u00f5es relacionadas diretamente com o tema/nome da tarefa: {task.get('title')}.
+Analisa o contexto da tarefa e gera sugestões relacionadas diretamente com o tema/nome da tarefa: {task.get('title')}.
 
-Retorna APENAS um JSON v\u00e1lido com esta estrutura:
-{{"title":"Sugest\u00f5es para {task.get('title')}","items":["item 1","item 2","item 3"]}}
+Retorna APENAS um JSON válido com esta estrutura:
+{{"title":"Sugestões para {task.get('title')}","items":["item 1","item 2","item 3"]}}
 
 Regras:
-- Gera de 3 a 5 itens pr\u00e1ticos, espec\u00edficos e acion\u00e1veis.
-- As sugest\u00f5es devem ser relacionadas com a tarefa, notas, checklist, links e estado atual.
-- Evita repetir itens j\u00e1 existentes na checklist.
-- Se faltar informa\u00e7\u00e3o para definir prioridade, inclui uma sugest\u00e3o de clarifica\u00e7\u00e3o.
-- N\u00e3o uses markdown, numera\u00e7\u00e3o ou texto extra.
+- Gera de 3 a 5 itens práticos, específicos e acionáveis.
+- As sugestões devem ser relacionadas com a tarefa, notas, checklist, links e estado atual.
+- NUNCA repitas nenhum dos itens já existentes listados abaixo. Cada sugestão deve ser DIFERENTE.
+- Se faltar informação para definir prioridade, inclui uma sugestão de clarificação.
+- Não uses markdown, numeração ou texto extra.
+
+ITENS JÁ EXISTENTES NA CHECKLIST (NÃO REPETIR):
+{existing_items}
 
 CONTEXTO COMPLETO DA TAREFA:
 {full_context}
@@ -224,14 +238,14 @@ def parse_json_content(raw_content: str):
     return json.loads(candidate)
 
 
-def call_openrouter(task, full_context: str, mode: str, question: str | None = None):
+def call_openrouter(task, full_context: str, mode: str, question: str | None = None, checklists: list | None = None):
     if not openrouter_client:
         raise HTTPException(
             status_code=503,
             detail="OPENROUTER_API_KEY não configurada. Adicione a chave no .env.local para ativar a IA.",
         )
 
-    messages = build_task_messages(task, full_context, mode, question)
+    messages = build_task_messages(task, full_context, mode, question, checklists=checklists)
     request_kwargs = {
         "model": OPENROUTER_MODEL,
         "messages": messages,
@@ -445,31 +459,35 @@ Guardrails obrigatórios:
 - Se o utilizador pedir temas fora deste domínio, responde curto: "Só consigo ajudar com produtividade e tarefas no Prioriza." e redireciona para uma ação útil.
 - Não inventes dados. Usa apenas PERFIL, TAREFAS, HISTÓRICO_RECENTE e ÚLTIMA_TAREFA_CRIADA.
 - Não executes ações destrutivas. Nunca apagar tarefas, notas, conta, email, senha ou dados sem confirmação explícita no UI.
-- Para ajudar a definir prioridade, se faltar informação, faz exatamente 3 perguntas: prazo/consequência, impacto no objetivo, esforço/bloqueios.
-- Depois de receber respostas suficientes, classifica em P1-P5, sugere ordem de execução, checklist e tempo estimado.
+- Sê muito amigável, direto e prestativo.
+- Se o utilizador quiser criar uma tarefa, CRIA a tarefa imediatamente com a ação 'create_task'. Não faças perguntas rígidas. Usa o teu bom senso para deduzir prioridade, checklist e estimativa de tempo com base no que ele escreveu.
+- Depois de criar a tarefa, confirma na resposta que a tarefa foi criada e dá dicas úteis.
+- Classifica prioridades de P1 a P5 automaticamente com base na urgência e impacto.
 
 Podes:
-- fazer mini relat\u00f3rios de produtividade;
+- fazer mini relatórios de produtividade;
 - responder sobre prazos, prioridades, atrasos, XP e foco;
-- sugerir cronograma autom\u00e1tico mantendo tudo edit\u00e1vel manualmente;
+- sugerir cronograma automático mantendo tudo editável manualmente;
 - criar tarefas quando o utilizador pedir;
-- configurar hor\u00e1rios de trabalho/disponibilidade quando o utilizador pedir;
-- complementar a \u00faltima tarefa criada quando o utilizador der prazo ou detalhes depois.
+- configurar horários de trabalho/disponibilidade quando o utilizador pedir;
+- complementar a última tarefa criada quando o utilizador der prazo ou detalhes depois;
+- adicionar links/recursos (URLs) a uma tarefa quando o utilizador pedir;
 
 Retorna APENAS JSON v\u00e1lido com esta estrutura:
 {
   "reply": "mensagem curta ao utilizador",
   "action": {
-    "type": "none|create_task|update_last_task|update_task|update_work_hours",
+    "type": "none|create_task|update_last_task|update_task|update_work_hours|add_resources",
     "task": {
-      "id": "uuid da tarefa a editar (obrigatório se type for update_task)",
+      "id": "uuid da tarefa a editar (obrigatório se type for update_task ou add_resources)",
       "title": "string",
       "description": "string",
       "priority": 1,
       "estimated_minutes": 60,
       "due_date": "ISO-8601 ou null",
       "checklist": ["item 1", "item 2"],
-      "note": "string"
+      "note": "string",
+      "resources": [{"url": "https://...", "title": "titulo do recurso"}]
     },
     "work_hours": {
       "Seg": [{"start": "09:00", "end": "17:00"}]
@@ -478,11 +496,13 @@ Retorna APENAS JSON v\u00e1lido com esta estrutura:
 }
 
 Regras:
-- Se n\u00e3o houver a\u00e7\u00e3o, usa {"type":"none","task":null}.
-- Para nova tarefa, cria checklist com 3 a 6 itens, nota importante e estimativa se o utilizador n\u00e3o informar.
-- Para update_work_hours, usa dias Seg/Ter/Qua/Qui/Sex/S\u00e1b/Dom e intervalos HH:MM.
-- Se o utilizador disser "amanh\u00e3" sem hora, usa amanh\u00e3 \u00e0s 18:00.
-- S\u00ea assertivo, mas mant\u00e9m tudo edit\u00e1vel manualmente.
+- Se não houver ação, usa {"type":"none","task":null}.
+- Para nova tarefa, cria checklist com 3 a 6 itens, nota importante e estimativa se o utilizador não informar.
+- Para update_work_hours, usa dias Seg/Ter/Qua/Qui/Sex/Sáb/Dom e intervalos HH:MM.
+- Se o utilizador disser "amanhã" sem hora, usa amanhã às 18:00.
+- Sê assertivo, mas mantém tudo editável manualmente.
+- Para add_resources, o campo 'task.id' é obrigatório (uuid da tarefa onde adicionar os links). Gera URLs reais e verificáveis (YouTube, artigos conhecidos, documentação oficial). Se não tiveres certeza de URLs exatas, gera URLs de pesquisa Google/YouTube com os termos relevantes (ex: https://www.youtube.com/results?search_query=apresentacao+profissional).
+- Quando o utilizador pedir 'links', 'recursos', 'vídeos' ou 'materiais', usa SEMPRE a ação add_resources. NUNCA cries uma tarefa nova para isso.
 """.strip()
 
     user_message = f"""
@@ -535,9 +555,10 @@ async def generate_and_save_embedding(req: EmbedRequest):
 
 
 @app.post("/query")
-async def query_task_context(req: QueryRequest):
+async def query_task_context(req: QueryRequest, request: Request):
     try:
-        task, notes, checklists, full_context = fetch_task_context(req.task_id)
+        client = get_user_client(request)
+        task, notes, checklists, full_context = fetch_task_context(req.task_id, client)
 
         prompt = f"""
 Você é um assistente de IA integrado na tarefa "{task.get('title')}" do aplicativo Prioriza.
@@ -579,12 +600,13 @@ PERGUNTA DO USUÁRIO:
 
 
 @app.post("/ai/task-insight")
-async def generate_task_insight(req: TaskInsightRequest):
+async def generate_task_insight(req: TaskInsightRequest, request: Request):
     try:
-        task, notes, checklists, full_context = fetch_task_context(req.task_id)
+        client = get_user_client(request)
+        task, notes, checklists, full_context = fetch_task_context(req.task_id, client)
 
         if req.mode == "subtasks":
-            raw_content = call_openrouter(task, full_context, "subtasks")
+            raw_content = call_openrouter(task, full_context, "subtasks", checklists=checklists)
             try:
                 parsed = parse_json_content(raw_content)
                 items = parsed.get("items", [])
@@ -602,9 +624,9 @@ async def generate_task_insight(req: TaskInsightRequest):
             cleaned_items = [str(item).strip() for item in items if str(item).strip()]
             if not cleaned_items:
                 cleaned_items = [
-                    "Definir o escopo e os próximos passos",
-                    "Executar a parte principal da tarefa",
-                    "Validar e ajustar o resultado final",
+                    f"Planear os passos concretos para: {task.get('title', 'esta tarefa')}",
+                    f"Executar a ação principal de: {task.get('title', 'esta tarefa')}",
+                    f"Rever e validar o resultado de: {task.get('title', 'esta tarefa')}",
                 ]
             return {
                 "type": "subtasks",
@@ -664,10 +686,14 @@ async def prio_chat(req: PrioChatRequest):
             response = openrouter_client.chat.completions.create(**request_kwargs)
 
         raw_content = response.choices[0].message.content or ""
-        parsed = parse_json_content(raw_content)
-        action = parsed.get("action") or {"type": "none", "task": None}
+        try:
+            parsed = parse_json_content(raw_content)
+            action = parsed.get("action") or {"type": "none", "task": None}
+        except Exception:
+            parsed = {"reply": raw_content.strip()}
+            action = {"type": "none", "task": None}
 
-        if action.get("type") == "none":
+        if action and action.get("type") == "none":
             action = None
 
         return {

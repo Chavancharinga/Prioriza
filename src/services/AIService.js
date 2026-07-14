@@ -1,11 +1,17 @@
+import { supabase } from '../lib/supabase'
+
 const AI_API_BASE_URL = import.meta.env.PROD ? '' : (import.meta.env.VITE_AI_API_URL || 'http://localhost:8000')
 
 async function requestTaskInsight(taskId, mode) {
+    const { data: { session } } = await supabase.auth.getSession()
+    const headers = { 'Content-Type': 'application/json' }
+    if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`
+    }
+
     const response = await fetch(`${AI_API_BASE_URL}/ai/task-insight`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers,
         body: JSON.stringify({
             task_id: taskId,
             mode
@@ -22,11 +28,15 @@ async function requestTaskInsight(taskId, mode) {
 }
 
 async function prioChat(payload) {
+    const { data: { session } } = await supabase.auth.getSession()
+    const headers = { 'Content-Type': 'application/json' }
+    if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`
+    }
+
     const response = await fetch(`${AI_API_BASE_URL}/ai/prio-chat`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers,
         body: JSON.stringify(payload)
     })
 
