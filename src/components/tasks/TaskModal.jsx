@@ -152,7 +152,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
                         new Date(taskToEdit.due_date).getTime() === dueObj.getTime()
                         
                     if (!isExistingPastDate) {
-                        throw new Error('A data não pode estar no passado, senão perdes XP! 😅 Verifica o ano ou o mês.')
+                        throw new Error('Essa data já não é válida.')
                     }
                 }
             }
