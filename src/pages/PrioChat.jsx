@@ -536,7 +536,7 @@ export default function PrioChat({ profile, onProfileUpdate }) {
                                     sendMessage()
                                 }
                             }}
-                            placeholder="Ex: PRIO, crie uma tarefa para corrigir uma função do meu código amanhã."
+                            placeholder=""
                             className="min-h-14 max-h-20 min-w-0 flex-1 resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium outline-none transition focus:border-[rgba(30,58,138,0.34)] focus:ring-4 focus:ring-[rgba(30,58,138,0.12)]"
                         />
                         <button
