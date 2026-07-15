@@ -89,6 +89,20 @@ export default function Home({ profile, onNavigate }) {
         .filter(t => t.status !== 'Feito')
         .sort((a, b) => a.priority - b.priority)
 
+    const nextUpcomingTask = tasks
+        .filter(task => {
+            if (task.status === 'Feito' || !task.due_date) return false
+            const dueDate = new Date(task.due_date)
+            const today = new Date()
+            dueDate.setHours(0, 0, 0, 0)
+            today.setHours(0, 0, 0, 0)
+            return dueDate.getTime() > today.getTime()
+        })
+        .sort((first, second) => {
+            const dueDifference = new Date(first.due_date) - new Date(second.due_date)
+            return dueDifference || first.priority - second.priority
+        })[0]
+
     const priorityColors = {
         1: { bg: 'bg-red-600', text: 'text-red-600', border: 'border-red-600' },
         2: { bg: 'bg-orange-500', text: 'text-orange-500', border: 'border-orange-500' },
@@ -219,8 +233,24 @@ export default function Home({ profile, onNavigate }) {
 
                     {upcomingTasks.length === 0 ? (
                         <div className="text-center py-10 flex flex-col items-center gap-3">
-                            <CheckCircle2 className="w-12 h-12 text-emerald-500 animate-bounce" />
-                            <p className="font-black text-slate-500 text-sm">Todas as missões concluídas por hoje! Bom trabalho!</p>
+                            {nextUpcomingTask ? (
+                                <>
+                                    <Calendar className="w-12 h-12 text-(--color-prioriza-blue)" />
+                                    <p className="font-black text-slate-600 text-sm">Não existem missões pendentes para hoje.</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleTaskClick(nextUpcomingTask)}
+                                        className="max-w-full rounded-xl bg-[rgba(30,58,138,0.08)] px-4 py-2 text-xs font-black text-(--color-prioriza-blue)"
+                                    >
+                                        Próxima: {nextUpcomingTask.title} · {new Date(nextUpcomingTask.due_date).toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' })}
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <CheckCircle2 className="w-12 h-12 text-(--color-prioriza-blue)" />
+                                    <p className="font-black text-slate-500 text-sm">Não existem missões pendentes para hoje.</p>
+                                </>
+                            )}
                         </div>
                     ) : (
                         <div className="max-h-[398px] space-y-3.5 overflow-y-auto pr-1">

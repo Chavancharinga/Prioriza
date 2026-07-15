@@ -4,6 +4,7 @@ import { AIService } from '../services/AIService'
 import { TaskService } from '../services/TaskService'
 import { ProfileService } from '../services/ProfileService'
 import { ResourceService } from '../services/ResourceService'
+import { PrioChatService } from '../services/PrioChatService'
 
 const quickPrompts = [
     'PRIO, faz um mini relatório da minha produtividade.',
@@ -20,6 +21,7 @@ const initialMessages = [
 ]
 
 const CHAT_STORAGE_KEY = 'prioriza_prio_chats'
+const MAX_CHATS = 12
 const WORK_DAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
 const TASK_STATUSES = ['A Fazer', 'Em Progresso', 'Feito']
 
@@ -29,6 +31,7 @@ function createChat() {
         title: 'Novo chat',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        pendingTaskCreation: false,
         messages: initialMessages
     }
 }
@@ -249,12 +252,12 @@ function buildPriorityQuestionsReply(message) {
     ].join(' ')
 }
 
-function buildFallbackAction(message) {
+function buildFallbackAction(message, forceCreate = false) {
     const workHoursAction = buildWorkHoursAction(message)
     if (workHoursAction) return workHoursAction
 
     const text = message.toLowerCase()
-    if (!wantsCreateTask(message)) return null
+    if (!forceCreate && !wantsCreateTask(message)) return null
 
     const titleMatch = message.match(/(?:para|tarefa)\s+(.+?)(?:\s+amanh[ãa]|\s+hoje|\s+até|\s+prazo|$)/i)
     const extractedTitle = cleanTaskTitle(titleMatch?.[1] || '')
@@ -386,7 +389,7 @@ function parseEmbeddedPrioResponse(response) {
     return response
 }
 
-function normalizePrioResponse(response, message) {
+function normalizePrioResponse(response, message, { creationRequested = false } = {}) {
     const parsedResponse = parseEmbeddedPrioResponse(response)
     const rawAction = parsedResponse?.action
     const actionWithResourceIntent = wantsResources(message)
@@ -404,7 +407,7 @@ function normalizePrioResponse(response, message) {
             }
         }
     }
-    if (wantsCreateTask(message) && !normalizedAction) {
+    if (creationRequested && !normalizedAction) {
         return {
             reply: buildTaskDetailsReply(),
             action: null
@@ -433,43 +436,102 @@ function normalizePrioResponse(response, message) {
     }
 }
 
+function getStoredChats() {
+    if (typeof window === 'undefined') return [createChat()]
+
+    try {
+        const saved = JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || '[]')
+        return Array.isArray(saved) && saved.length ? saved : [createChat()]
+    } catch {
+        return [createChat()]
+    }
+}
+
+function mergeChats(localChats = [], remoteChats = []) {
+    const chatsById = new Map()
+    const isUntouchedNewChat = chat => (
+        chat.title === 'Novo chat'
+        && !chat.pendingTaskCreation
+        && Array.isArray(chat.messages)
+        && chat.messages.length === initialMessages.length
+        && chat.messages[0]?.role === 'assistant'
+        && chat.messages[0]?.content === initialMessages[0].content
+    )
+    const localChatsToMerge = remoteChats.length
+        ? localChats.filter(chat => !isUntouchedNewChat(chat))
+        : localChats
+
+    for (const chat of [...remoteChats, ...localChatsToMerge]) {
+        const existing = chatsById.get(chat.id)
+        const existingDate = existing ? new Date(existing.updatedAt || 0).getTime() : 0
+        const incomingDate = new Date(chat.updatedAt || 0).getTime()
+        if (!existing || incomingDate >= existingDate) chatsById.set(chat.id, chat)
+    }
+
+    return [...chatsById.values()]
+        .sort((first, second) => new Date(second.updatedAt || 0) - new Date(first.updatedAt || 0))
+        .slice(0, MAX_CHATS)
+}
+
 export default function PrioChat({ profile, onProfileUpdate, onOpenTaskWorkspace }) {
     const [tasks, setTasks] = useState([])
-    const [chats, setChats] = useState(() => {
-        if (typeof window === 'undefined') return [createChat()]
-        try {
-            const saved = JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || '[]')
-            return Array.isArray(saved) && saved.length ? saved : [createChat()]
-        } catch {
-            return [createChat()]
-        }
-    })
-    const [activeChatId, setActiveChatId] = useState(() => {
-        if (typeof window === 'undefined') return null
-        try {
-            const saved = JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || '[]')
-            return Array.isArray(saved) && saved[0]?.id ? saved[0].id : null
-        } catch {
-            return null
-        }
-    })
+    const [chats, setChats] = useState(getStoredChats)
+    const [activeChatId, setActiveChatId] = useState(() => getStoredChats()[0]?.id || null)
     const [input, setInput] = useState('')
     const [loading, setLoading] = useState(false)
     const [lastCreatedTask, setLastCreatedTask] = useState(null)
+    const [chatsHydrated, setChatsHydrated] = useState(false)
     const messagesEndRef = useRef(null)
+    const saveChatsTimerRef = useRef(null)
 
     const activeChat = useMemo(() => chats.find(chat => chat.id === activeChatId) || chats[0] || createChat(), [activeChatId, chats])
     const messages = activeChat.messages || initialMessages
 
     useEffect(() => {
-        if (!activeChatId && chats[0]?.id) setActiveChatId(chats[0].id)
+        if (!chats.some(chat => chat.id === activeChatId)) setActiveChatId(chats[0]?.id || null)
     }, [activeChatId, chats])
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chats.slice(0, 12)))
+        let cancelled = false
+
+        async function hydrateChats() {
+            try {
+                const remoteChats = await PrioChatService.getChats()
+                if (!cancelled) {
+                    setChats(currentChats => {
+                        const mergedChats = mergeChats(currentChats, remoteChats)
+                        return mergedChats.length ? mergedChats : [createChat()]
+                    })
+                }
+            } catch (error) {
+                console.warn('Não foi possível sincronizar o histórico do PRIO:', error)
+            } finally {
+                if (!cancelled) setChatsHydrated(true)
+            }
         }
-    }, [chats])
+
+        hydrateChats()
+        return () => {
+            cancelled = true
+        }
+    }, [])
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chats.slice(0, MAX_CHATS)))
+        }
+
+        if (!chatsHydrated || typeof window === 'undefined') return undefined
+
+        window.clearTimeout(saveChatsTimerRef.current)
+        saveChatsTimerRef.current = window.setTimeout(() => {
+            PrioChatService.saveChats(chats).catch(error => {
+                console.warn('Não foi possível guardar o histórico do PRIO:', error)
+            })
+        }, 350)
+
+        return () => window.clearTimeout(saveChatsTimerRef.current)
+    }, [chats, chatsHydrated])
 
     const stats = useMemo(() => {
         const total = tasks.length
@@ -506,9 +568,17 @@ export default function PrioChat({ profile, onProfileUpdate, onOpenTaskWorkspace
         }))
     }
 
+    function setChatPendingTaskCreation(chatId, pendingTaskCreation) {
+        setChats(prev => prev.map(chat => (
+            chat.id === chatId
+                ? { ...chat, pendingTaskCreation, updatedAt: new Date().toISOString() }
+                : chat
+        )))
+    }
+
     function handleNewChat() {
         const chat = createChat()
-        setChats(prev => [chat, ...prev].slice(0, 12))
+        setChats(prev => [chat, ...prev].slice(0, MAX_CHATS))
         setActiveChatId(chat.id)
         setInput('')
     }
@@ -579,17 +649,7 @@ export default function PrioChat({ profile, onProfileUpdate, onOpenTaskWorkspace
         }
 
         if (action.type === 'update_work_hours') {
-            const currentPreferences = profile?.['preferências'] || {}
-            const currentWorkHours = currentPreferences.work_hours || {}
-            const nextPreferences = {
-                ...currentPreferences,
-                work_hours: {
-                    ...currentWorkHours,
-                    ...action.work_hours
-                }
-            }
-
-            await ProfileService.updateProfile({ preferências: nextPreferences })
+            await ProfileService.updateWorkHours(action.work_hours)
             await onProfileUpdate?.()
 
             const days = Object.entries(action.work_hours)
@@ -675,6 +735,8 @@ export default function PrioChat({ profile, onProfileUpdate, onOpenTaskWorkspace
         if (!message || loading) return
 
         const chatId = activeChat.id
+        const awaitingTaskDetails = Boolean(activeChat.pendingTaskCreation)
+        const creationRequested = wantsCreateTask(message) || awaitingTaskDetails
 
         setInput('')
         setLoading(true)
@@ -691,10 +753,11 @@ export default function PrioChat({ profile, onProfileUpdate, onOpenTaskWorkspace
                     profile,
                     capabilities: ['create_task', 'update_last_task', 'update_task', 'update_work_hours', 'add_resources', 'suggest_schedule', 'report_productivity'],
                     history: messages.slice(-8),
-                    last_created_task: lastCreatedTask
+                    last_created_task: lastCreatedTask,
+                    awaiting_task_details: awaitingTaskDetails
                 })
             } catch (error) {
-                const fallbackAction = buildFallbackAction(message)
+                const fallbackAction = buildFallbackAction(message, awaitingTaskDetails)
                 const priorityReply = buildPriorityQuestionsReply(message)
                 const fallbackReply = fallbackAction?.type === 'update_work_hours'
                     ? 'Consigo atualizar esse horário agora. Como o backend da IA não respondeu, usei o modo local e apliquei a disponibilidade no seu perfil.'
@@ -705,7 +768,7 @@ export default function PrioChat({ profile, onProfileUpdate, onOpenTaskWorkspace
                     reply: fallbackReply,
                     action: fallbackAction
                 }
-                if (!fallbackAction && wantsCreateTask(message)) {
+                if (!fallbackAction && creationRequested) {
                     response = {
                         reply: buildTaskDetailsReply(),
                         action: null
@@ -714,7 +777,17 @@ export default function PrioChat({ profile, onProfileUpdate, onOpenTaskWorkspace
                 console.warn('PRIO local fallback:', error)
             }
 
-            response = normalizePrioResponse(response, message)
+            response = normalizePrioResponse(response, message, { creationRequested })
+            if (creationRequested && response.action?.type !== 'create_task') {
+                const fallbackCreateAction = buildFallbackAction(message, awaitingTaskDetails)
+                if (fallbackCreateAction?.type === 'create_task') {
+                    response = {
+                        ...response,
+                        reply: 'Perfeito. Vou criar essa tarefa com uma estimativa, checklist e nota que podes editar quando quiseres.',
+                        action: fallbackCreateAction
+                    }
+                }
+            }
             const resolvedAction = resolveActionForMessage(response.action, message, taskSnapshot)
             if (wantsStatusChange(message) && resolvedAction?.type === 'update_task') {
                 response = {
@@ -727,6 +800,7 @@ export default function PrioChat({ profile, onProfileUpdate, onOpenTaskWorkspace
             }
             updateActiveChatMessages(prev => [...prev, { role: 'assistant', content: response.reply || buildLocalReport(taskSnapshot, profile) }], chatId)
             const actionResult = await applyAction(response.action, message, taskSnapshot)
+            setChatPendingTaskCreation(chatId, creationRequested && !actionResult && response.action?.type !== 'create_task')
             if (actionResult) {
                 const actionMessage = typeof actionResult === 'string'
                     ? { role: 'assistant', content: actionResult }

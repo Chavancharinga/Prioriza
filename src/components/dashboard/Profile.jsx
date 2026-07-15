@@ -62,6 +62,21 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
     async function handleUpdateProfile(e) {
         e.preventDefault()
         try {
+            const invalidSlot = Object.entries(profile.preferências?.work_hours || {})
+                .flatMap(([day, slots]) => (slots || []).map(slot => ({ day, ...slot })))
+                .find(slot => !slot.start || !slot.end || slot.start >= slot.end)
+
+            if (invalidSlot) {
+                setConfirmation({
+                    isOpen: true,
+                    type: 'error',
+                    title: 'Horário inválido',
+                    message: `Verifique o intervalo de ${invalidSlot.day}: a hora de início deve ser anterior à hora de fim.`,
+                    onConfirm: () => setConfirmation(prev => ({ ...prev, isOpen: false }))
+                })
+                return
+            }
+
             setSaving(true)
             const updates = {
                 username: profile.username.slice(0, 30),
@@ -71,6 +86,12 @@ export default function Profile({ profile: appProfile, onProfileUpdate }) {
                 updated_at: new Date().toISOString(),
             }
             await ProfileService.updateProfile(updates)
+
+            const persistedProfile = await ProfileService.getProfile()
+            setProfile(currentProfile => ({
+                ...currentProfile,
+                preferências: persistedProfile.preferências || {}
+            }))
 
             // Trigger app-wide refresh
             if (onProfileUpdate) await onProfileUpdate()

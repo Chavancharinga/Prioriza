@@ -107,6 +107,22 @@ export const ProfileService = {
         return true
     },
 
+    async updateWorkHours(workHours) {
+        const currentProfile = await this.getProfile()
+        const currentPreferences = currentProfile.preferências || {}
+        const nextPreferences = {
+            ...currentPreferences,
+            work_hours: {
+                ...(currentPreferences.work_hours || {}),
+                ...workHours
+            }
+        }
+
+        await this.updateProfile({ preferências: nextPreferences })
+        const persistedProfile = await this.getProfile()
+        return persistedProfile.preferências?.work_hours || {}
+    },
+
     // Upload Avatar - uses {userId}/{timestamp}.ext path for RLS compatibility
     async uploadAvatar(file) {
         const { data: { user } } = await supabase.auth.getUser()
