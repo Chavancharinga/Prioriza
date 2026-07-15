@@ -635,6 +635,8 @@ Regras:
 - Em due_date devolve ISO-8601 com o offset local correto de Lisboa para a data indicada.
 - Sê assertivo, mas mantém tudo editável manualmente.
 - Para update_task e update_last_task, envia apenas os campos que o utilizador pediu alterar. Para mudar estado, usa obrigatoriamente task.status com um destes valores: "A Fazer", "Em Progresso" ou "Feito".
+- Quando o utilizador disser "dele", "dela", "essa tarefa", "esta tarefa", "a última" ou equivalente, usa a ÚLTIMA_TAREFA_CRIADA como alvo. Não substituas esse alvo por uma tarefa genérica.
+- Um pedido para alterar estado nunca cria uma tarefa nova. Usa update_task ou update_last_task e envia apenas task.status, preservando título, descrição, checklist, prazo e restantes dados.
 - Para add_resources, o campo 'task.id' é obrigatório (uuid da tarefa onde adicionar os links) e task.resources tem de ter pelo menos um URL https válido. Gera URLs reais e verificáveis (YouTube, artigos conhecidos, documentação oficial). Se não tiveres certeza de URLs exatas, gera URLs de pesquisa Google/YouTube com os termos relevantes (ex: https://www.youtube.com/results?search_query=apresentacao+profissional).
 - Quando o utilizador pedir 'links', 'recursos', 'vídeos', 'materiais' ou links no "Diário de Bordo", usa SEMPRE a ação add_resources. Os links serão guardados como recursos e registados no Diário de Bordo da tarefa. NUNCA confirmes que adicionaste links se action.resources estiver vazio ou task.id não existir.
 """.strip()

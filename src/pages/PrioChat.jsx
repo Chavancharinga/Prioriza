@@ -97,8 +97,8 @@ function wantsResources(message = '') {
 }
 
 function wantsStatusChange(message = '') {
-    return /\b(estado|status)\b/i.test(message)
-        && /\b(a fazer|em progresso|feito|concluíd[ao]|concluir)\b/i.test(message)
+    const mentionsStatus = /\b(estado|status|mude|mudar|altere|alterar|coloque|colocar|passe|passar|deixe|deixar)\b/i.test(message)
+    return mentionsStatus && /\b(a fazer|em progresso|feito|concluíd[ao]|concluir)\b/i.test(message)
 }
 
 function cleanTaskTitle(rawTitle = '') {
@@ -110,8 +110,39 @@ function cleanTaskTitle(rawTitle = '') {
 }
 
 function isGenericTaskTitle(title = '') {
+    const rawNormalized = String(title).trim().toLowerCase()
     const normalized = cleanTaskTitle(title).toLowerCase()
-    return !normalized || normalized.length < 4 || ['quero', 'criar', 'tarefa', 'nova tarefa', 'nova tarefa criada pelo prio'].includes(normalized)
+    return !normalized
+        || normalized.length < 4
+        || rawNormalized.includes('nova tarefa criada pelo prio')
+        || ['quero', 'criar', 'tarefa', 'nova tarefa', 'nova tarefa criada pelo prio', 'criada pelo prio'].includes(normalized)
+}
+
+function inferRequestedStatus(message = '') {
+    const text = message.toLowerCase()
+    if (/\b(em progresso|em andamento)\b/.test(text)) return 'Em Progresso'
+    if (/\b(feito|concluíd[ao]|concluir)\b/.test(text)) return 'Feito'
+    if (/\b(a fazer|pendente)\b/.test(text)) return 'A Fazer'
+    return null
+}
+
+function refersToPreviousTask(message = '') {
+    return /\b(dele|dela|deles|delas|essa|esse|esta|este|anterior|última|ultima)\b/i.test(message)
+}
+
+function normalizeComparableText(value = '') {
+    return String(value)
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+}
+
+function findTaskMentionedInMessage(message = '', taskList = []) {
+    const messageText = normalizeComparableText(message)
+    return [...taskList]
+        .filter(task => task?.id && task?.title)
+        .sort((firstTask, secondTask) => String(secondTask.title).length - String(firstTask.title).length)
+        .find(task => messageText.includes(normalizeComparableText(task.title))) || null
 }
 
 function buildTaskDetailsReply() {
@@ -314,7 +345,7 @@ function normalizeAction(action) {
 
 function buildTaskUpdatePayload(task = {}) {
     const updates = {}
-    if (task.title) updates.title = task.title
+    if (task.title && !isGenericTaskTitle(task.title)) updates.title = task.title
     if (typeof task.description === 'string') updates.description = task.description
     if (task.priority) updates.priority = task.priority
     if (task.estimated_minutes) updates.estimated_minutes = task.estimated_minutes
@@ -482,8 +513,37 @@ export default function PrioChat({ profile, onProfileUpdate }) {
         setInput('')
     }
 
-    const applyAction = async (rawAction) => {
+    const resolveActionForMessage = (rawAction, message, taskList = tasks) => {
         const action = normalizeAction(rawAction)
+        const explicitTask = findTaskMentionedInMessage(message, taskList)
+        const actionTask = action?.task?.id ? taskList.find(task => task.id === action.task.id) : null
+        const contextualTask = explicitTask || (refersToPreviousTask(message) ? lastCreatedTask : null) || actionTask
+
+        if (wantsStatusChange(message)) {
+            const status = inferRequestedStatus(message)
+            if (!contextualTask?.id || !status) return null
+
+            return {
+                type: 'update_task',
+                task: {
+                    id: contextualTask.id,
+                    status
+                }
+            }
+        }
+
+        if (action?.type === 'add_resources' && contextualTask?.id) {
+            return {
+                ...action,
+                taskId: contextualTask.id
+            }
+        }
+
+        return action
+    }
+
+    const applyAction = async (rawAction, message, taskList) => {
+        const action = resolveActionForMessage(rawAction, message, taskList)
         if (!action) return null
 
         if (action.type === 'create_task') {
@@ -550,6 +610,8 @@ export default function PrioChat({ profile, onProfileUpdate }) {
 
             await TaskService.createNote(action.taskId, `Recursos adicionados pelo PRIO:\n${journalLines.join('\n')}`)
             await loadTasks()
+            const updatedContext = taskList?.find(task => task.id === action.taskId)
+            if (updatedContext) setLastCreatedTask(updatedContext)
             return `Adicionei ${action.resources.length} link(s) ao Diário de Bordo: ${action.resources.map(resource => resource.title || resource.url).join(', ')}.`
         }
 
@@ -584,6 +646,7 @@ export default function PrioChat({ profile, onProfileUpdate }) {
                 await TaskService.createNote(updated.id, action.task.note)
             }
 
+            setLastCreatedTask(updated)
             await loadTasks()
             return `Atualizei a tarefa solicitada: "${updated.title || 'Sem título'}".`
         }
@@ -636,8 +699,18 @@ export default function PrioChat({ profile, onProfileUpdate }) {
             }
 
             response = normalizePrioResponse(response, message)
+            const resolvedAction = resolveActionForMessage(response.action, message, taskSnapshot)
+            if (wantsStatusChange(message) && resolvedAction?.type === 'update_task') {
+                response = {
+                    ...response,
+                    reply: `Vou colocar a tarefa "${taskSnapshot.find(task => task.id === resolvedAction.task.id)?.title || 'selecionada'}" em ${resolvedAction.task.status}.`,
+                    action: resolvedAction
+                }
+            } else if (resolvedAction) {
+                response = { ...response, action: resolvedAction }
+            }
             updateActiveChatMessages(prev => [...prev, { role: 'assistant', content: response.reply || buildLocalReport(taskSnapshot, profile) }], chatId)
-            const actionResult = await applyAction(response.action)
+            const actionResult = await applyAction(response.action, message, taskSnapshot)
             if (actionResult) {
                 updateActiveChatMessages(prev => [...prev, { role: 'assistant', content: actionResult }], chatId)
             }
