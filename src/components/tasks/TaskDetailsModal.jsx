@@ -4,7 +4,7 @@ import {
     X, Calendar, Clock, CheckSquare, MessageSquare,
     MoreVertical, Trash2, Plus, Send, AlertTriangle,
     Play, Pause, Save, ArrowLeft, CheckCircle, RotateCcw,
-    Activity, Sparkles, Loader2, ArrowRight
+    Activity, Sparkles, Loader2, ArrowRight, ExternalLink, Link2
 } from 'lucide-react'
 import { TaskService } from '../../services/TaskService'
 import { GamificationService } from '../../services/GamificationService'
@@ -39,21 +39,104 @@ function buildLocalSubtaskSuggestions(task) {
     }
 }
 
-function renderNoteContent(content = '') {
-    return String(content).split(/(https?:\/\/[^\s<]+)/gi).map((part, index) => {
-        if (!/^https?:\/\//i.test(part)) return part
-        return (
-            <a
-                key={`${part}-${index}`}
-                href={part}
-                target="_blank"
-                rel="noreferrer"
-                className="font-semibold text-(--color-prioriza-blue) underline underline-offset-2"
-            >
-                {part}
-            </a>
-        )
-    })
+const linkPreviewCache = new Map()
+
+function buildFallbackPreview(url) {
+    try {
+        const parsedUrl = new URL(url)
+        const host = parsedUrl.hostname.replace(/^www\./, '')
+        return {
+            url,
+            title: `${host}${parsedUrl.pathname !== '/' ? parsedUrl.pathname : ''}`,
+            description: 'Abrir recurso externo',
+            image: null,
+            site_name: host,
+            kind: 'link'
+        }
+    } catch {
+        return { url, title: url, description: 'Abrir recurso externo', image: null, site_name: 'Link', kind: 'link' }
+    }
+}
+
+function NoteLinkPreview({ url }) {
+    const [preview, setPreview] = useState(() => linkPreviewCache.get(url) || buildFallbackPreview(url))
+    const [imageAvailable, setImageAvailable] = useState(Boolean(linkPreviewCache.get(url)?.image))
+
+    useEffect(() => {
+        let cancelled = false
+        const cachedPreview = linkPreviewCache.get(url)
+        if (cachedPreview) {
+            return undefined
+        }
+
+        AIService.getLinkPreview(url)
+            .then(result => {
+                const nextPreview = { ...buildFallbackPreview(url), ...result, url }
+                linkPreviewCache.set(url, nextPreview)
+                if (!cancelled) {
+                    setPreview(nextPreview)
+                    setImageAvailable(Boolean(nextPreview.image))
+                }
+            })
+            .catch(() => {
+                if (!cancelled) setPreview(buildFallbackPreview(url))
+            })
+
+        return () => {
+            cancelled = true
+        }
+    }, [url])
+
+    const isVideo = preview.kind === 'video'
+
+    return (
+        <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group my-2 block overflow-hidden rounded-xl border border-slate-200 bg-slate-50/80 transition hover:border-(--color-prioriza-blue) hover:bg-white hover:shadow-sm"
+        >
+            {imageAvailable && (
+                <div className="relative h-28 overflow-hidden bg-slate-100 sm:h-32">
+                    <img
+                        src={preview.image}
+                        alt=""
+                        className="h-full w-full object-cover"
+                        onError={() => setImageAvailable(false)}
+                    />
+                    {isVideo && (
+                        <span className="absolute inset-0 grid place-items-center bg-slate-950/20">
+                            <span className="grid h-10 w-10 place-items-center rounded-full bg-white/90 text-(--color-prioriza-blue) shadow-sm">
+                                <Play className="ml-0.5 h-4 w-4 fill-current" />
+                            </span>
+                        </span>
+                    )}
+                </div>
+            )}
+            <span className="flex items-start gap-3 p-3">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white text-(--color-prioriza-blue) shadow-sm">
+                    {isVideo ? <Play className="h-4 w-4 fill-current" /> : <Link2 className="h-4 w-4" />}
+                </span>
+                <span className="min-w-0 flex-1">
+                    <span className="line-clamp-2 block text-xs font-bold leading-snug text-slate-800">{preview.title}</span>
+                    <span className="mt-1 block truncate text-[10px] font-semibold text-slate-500">{preview.site_name || preview.description}</span>
+                </span>
+                <ExternalLink className="mt-1 h-3.5 w-3.5 shrink-0 text-slate-400 transition group-hover:text-(--color-prioriza-blue)" />
+            </span>
+        </a>
+    )
+}
+
+function NoteContent({ content = '' }) {
+    return (
+        <div className="space-y-1 text-xs leading-relaxed text-slate-700">
+            {String(content).split(/(https?:\/\/[^\s<]+)/gi).map((part, index) => (
+                /^https?:\/\//i.test(part)
+                    ? <NoteLinkPreview key={`${part}-${index}`} url={part} />
+                    : part ? <span key={`${part}-${index}`} className="whitespace-pre-wrap">{part}</span> : null
+            ))}
+        </div>
+    )
 }
 
 export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, onNavigate, profile }) {
@@ -1362,7 +1445,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                                 </div>
                                                 <div className="flex-1">
                                                     <div className="bg-white p-3.5 rounded-2xl rounded-tl-none border-2 border-slate-100 shadow-xs relative group hover:border-slate-200 transition-all">
-                                                        <p className="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">{renderNoteContent(note.content)}</p>
+                                                        <NoteContent content={note.content} />
                                                         <span className="text-[10px] text-gray-400 mt-2 block font-medium">
                                                             {new Date(note.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}
                                                         </span>

@@ -49,9 +49,31 @@ async function prioChat(payload) {
     return data
 }
 
+async function getLinkPreview(url) {
+    const { data: { session } } = await supabase.auth.getSession()
+    const headers = { 'Content-Type': 'application/json' }
+    if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`
+    }
+
+    const response = await fetch(`${AI_API_BASE_URL}/ai/link-preview`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ url })
+    })
+
+    const data = await response.json().catch(() => ({}))
+    if (!response.ok) {
+        throw new Error(data?.detail || 'Não foi possível carregar a pré-visualização do link.')
+    }
+
+    return data
+}
+
 export const AIService = {
     requestTaskInsight,
     prioChat,
+    getLinkPreview,
 
     suggestSubtasks(taskId) {
         return requestTaskInsight(taskId, 'subtasks')

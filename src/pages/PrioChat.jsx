@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Bot, CalendarClock, CheckCircle2, Clock, Loader2, MessageSquarePlus, Plus, Send, Sparkles, Trophy } from 'lucide-react'
+import { Bot, CalendarClock, CheckCircle2, Clock, ExternalLink, Loader2, MessageSquarePlus, Plus, Send, Sparkles, Trophy } from 'lucide-react'
 import { AIService } from '../services/AIService'
 import { TaskService } from '../services/TaskService'
 import { ProfileService } from '../services/ProfileService'
@@ -433,7 +433,7 @@ function normalizePrioResponse(response, message) {
     }
 }
 
-export default function PrioChat({ profile, onProfileUpdate }) {
+export default function PrioChat({ profile, onProfileUpdate, onOpenTaskWorkspace }) {
     const [tasks, setTasks] = useState([])
     const [chats, setChats] = useState(() => {
         if (typeof window === 'undefined') return [createChat()]
@@ -571,7 +571,11 @@ export default function PrioChat({ profile, onProfileUpdate }) {
                 ? ` · prazo ${new Intl.DateTimeFormat('pt-PT', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(created.due_date))}`
                 : ''
 
-            return `Tarefa criada: "${created.title}" · P${created.priority} · ${created.estimated_minutes || 30}min${dueText}.`
+            return {
+                content: `Tarefa criada: "${created.title}" · P${created.priority} · ${created.estimated_minutes || 30}min${dueText}.`,
+                taskId: created.id,
+                taskTitle: created.title
+            }
         }
 
         if (action.type === 'update_work_hours') {
@@ -612,7 +616,11 @@ export default function PrioChat({ profile, onProfileUpdate }) {
             await loadTasks()
             const updatedContext = taskList?.find(task => task.id === action.taskId)
             if (updatedContext) setLastCreatedTask(updatedContext)
-            return `Adicionei ${action.resources.length} link(s) ao Diário de Bordo: ${action.resources.map(resource => resource.title || resource.url).join(', ')}.`
+            return {
+                content: `Adicionei ${action.resources.length} link(s) ao Diário de Bordo: ${action.resources.map(resource => resource.title || resource.url).join(', ')}.`,
+                taskId: action.taskId,
+                taskTitle: updatedContext?.title || 'Tarefa atualizada'
+            }
         }
 
         if (action.type === 'update_last_task' && lastCreatedTask?.id) {
@@ -630,7 +638,11 @@ export default function PrioChat({ profile, onProfileUpdate }) {
 
             setLastCreatedTask(updated)
             await loadTasks()
-            return `Atualizei a última tarefa: "${updated.title}".`
+            return {
+                content: `Atualizei a última tarefa: "${updated.title}".`,
+                taskId: updated.id,
+                taskTitle: updated.title
+            }
         }
 
         if (action.type === 'update_task' && action.task?.id) {
@@ -648,7 +660,11 @@ export default function PrioChat({ profile, onProfileUpdate }) {
 
             setLastCreatedTask(updated)
             await loadTasks()
-            return `Atualizei a tarefa solicitada: "${updated.title || 'Sem título'}".`
+            return {
+                content: `Atualizei a tarefa solicitada: "${updated.title || 'Sem título'}".`,
+                taskId: updated.id,
+                taskTitle: updated.title || 'Tarefa atualizada'
+            }
         }
 
         return null
@@ -712,7 +728,10 @@ export default function PrioChat({ profile, onProfileUpdate }) {
             updateActiveChatMessages(prev => [...prev, { role: 'assistant', content: response.reply || buildLocalReport(taskSnapshot, profile) }], chatId)
             const actionResult = await applyAction(response.action, message, taskSnapshot)
             if (actionResult) {
-                updateActiveChatMessages(prev => [...prev, { role: 'assistant', content: actionResult }], chatId)
+                const actionMessage = typeof actionResult === 'string'
+                    ? { role: 'assistant', content: actionResult }
+                    : { role: 'assistant', ...actionResult }
+                updateActiveChatMessages(prev => [...prev, actionMessage], chatId)
             }
         } catch (error) {
             updateActiveChatMessages(prev => [...prev, { role: 'assistant', content: `Não consegui concluir agora: ${error.message}` }], chatId)
@@ -749,6 +768,16 @@ export default function PrioChat({ profile, onProfileUpdate }) {
                         <div key={`${message.role}-${index}`} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                             <div className={`max-w-[88%] rounded-xl px-4 py-3 text-sm leading-relaxed shadow-sm sm:max-w-[82%] ${message.role === 'user' ? 'bg-(--color-prioriza-blue) text-white' : 'border border-slate-100 bg-white text-slate-700'}`}>
                                 <p className="whitespace-pre-wrap font-medium">{message.content}</p>
+                                {message.role === 'assistant' && message.taskId && (
+                                    <button
+                                        type="button"
+                                        onClick={() => onOpenTaskWorkspace?.(message.taskId)}
+                                        className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[rgba(30,58,138,0.10)] px-3 py-2 text-xs font-bold text-(--color-prioriza-blue) transition hover:bg-[rgba(30,58,138,0.16)]"
+                                    >
+                                        <ExternalLink className="h-3.5 w-3.5" />
+                                        Abrir {message.taskTitle || 'tarefa'}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))}

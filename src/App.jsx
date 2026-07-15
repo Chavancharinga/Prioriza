@@ -30,6 +30,7 @@ export default function App() {
   })
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 1024 : true) // Start collapsed (desktop) or hidden (mobile)
   const [profile, setProfile] = useState(null)
+  const [workspaceTaskId, setWorkspaceTaskId] = useState(null)
   const [requirePasswordUpdate, setRequirePasswordUpdate] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [updatingPassword, setUpdatingPassword] = useState(false)
@@ -428,6 +429,12 @@ export default function App() {
                   profile={profile}
                   onProfileUpdate={loadProfile}
                   onNavigate={setActivePage}
+                  workspaceTaskId={workspaceTaskId}
+                  onOpenTaskWorkspace={(taskId) => {
+                    setWorkspaceTaskId(taskId)
+                    setActivePage('tasks')
+                  }}
+                  onWorkspaceTaskOpened={() => setWorkspaceTaskId(null)}
                 />
               </motion.div>
             </AnimatePresence>

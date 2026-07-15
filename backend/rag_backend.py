@@ -1,9 +1,15 @@
 import json
 import os
 import re
+import ipaddress
+import socket
 from datetime import datetime, timedelta
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any, Literal
+from urllib.error import HTTPError, URLError
+from urllib.parse import quote, urljoin, urlparse
+from urllib.request import HTTPRedirectHandler, Request as UrlRequest, build_opener
 from zoneinfo import ZoneInfo
 
 import uvicorn
@@ -85,6 +91,170 @@ class PrioChatRequest(BaseModel):
     capabilities: list[str] = Field(default_factory=list)
     history: list[dict[str, str]] = Field(default_factory=list)
     last_created_task: dict[str, Any] | None = None
+
+
+class LinkPreviewRequest(BaseModel):
+    url: str = Field(min_length=8, max_length=2048)
+
+
+class NoRedirectHandler(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+class PageMetadataParser(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.metadata: dict[str, str] = {}
+        self._inside_title = False
+        self._title_parts: list[str] = []
+
+    def handle_starttag(self, tag, attrs):
+        attributes = {str(key).lower(): str(value or "") for key, value in attrs}
+        if tag.lower() == "title":
+            self._inside_title = True
+        if tag.lower() != "meta":
+            return
+
+        key = (attributes.get("property") or attributes.get("name") or "").lower()
+        content = attributes.get("content", "").strip()
+        if key and content and key not in self.metadata:
+            self.metadata[key] = content
+
+    def handle_endtag(self, tag):
+        if tag.lower() == "title":
+            self._inside_title = False
+
+    def handle_data(self, data):
+        if self._inside_title:
+            self._title_parts.append(data)
+
+    @property
+    def title(self):
+        return " ".join("".join(self._title_parts).split()).strip()
+
+
+def validate_public_url(raw_url: str):
+    parsed = urlparse(raw_url.strip())
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname or parsed.username or parsed.password:
+        raise HTTPException(status_code=400, detail="O link tem de ser um URL público válido com http ou https.")
+
+    hostname = parsed.hostname.lower().rstrip(".")
+    if hostname in {"localhost", "localhost.localdomain"} or hostname.endswith(".local"):
+        raise HTTPException(status_code=400, detail="Não é permitido pré-visualizar endereços locais.")
+
+    try:
+        addresses = {entry[4][0] for entry in socket.getaddrinfo(hostname, parsed.port or 443, type=socket.SOCK_STREAM)}
+    except socket.gaierror as error:
+        raise HTTPException(status_code=400, detail="Não foi possível encontrar este site.") from error
+
+    for address in addresses:
+        ip_address = ipaddress.ip_address(address)
+        if not ip_address.is_global:
+            raise HTTPException(status_code=400, detail="Não é permitido pré-visualizar endereços privados.")
+
+    return parsed
+
+
+def fetch_public_content(raw_url: str, allowed_content_types: tuple[str, ...]):
+    current_url = raw_url
+    opener = build_opener(NoRedirectHandler())
+
+    for _ in range(4):
+        validate_public_url(current_url)
+        request = UrlRequest(current_url, headers={"User-Agent": "Prioriza-LinkPreview/1.0 (+https://prioriza-app-three.vercel.app)"})
+        try:
+            response = opener.open(request, timeout=5)
+        except HTTPError as error:
+            if error.code in {301, 302, 303, 307, 308} and error.headers.get("Location"):
+                current_url = urljoin(current_url, error.headers["Location"])
+                continue
+            raise
+        except URLError:
+            raise
+
+        content_type = response.headers.get_content_type().lower()
+        if not any(content_type.startswith(allowed_type) for allowed_type in allowed_content_types):
+            raise ValueError("O endereço não disponibiliza conteúdo compatível para pré-visualização.")
+
+        content = response.read(400_000)
+        charset = response.headers.get_content_charset() or "utf-8"
+        return content.decode(charset, errors="replace"), response.geturl()
+
+    raise ValueError("O site redirecionou demasiadas vezes.")
+
+
+def get_youtube_video_id(url: str):
+    parsed = urlparse(url)
+    hostname = parsed.hostname.lower() if parsed.hostname else ""
+    if hostname in {"youtu.be", "www.youtu.be"}:
+        return parsed.path.strip("/").split("/")[0] or None
+    if "youtube.com" not in hostname:
+        return None
+    if parsed.path == "/watch":
+        return next((value.split("=", 1)[1] for value in parsed.query.split("&") if value.startswith("v=")), None)
+    if parsed.path.startswith(("/shorts/", "/embed/")):
+        return parsed.path.split("/")[2] if len(parsed.path.split("/")) > 2 else None
+    return None
+
+
+def fallback_preview(raw_url: str):
+    parsed = urlparse(raw_url)
+    hostname = (parsed.hostname or "Link").removeprefix("www.")
+    title = hostname + (parsed.path if parsed.path not in {"", "/"} else "")
+    return {
+        "url": raw_url,
+        "title": title[:180],
+        "description": "Abrir recurso externo",
+        "image": None,
+        "site_name": hostname,
+        "kind": "link",
+    }
+
+
+def build_link_preview(raw_url: str):
+    validate_public_url(raw_url)
+    youtube_id = get_youtube_video_id(raw_url)
+    if youtube_id:
+        try:
+            oembed_url = f"https://www.youtube.com/oembed?url={quote(raw_url, safe='')}&format=json"
+            content, _ = fetch_public_content(oembed_url, ("application/json", "text/json"))
+            payload = json.loads(content)
+            return {
+                "url": raw_url,
+                "title": str(payload.get("title") or "Vídeo do YouTube").strip(),
+                "description": str(payload.get("author_name") or "YouTube").strip(),
+                "image": str(payload.get("thumbnail_url") or f"https://img.youtube.com/vi/{youtube_id}/hqdefault.jpg").strip(),
+                "site_name": "YouTube",
+                "kind": "video",
+            }
+        except Exception:
+            return {
+                "url": raw_url,
+                "title": "Vídeo do YouTube",
+                "description": "Abrir no YouTube",
+                "image": f"https://img.youtube.com/vi/{youtube_id}/hqdefault.jpg",
+                "site_name": "YouTube",
+                "kind": "video",
+            }
+
+    try:
+        document, final_url = fetch_public_content(raw_url, ("text/html", "application/xhtml+xml"))
+        parser = PageMetadataParser()
+        parser.feed(document)
+        metadata = parser.metadata
+        parsed_final_url = urlparse(final_url)
+        preview_image = metadata.get("og:image") or metadata.get("twitter:image") or None
+        return {
+            "url": raw_url,
+            "title": metadata.get("og:title") or metadata.get("twitter:title") or parser.title or fallback_preview(raw_url)["title"],
+            "description": metadata.get("og:description") or metadata.get("twitter:description") or metadata.get("description") or "Abrir recurso externo",
+            "image": urljoin(final_url, preview_image) if preview_image else None,
+            "site_name": metadata.get("og:site_name") or parsed_final_url.hostname.removeprefix("www."),
+            "kind": "link",
+        }
+    except Exception:
+        return fallback_preview(raw_url)
 
 
 def fetch_task_context(task_id: str, client: Client):
@@ -669,6 +839,17 @@ MENSAGEM_DO_USUÁRIO:
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "service": "Prioriza RAG Engine"}
+
+
+@app.post("/ai/link-preview")
+async def get_link_preview(req: LinkPreviewRequest):
+    """Obtém metadados públicos de um link, bloqueando destinos locais e privados."""
+    try:
+        return build_link_preview(req.url)
+    except HTTPException:
+        raise
+    except Exception:
+        return fallback_preview(req.url)
 
 
 @app.post("/embed")

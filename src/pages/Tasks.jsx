@@ -17,7 +17,7 @@ const views = [
     { id: 'tree', label: 'Árvore', icon: Network },
 ]
 
-export default function Tasks({ profile, onNavigate }) {
+export default function Tasks({ profile, onNavigate, workspaceTaskId, onWorkspaceTaskOpened }) {
     const [activeView, setActiveView] = useState('list')
     const [tasks, setTasks] = useState([])
     const [loading, setLoading] = useState(true)
@@ -41,6 +41,13 @@ export default function Tasks({ profile, onNavigate }) {
     useEffect(() => {
         loadTasks()
     }, [])
+
+    useEffect(() => {
+        if (!workspaceTaskId) return
+        setSelectedTaskId(workspaceTaskId)
+        setIsDetailsOpen(true)
+        onWorkspaceTaskOpened?.()
+    }, [workspaceTaskId, onWorkspaceTaskOpened])
 
     async function loadTasks() {
         try {
