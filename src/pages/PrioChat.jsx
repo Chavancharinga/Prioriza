@@ -15,7 +15,7 @@ const quickPrompts = [
 const initialMessages = [
     {
         role: 'assistant',
-        content: 'Olá, eu sou o PRIO. Posso analisar suas tarefas, montar um mini relatório, sugerir checklist e criar tarefas por conversa.'
+        content: 'Olá! Sou o PRIO. Vamos organizar o teu dia juntos? Posso ajudar-te a escolher prioridades, criar tarefas e transformar o teu progresso num plano simples.'
     }
 ]
 
@@ -43,6 +43,48 @@ function tomorrowAt(hour = 18, minute = 0) {
     date.setDate(date.getDate() + 1)
     date.setHours(hour, minute, 0, 0)
     return date.toISOString()
+}
+
+function extractRequestedTime(message = '') {
+    if (/\bmeio[ -]?dia\b/i.test(message)) return { hour: 12, minute: 0 }
+
+    const hourMatch = message.match(/\b(?:às?|as|ao|pelas?|por volta das?)?\s*(\d{1,2})(?::(\d{2}))?\s*(?:h|horas?)\b/i)
+        || message.match(/\b(?:às?|as|ao|pelas?)?\s*(\d{1,2}):(\d{2})\b/i)
+    if (!hourMatch) return null
+
+    return {
+        hour: Math.max(0, Math.min(23, Number(hourMatch[1]))),
+        minute: Math.max(0, Math.min(59, Number(hourMatch[2] || 0)))
+    }
+}
+
+function hasDeadlineInMessage(message = '') {
+    return Boolean(
+        extractRequestedTime(message)
+        || /\b(hoje|amanh|prazo|até|ate|segunda|terça|terca|quarta|quinta|sexta|sábado|sabado|domingo)\b/i.test(message)
+        || /\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b/.test(message)
+    )
+}
+
+function normalizeDueDateFromMessage(message = '', modelDueDate = null) {
+    if (!hasDeadlineInMessage(message)) return null
+
+    const requestedTime = extractRequestedTime(message)
+    if (!requestedTime) return modelDueDate
+
+    let dueDate = modelDueDate ? new Date(modelDueDate) : new Date()
+    if (Number.isNaN(dueDate.getTime())) dueDate = new Date()
+
+    const now = new Date()
+    if (/amanh/i.test(message)) {
+        dueDate = new Date(now)
+        dueDate.setDate(now.getDate() + 1)
+    } else if (/\bhoje\b/i.test(message) || !modelDueDate) {
+        dueDate = new Date(now)
+    }
+
+    dueDate.setHours(requestedTime.hour, requestedTime.minute, 0, 0)
+    return dueDate.toISOString()
 }
 
 function wantsCreateTask(message = '') {
@@ -177,7 +219,10 @@ function buildFallbackAction(message) {
     const extractedTitle = cleanTaskTitle(titleMatch?.[1] || '')
     const title = extractedTitle || cleanTaskTitle(message)
     if (isGenericTaskTitle(title)) return null
-    const dueDate = /amanh[ãa]/i.test(message) ? tomorrowAt() : null
+    const dueDate = normalizeDueDateFromMessage(
+        message,
+        /amanh[ãa]/i.test(message) ? tomorrowAt() : null
+    )
 
     return {
         type: 'create_task',
@@ -255,7 +300,16 @@ function normalizeAction(action) {
 }
 
 function normalizePrioResponse(response, message) {
-    const normalizedAction = normalizeAction(response?.action)
+    let normalizedAction = normalizeAction(response?.action)
+    if (normalizedAction?.task) {
+        normalizedAction = {
+            ...normalizedAction,
+            task: {
+                ...normalizedAction.task,
+                due_date: normalizeDueDateFromMessage(message, normalizedAction.task.due_date)
+            }
+        }
+    }
     if (wantsCreateTask(message) && !normalizedAction) {
         return {
             reply: buildTaskDetailsReply(),

@@ -4,6 +4,7 @@ import re
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Literal
+from zoneinfo import ZoneInfo
 
 import uvicorn
 from dotenv import load_dotenv
@@ -28,6 +29,7 @@ OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/ap
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "deepseek/deepseek-v4-flash")
 OPENROUTER_HTTP_REFERER = os.getenv("OPENROUTER_HTTP_REFERER", "http://127.0.0.1:5173")
 OPENROUTER_APP_TITLE = os.getenv("OPENROUTER_APP_TITLE", "Prioriza")
+LISBON_TZ = ZoneInfo("Europe/Lisbon")
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     print("WARNING: Missing Supabase credentials in environment variables (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY)")
@@ -267,21 +269,98 @@ def call_openrouter(task, full_context: str, mode: str, question: str | None = N
         return response.choices[0].message.content or ""
 
 
+def extract_requested_time(message: str):
+    normalized = message.lower()
+    if re.search(r"\bmeio[ -]?dia\b", normalized):
+        return 12, 0
+
+    hour_match = re.search(
+        r"\b(?:às?|as|ao|pelas?|por volta das?)?\s*(\d{1,2})(?::(\d{2}))?\s*(?:h|horas?)\b",
+        normalized,
+    )
+    if not hour_match:
+        hour_match = re.search(r"\b(?:às?|as|ao|pelas?)?\s*(\d{1,2}):(\d{2})\b", normalized)
+    if not hour_match:
+        return None
+
+    hour = max(0, min(23, int(hour_match.group(1))))
+    minute = max(0, min(59, int(hour_match.group(2) or 0)))
+    return hour, minute
+
+
+def normalize_prio_action_due_date(message: str, action: dict | None, now: datetime | None = None):
+    if not action or action.get("type") not in {"create_task", "update_last_task", "update_task"}:
+        return action
+
+    task = action.get("task") or {}
+    due_date = task.get("due_date")
+    requested_time = extract_requested_time(message)
+    normalized_message = message.lower()
+    has_deadline = bool(
+        requested_time
+        or re.search(
+            r"\b(hoje|amanh|prazo|até|ate|segunda|terça|terca|quarta|quinta|sexta|sábado|sabado|domingo)\b",
+            normalized_message,
+        )
+        or re.search(r"\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b", normalized_message)
+    )
+    if not has_deadline:
+        if not due_date:
+            return action
+        return {**action, "task": {**task, "due_date": None}}
+    if not due_date or not requested_time:
+        return action
+
+    local_now = now or datetime.now(LISBON_TZ)
+    if local_now.tzinfo is None:
+        local_now = local_now.replace(tzinfo=LISBON_TZ)
+    else:
+        local_now = local_now.astimezone(LISBON_TZ)
+
+    if "amanh" in normalized_message:
+        target_date = (local_now + timedelta(days=1)).date()
+    elif "hoje" in normalized_message:
+        target_date = local_now.date()
+    else:
+        try:
+            parsed_due_date = datetime.fromisoformat(str(due_date).replace("Z", "+00:00"))
+            if parsed_due_date.tzinfo is None:
+                parsed_due_date = parsed_due_date.replace(tzinfo=LISBON_TZ)
+            target_date = parsed_due_date.astimezone(LISBON_TZ).date()
+        except (TypeError, ValueError):
+            return action
+
+    hour, minute = requested_time
+    local_due_date = datetime(
+        target_date.year,
+        target_date.month,
+        target_date.day,
+        hour,
+        minute,
+        tzinfo=LISBON_TZ,
+    )
+    return {
+        **action,
+        "task": {
+            **task,
+            "due_date": local_due_date.isoformat(),
+        },
+    }
+
+
 def infer_due_date_from_message(message: str):
     normalized = message.lower()
     due_date = None
     if "amanh" in normalized:
-        date = datetime.now() + timedelta(days=1)
-        hour_match = re.search(r"(\d{1,2})(?::(\d{2}))?\s*(?:h|horas?)?", normalized)
-        hour = int(hour_match.group(1)) if hour_match else 18
-        minute = int(hour_match.group(2)) if hour_match and hour_match.group(2) else 0
+        date = datetime.now(LISBON_TZ) + timedelta(days=1)
+        requested_time = extract_requested_time(message)
+        hour, minute = requested_time or (18, 0)
         date = date.replace(hour=min(hour, 23), minute=min(minute, 59), second=0, microsecond=0)
         due_date = date.isoformat()
     elif "hoje" in normalized:
-        date = datetime.now()
-        hour_match = re.search(r"(\d{1,2})(?::(\d{2}))?\s*(?:h|horas?)?", normalized)
-        hour = int(hour_match.group(1)) if hour_match else 18
-        minute = int(hour_match.group(2)) if hour_match and hour_match.group(2) else 0
+        date = datetime.now(LISBON_TZ)
+        requested_time = extract_requested_time(message)
+        hour, minute = requested_time or (18, 0)
         date = date.replace(hour=min(hour, 23), minute=min(minute, 59), second=0, microsecond=0)
         due_date = date.isoformat()
     return due_date
@@ -363,8 +442,8 @@ def is_generic_task_title(title: str) -> bool:
 def task_details_response():
     return {
         "reply": (
-            "Consigo criar a tarefa, mas preciso do objetivo concreto para não criar uma tarefa genérica. "
-            "Responde com: 1) o que deve ser feito, 2) prazo ou urgência, 3) tempo aproximado ou se queres que eu estime."
+            "Claro, vamos criar essa tarefa juntos. Diz-me apenas: 1) o que queres fazer, "
+            "2) se existe prazo ou urgência e 3) quanto tempo pensas precisar, ou se preferes que eu estime."
         ),
         "action": None,
         "provider": "local-fallback",
@@ -465,14 +544,14 @@ def fallback_prio_response(req: PrioChatRequest):
         )
     elif action:
         reply = (
-            "Perfeito. Vou criar a tarefa com prioridade, checklist, nota importante e estimativa automática. "
-            "Depois você pode editar tudo manualmente no Prioriza."
+            "Boa, já preparei a tarefa com prioridade, checklist, nota importante e uma estimativa realista. "
+            "Podes ajustar tudo manualmente no Prioriza. Vamos avançar um passo de cada vez."
         )
     else:
         reply = (
-            f"Mini relatório: você concluiu {done}/{total} tarefas ({completion}%). "
-            f"Há {progress} em progresso e {overdue} atrasada(s). "
-            "Minha sugestão: ataque primeiro as P1/P2 com prazo próximo e deixe o cronograma ajustar o resto."
+            f"Aqui vai o teu ponto de situação: concluíste {done}/{total} tarefas ({completion}%). "
+            f"Tens {progress} em progresso e {overdue} atrasada(s). "
+            "Começa pelas P1/P2 com prazo mais próximo e deixa o cronograma organizar o restante. Tu consegues."
         )
 
     return {
@@ -484,7 +563,7 @@ def fallback_prio_response(req: PrioChatRequest):
 
 
 def build_prio_messages(req: PrioChatRequest):
-    now_text = datetime.now().strftime("%Y-%m-%d %H:%M")
+    now_text = datetime.now(LISBON_TZ).isoformat(timespec="minutes")
     task_context = json.dumps(req.tasks[:15], ensure_ascii=False, indent=2)
     profile_context = json.dumps(req.profile or {}, ensure_ascii=False, indent=2)
     capabilities_context = json.dumps(req.capabilities or [], ensure_ascii=False, indent=2)
@@ -501,7 +580,8 @@ Guardrails obrigatórios:
 - Se o utilizador pedir temas fora deste domínio, responde curto: "Só consigo ajudar com produtividade e tarefas no Prioriza." e redireciona para uma ação útil.
 - Não inventes dados. Usa apenas PERFIL, TAREFAS, HISTÓRICO_RECENTE e ÚLTIMA_TAREFA_CRIADA.
 - Não executes ações destrutivas. Nunca apagar tarefas, notas, conta, email, senha ou dados sem confirmação explícita no UI.
-- Sê muito amigável, direto e prestativo.
+- Sê carismático, alegre, caloroso e motivador, mantendo respostas naturais, curtas e úteis.
+- Evita um tom robótico, excessivamente formal ou frio. Reconhece a emoção do utilizador e termina com um próximo passo encorajador.
 - Se o utilizador quiser criar uma tarefa, CRIA a tarefa imediatamente com a ação 'create_task'. Não faças perguntas rígidas. Usa o teu bom senso para deduzir prioridade, checklist e estimativa de tempo com base no que ele escreveu.
 - Exceção obrigatória: se a mensagem for apenas "quero criar uma tarefa" ou não tiver objetivo/título concreto, NÃO cries tarefa. Pergunta 1) o que deve ser feito, 2) prazo ou urgência, 3) tempo aproximado ou se quer que estimes.
 - Depois de criar a tarefa, confirma na resposta que a tarefa foi criada e dá dicas úteis.
@@ -542,7 +622,11 @@ Regras:
 - Se não houver ação, usa {"type":"none","task":null}.
 - Para nova tarefa, cria checklist com 3 a 6 itens, nota importante e estimativa se o utilizador não informar.
 - Para update_work_hours, usa dias Seg/Ter/Qua/Qui/Sex/Sáb/Dom e intervalos HH:MM.
-- Se o utilizador disser "amanhã" sem hora, usa amanhã às 18:00.
+- Nunca inventes um prazo. Se o utilizador não mencionar data, dia, urgência temporal ou hora, due_date deve ser null.
+- Se o utilizador indicar uma data sem hora, mantém a data e deixa a escolha do horário editável pelo utilizador.
+- Interpreta todas as horas indicadas pelo utilizador no fuso Europe/Lisbon.
+- Preserva exatamente a hora pedida, incluindo "meio-dia", "12h" e "12:40". Esses exemplos devem aparecer como 12:00, 12:00 e 12:40 em Lisboa, nunca com uma hora acrescentada por conversão incorreta de UTC.
+- Em due_date devolve ISO-8601 com o offset local correto de Lisboa para a data indicada.
 - Sê assertivo, mas mantém tudo editável manualmente.
 - Para add_resources, o campo 'task.id' é obrigatório (uuid da tarefa onde adicionar os links). Gera URLs reais e verificáveis (YouTube, artigos conhecidos, documentação oficial). Se não tiveres certeza de URLs exatas, gera URLs de pesquisa Google/YouTube com os termos relevantes (ex: https://www.youtube.com/results?search_query=apresentacao+profissional).
 - Quando o utilizador pedir 'links', 'recursos', 'vídeos' ou 'materiais', usa SEMPRE a ação add_resources. NUNCA cries uma tarefa nova para isso.
@@ -738,6 +822,7 @@ async def prio_chat(req: PrioChatRequest):
 
         if action and action.get("type") == "none":
             action = None
+        action = normalize_prio_action_due_date(req.message, action)
         if wants_create_task(req.message) and (
             not action or (
                 action.get("type") == "create_task"
@@ -747,7 +832,7 @@ async def prio_chat(req: PrioChatRequest):
             return task_details_response()
 
         return {
-            "reply": str(parsed.get("reply") or "").strip() or "Analisei suas tarefas. O que quer fazer agora?",
+            "reply": str(parsed.get("reply") or "").strip() or "Já analisei as tuas tarefas. Vamos escolher o próximo passo juntos?",
             "action": action,
             "provider": "openrouter",
             "model": OPENROUTER_MODEL,
