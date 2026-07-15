@@ -6,13 +6,13 @@ async function normalizeAvatarToPng(file) {
     const isImage = file.type?.startsWith('image/') || isIcon
 
     if (!isImage) {
-        throw new Error('Formato invÃ¡lido. Use PNG, JPG, JPEG, WEBP ou ICO.')
+        throw new Error('Formato inválido. Use PNG, JPG, JPEG, WEBP ou ICO.')
     }
 
     if (isPng && !isIcon) return file
 
     if (typeof document === 'undefined') {
-        throw new Error('Este navegador nÃ£o conseguiu processar a imagem. Use PNG, JPG, JPEG ou WEBP.')
+        throw new Error('Este navegador não conseguiu processar a imagem. Use PNG, JPG, JPEG ou WEBP.')
     }
 
     try {
@@ -35,7 +35,7 @@ async function normalizeAvatarToPng(file) {
                 }
                 image.onerror = () => {
                     URL.revokeObjectURL(objectUrl)
-                    reject(new Error('O navegador nÃ£o conseguiu ler esta imagem.'))
+                    reject(new Error('O navegador não conseguiu ler esta imagem.'))
                 }
                 image.src = objectUrl
             })
@@ -51,14 +51,14 @@ async function normalizeAvatarToPng(file) {
         const blob = await new Promise((resolve, reject) => {
             canvas.toBlob(result => {
                 if (result) resolve(result)
-                else reject(new Error('NÃ£o foi possÃ­vel converter a imagem para PNG.'))
+                else reject(new Error('Não foi possível converter a imagem para PNG.'))
             }, 'image/png')
         })
 
         const safeBaseName = file.name.replace(/\.[^.]+$/i, '') || 'avatar'
         return new File([blob], `${safeBaseName}.png`, { type: 'image/png' })
     } catch (error) {
-        throw new Error(`NÃ£o foi possÃ­vel preparar a imagem. Use PNG, JPG, JPEG ou WEBP. Detalhe: ${error.message}`)
+        throw new Error(`Não foi possível preparar a imagem. Use PNG, JPG, JPEG ou WEBP. Detalhe: ${error.message}`)
     }
 }
 

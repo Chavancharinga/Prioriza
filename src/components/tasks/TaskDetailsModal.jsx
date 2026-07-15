@@ -20,8 +20,8 @@ function buildLocalSubtaskSuggestions(task) {
     const existingItems = (task?.checklist_items || []).map(item => item.content?.toLowerCase().trim()).filter(Boolean)
     const baseItems = [
         `Confirmar o objetivo principal de ${title}`,
-        `Dividir ${title} em passos executÃ¡veis`,
-        description ? `Validar os detalhes registados: ${description.slice(0, 80)}` : `Reunir informaÃ§Ãµes necessÃ¡rias para ${title}`,
+        `Dividir ${title} em passos executáveis`,
+        description ? `Validar os detalhes registados: ${description.slice(0, 80)}` : `Reunir informações necessárias para ${title}`,
         `Executar a parte principal de ${title}`,
         `Testar e registar o resultado de ${title}`
     ]
@@ -33,7 +33,7 @@ function buildLocalSubtaskSuggestions(task) {
 
     return {
         type: 'subtasks',
-        title: `SugestÃµes para ${title}`,
+        title: `Sugestões para ${title}`,
         items: items.slice(0, 5),
         provider: 'local-fallback'
     }
@@ -154,9 +154,9 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                         setConfirmation({
                             isOpen: true,
                             type: 'success',
-                            title: 'SUBIU DE NÃVEL!',
-                            message: `ParabÃ©ns! VocÃª alcanÃ§ou o NÃ­vel ${result.newLevel}! Continue com a consistÃªncia!`,
-                            confirmText: 'Vamos lÃ¡!',
+                            title: 'SUBIU DE NÍVEL!',
+                            message: `Parabéns! Você alcançou o Nível ${result.newLevel}! Continue com a consistência!`,
+                            confirmText: 'Vamos lá!',
                             onConfirm: () => setConfirmation(prev => ({ ...prev, isOpen: false }))
                         })
                     }
@@ -168,8 +168,8 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                 setConfirmation({
                     isOpen: true,
                     type: 'info',
-                    title: 'Ciclo de Foco ConcluÃ­do!',
-                    message: 'Ã“timo trabalho! Hora de fazer um intervalo de 5 minutos.',
+                    title: 'Ciclo de Foco Concluído!',
+                    message: 'Ótimo trabalho! Hora de fazer um intervalo de 5 minutos.',
                     confirmText: 'Iniciar Intervalo',
                     onConfirm: () => {
                         setConfirmation(prev => ({ ...prev, isOpen: false }))
@@ -186,7 +186,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
             setConfirmation({
                 isOpen: true,
                 type: 'info',
-                title: 'Intervalo ConcluÃ­do!',
+                title: 'Intervalo Concluído!',
                 message: 'Hora de voltar ao trabalho! Pronto para mais um ciclo de foco?',
                 confirmText: 'Iniciar Foco',
                 onConfirm: () => {
@@ -335,7 +335,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
 
         let levelMsg = ''
         if (levelUp) {
-            levelMsg = `\n\nSUBIU DE NÃVEL!\nVocÃª alcanÃ§ou o NÃ­vel ${projectedLevel}!`
+            levelMsg = `\n\nSUBIU DE NÍVEL!\nVocê alcançou o Nível ${projectedLevel}!`
         } else if (projectedLevel < currentLevel) {
             levelMsg = `\n\nLEVEL DOWN!\nVoce caiu para o Nivel ${projectedLevel} devido as penalidades.`
         }
@@ -347,7 +347,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
         try {
             setIsCompleting(true)
             const completedTask = await TaskService.completeTask(task.id, finalTimeSpent, null)
-            if (!completedTask) throw new Error('A tarefa nÃ£o foi atualizada.')
+            if (!completedTask) throw new Error('A tarefa não foi atualizada.')
 
             setTask(prev => prev ? {
                 ...prev,
@@ -378,7 +378,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
             setConfirmation({
                 isOpen: true,
                 type: noCelebration ? 'info' : (isPenalty ? 'danger' : 'success'),
-                title: noCelebration ? 'Tarefa ConcluÃ­da' : (isPenalty ? 'Tarefa ConcluÃ­da com Atraso' : 'ParabÃ©ns!'),
+                title: noCelebration ? 'Tarefa Concluída' : (isPenalty ? 'Tarefa Concluída com Atraso' : 'Parabéns!'),
                 message: `${feedbackMessage}${levelMsg}`,
                 confirmText: 'Ok',
                 onConfirm: () => {
@@ -393,7 +393,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                 isOpen: true,
                 type: 'danger',
                 title: 'Erro ao Concluir Tarefa',
-                message: error.message || 'NÃ£o foi possÃ­vel concluir a tarefa.',
+                message: error.message || 'Não foi possível concluir a tarefa.',
                 confirmText: 'Ok',
                 onConfirm: () => setConfirmation(prev => ({ ...prev, isOpen: false }))
             })
@@ -412,12 +412,12 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                 isOpen: true,
                 type: 'danger',
                 title: 'Sub-tarefas Pendentes!',
-                message: `Esta tarefa possui ${pendingChecklist} sub-tarefa(s) pendente(s) na checklist.\n\nSe concluir agora, isso nÃ£o serÃ¡ considerado uma vitÃ³ria e vocÃª nÃ£o ganharÃ¡ pontos de XP por esta tarefa.\n\nDeseja concluir sem ganhar pontos (0 XP) ou prefere voltar e terminar a checklist?`,
+                message: `Esta tarefa possui ${pendingChecklist} sub-tarefa(s) pendente(s) na checklist.\n\nSe concluir agora, isso não será considerado uma vitória e você não ganhará pontos de XP por esta tarefa.\n\nDeseja concluir sem ganhar pontos (0 XP) ou prefere voltar e terminar a checklist?`,
                 confirmText: 'Concluir sem XP',
                 cancelText: 'Voltar e Terminar',
                 onConfirm: () => {
                     setConfirmation(prev => ({ ...prev, isOpen: false }))
-                    executeCompletion(0, 'Tarefa concluÃ­da sem vitÃ³ria (0 XP concedidos devido a checklist pendente).', false, true)
+                    executeCompletion(0, 'Tarefa concluída sem vitória (0 XP concedidos devido a checklist pendente).', false, true)
                 }
             })
         } else {
@@ -431,14 +431,14 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                 const due = new Date(task.due_date)
                 if (now <= due) {
                     finalXpAward += 150
-                    feedbackMessage = `Sensacional! Tarefa concluÃ­da antes do prazo. VocÃª ganhou ${priorityXp} XP (prioridade) + 150 XP de bÃ´nus de pontualidade!`
+                    feedbackMessage = `Sensacional! Tarefa concluída antes do prazo. Você ganhou ${priorityXp} XP (prioridade) + 150 XP de bónus de pontualidade!`
                 } else {
                     finalXpAward = -100
                     isPenalty = true
-                    feedbackMessage = 'Tarefa concluÃ­da apÃ³s o prazo! VocÃª perdeu 100 XP de penalidade.'
+                    feedbackMessage = 'Tarefa concluída após o prazo! Você perdeu 100 XP de penalidade.'
                 }
             } else {
-                feedbackMessage = `Tarefa concluÃ­da com sucesso! VocÃª ganhou ${priorityXp} XP de prioridade.`
+                feedbackMessage = `Tarefa concluída com sucesso! Você ganhou ${priorityXp} XP de prioridade.`
             }
 
             executeCompletion(finalXpAward, feedbackMessage, isPenalty, false)
@@ -450,7 +450,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
             isOpen: true,
             type: 'info',
             title: 'Reativar Tarefa',
-            message: 'Deseja reativar esta tarefa e movÃª-la de volta para "Em Progresso"?',
+            message: 'Deseja reativar esta tarefa e movê-la de volta para "Em Progresso"?',
             confirmText: 'Reativar',
             onConfirm: async () => {
                 try {
@@ -464,7 +464,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                         isOpen: true,
                         type: 'success',
                         title: 'Tarefa Reativada',
-                        message: 'A tarefa estÃ¡ ativa novamente. VocÃª pode continuar trabalhando nela!',
+                        message: 'A tarefa está ativa novamente. Você pode continuar trabalhando nela!',
                         confirmText: 'Ok',
                         onConfirm: () => setConfirmation(prev => ({ ...prev, isOpen: false }))
                     })
@@ -522,7 +522,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
             const response = await AIService.summarizeNotes(task.id)
             setAiResponse(response)
         } catch (error) {
-            setAiError(error.message || 'Falha ao resumir as anotaÃ§Ãµes com a IA.')
+            setAiError(error.message || 'Falha ao resumir as anotações com a IA.')
         } finally {
             setAiLoading(false)
         }
@@ -685,7 +685,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
             isOpen: true,
             type: 'danger',
             title: 'Excluir Nota',
-            message: 'Esta aÃ§Ã£o nÃ£o pode ser desfeita. Deseja realmente excluir esta nota?',
+            message: 'Esta ação não pode ser desfeita. Deseja realmente excluir esta nota?',
             confirmText: 'Excluir',
             onConfirm: async () => {
                 try {
@@ -764,13 +764,13 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                             <div className="p-2 bg-[rgba(30,58,138,0.10)] rounded-full">
                                 <AlertTriangle className="w-6 h-6" />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900">AtenÃ§Ã£o!</h3>
+                            <h3 className="text-lg font-bold text-gray-900">Atenção!</h3>
                         </div>
 
                         <p className="text-gray-600 mb-6 leading-relaxed">
-                            VocÃª realizou alteraÃ§Ãµes ou tem atividades em andamento.
+                            Você realizou alterações ou tem atividades em andamento.
                             <br /><br />
-                            <strong>Ã‰ necessÃ¡rio salvar para confirmar seu progresso antes de sair.</strong>
+                            <strong>É necessário salvar para confirmar seu progresso antes de sair.</strong>
                         </p>
 
                         <div className="flex flex-col gap-3">
@@ -897,7 +897,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                         </div>
 
                                         <div className="text-[10px] font-bold text-white/70 uppercase mb-3 tracking-widest">
-                                            Ciclos concluÃ­dos: {completedCycles}
+                                            Ciclos concluídos: {completedCycles}
                                         </div>
 
                                         <div className="text-6xl font-mono font-bold mb-6 tracking-tight tabular-nums drop-shadow-sm">
@@ -919,7 +919,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                         >
                                             {task.status === 'Feito' ? (
                                                 <>
-                                                    <CheckCircle className="w-6 h-6" /> TAREFA CONCLUÃDA
+                                                    <CheckCircle className="w-6 h-6" /> TAREFA CONCLUÍDA
                                                 </>
                                             ) : isPomodoroActive ? (
                                                 <>
@@ -959,7 +959,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                                 <Activity className="w-4 h-4" />
                                             </div>
                                             <h4 className="text-xs text-gray-500 uppercase font-bold">
-                                                CronÃ´metro de Foco Real
+                                                Cronómetro de Foco Real
                                             </h4>
                                         </div>
                                         {isPomodoroActive && pomodoroMode === 'focus' && (
@@ -972,7 +972,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
 
                                     <div className="grid grid-cols-2 gap-4 border-b border-gray-150 pb-3">
                                         <div>
-                                            <p className="text-[10px] text-gray-400 uppercase font-bold">Nesta SessÃ£o</p>
+                                            <p className="text-[10px] text-gray-400 uppercase font-bold">Nesta Sessão</p>
                                             <p className="text-lg font-black text-slate-800 font-mono">{formatTime(sessionTimeSpent)}</p>
                                         </div>
                                         <div>
@@ -1012,7 +1012,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                             })()
                                         ) : (
                                             <p className="text-[10px] text-gray-400 italic">
-                                                Defina uma estimativa nas configuraÃ§Ãµes para acompanhar sua meta.
+                                                Defina uma estimativa nas configurações para acompanhar sua meta.
                                             </p>
                                         )}
                                     </div>
@@ -1038,10 +1038,10 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                                 'bg-green-500'
                                             }`}></div>
                                             <span className="text-sm font-bold text-(--color-text-primary)">
-                                                {task.priority === 1 ? 'CrÃ­tica' :
+                                                {task.priority === 1 ? 'Crítica' :
                                                     task.priority === 2 ? 'Alta' :
-                                                        task.priority === 3 ? 'MÃ©dia' :
-                                                            task.priority === 4 ? 'Baixa' : 'MÃ­nima'}
+                                                        task.priority === 3 ? 'Média' :
+                                                            task.priority === 4 ? 'Baixa' : 'Mínima'}
                                             </span>
                                         </div>
                                     </div>
@@ -1065,7 +1065,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                             <Activity className="w-4 h-4" />
                                         </div>
                                         <h4 className="text-xs text-gray-500 uppercase font-bold">
-                                            ReferÃªncias Bidirecionais
+                                            Referências Bidirecionais
                                         </h4>
                                     </div>
                                     <div className="space-y-3">
@@ -1081,7 +1081,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                                             onClick={() => setCurrentTaskId(bl.id)}
                                                             className="block text-left text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline truncate w-full"
                                                         >
-                                                            â€¢ {bl.title}
+                                                            • {bl.title}
                                                         </button>
                                                     ))}
                                                 </div>
@@ -1099,7 +1099,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                                             onClick={() => setCurrentTaskId(ol.id)}
                                                             className="block text-left text-xs font-semibold text-green-600 hover:text-green-800 hover:underline truncate w-full"
                                                         >
-                                                            â€¢ {ol.title}
+                                                            • {ol.title}
                                                         </button>
                                                     ))}
                                                 </div>
@@ -1129,7 +1129,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                                 setHasChanges(true)
                                                 if (html && html !== (task?.description || '')) autoStartFocusTimer()
                                             }}
-                                            placeholder="Digite aqui anotaÃ§Ãµes importantes para a tarefa... coloque texto em negrito, H1, H2, itÃ¡lico, ou use o marca-textos!"
+                                                placeholder="Digite aqui anotações importantes para a tarefa... coloque texto em negrito, H1, H2, itálico, ou use o marca-textos!"
                                         />
                                     </div>
                                 </div>
@@ -1220,7 +1220,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                                             if (e.target.value.trim()) autoStartFocusTimer()
                                                         }}
                                                         disabled={task.status === 'Feito'}
-                                                        placeholder={task.status === 'Feito' ? "Tarefa concluÃ­da" : "Adicionar sub-tarefa..."}
+                                                        placeholder={task.status === 'Feito' ? "Tarefa concluída" : "Adicionar sub-tarefa..."}
                                                         className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all focus:bg-white disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                                                     />
                                                 </div>
@@ -1237,7 +1237,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                 </div>
                             </div>
 
-                            {/* Right Column: AI Copilot & DiÃ¡rio de Bordo */}
+                            {/* Right Column: AI Copilot & Diário de Bordo */}
                             <div className="lg:col-span-4 space-y-6 order-3 lg:order-none">
                                 {/* AI Copilot Card */}
                                 <div className="card-3d p-5 space-y-4">
@@ -1295,7 +1295,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                             {aiResponse.type === 'subtasks' ? (
                                                 <div className="space-y-2">
                                                     {aiResponse.items.length === 0 ? (
-                                                        <p className="text-[10px] text-slate-400 italic">Todas as sugestÃµes foram adicionadas!</p>
+                                                        <p className="text-[10px] text-slate-400 italic">Todas as sugestões foram adicionadas!</p>
                                                     ) : (
                                                         aiResponse.items.map((item, index) => (
                                                             <div key={index} className="flex items-center justify-between gap-2 p-1.5 bg-white rounded border border-slate-100 hover:border-blue-200 transition-colors">
@@ -1303,7 +1303,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                                                 <button
                                                                     onClick={() => handleAddSuggestedSubtask(item)}
                                                                     className="p-1 text-blue-600 hover:bg-blue-50 rounded shrink-0"
-                                                                    title="Adicionar Ã  Checklist"
+                                                                    title="Adicionar à Checklist"
                                                                 >
                                                                     <Plus className="w-3.5 h-3.5" />
                                                                 </button>
@@ -1318,12 +1318,12 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                     )}
                                 </div>
 
-                                {/* DiÃ¡rio de Bordo */}
+                                {/* Diário de Bordo */}
                                 <div className="card-3d flex flex-col h-[400px] overflow-hidden sticky top-6">
                                     <div className="p-4 border-b border-slate-100 flex items-center justify-between shrink-0">
                                         <h4 className="text-xs text-slate-500 uppercase font-bold tracking-wider flex items-center gap-2">
                                             <MessageSquare className="w-4 h-4 text-blue-500" />
-                                            DiÃ¡rio de Bordo
+                                            Diário de Bordo
                                         </h4>
                                     </div>
 
@@ -1334,7 +1334,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                                 <div className="bg-gray-100 p-3 rounded-full">
                                                     <MessageSquare className="w-6 h-6 text-gray-300" />
                                                 </div>
-                                                <p className="text-xs">O diÃ¡rio estÃ¡ vazio. Registre suas atividades aqui para manter o histÃ³rico.</p>
+                                                <p className="text-xs">O diário está vazio. Registe as suas atividades aqui para manter o histórico.</p>
                                             </div>
                                         )}
 
@@ -1368,7 +1368,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                                 value={newNote}
                                                 onChange={handleNoteChange}
                                                 disabled={task.status === 'Feito'}
-                                                placeholder={task.status === 'Feito' ? "Tarefa concluÃ­da. NÃ£o Ã© possÃ­vel adicionar notas." : "Registrar atividade (use [[ para linkar)..."}
+                                                placeholder={task.status === 'Feito' ? "Tarefa concluída. Não é possível adicionar notas." : "Registar atividade (use [[ para ligar)..."}
                                                 className="w-full pl-4 pr-12 py-3 text-sm bg-slate-50 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 resize-none h-24 focus:bg-white transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                                                 onKeyDown={(e) => {
                                                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1427,7 +1427,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                         </div>
                         <div className="flex flex-col">
                             <span className="text-sm font-bold leading-tight text-white">Progresso Salvo</span>
-                            <span className="text-[10px] text-slate-400 font-medium mt-0.5">As alteraÃ§Ãµes foram salvas com sucesso</span>
+                            <span className="text-[10px] text-slate-400 font-medium mt-0.5">As alterações foram guardadas com sucesso</span>
                         </div>
                     </motion.div>
                 )}
