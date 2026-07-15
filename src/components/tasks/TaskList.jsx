@@ -2,7 +2,6 @@ import { CheckCircle2, Circle, Clock, Pencil, Trash2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Card from '../ui/Card'
 import EmptyState from '../ui/EmptyState'
-import Button from '../ui/Button'
 
 const priorityColors = {
     1: 'border-l-red-600 bg-red-50',
@@ -67,9 +66,17 @@ export default function TaskList({ tasks, loading, onEdit, onDelete, onTaskClick
                                 <StatusIcon className="h-5 w-5 text-neutral-400" />
 
                                 <div className="flex-1 min-w-0">
-                                    <h4 className="text-sm font-medium text-neutral-900 truncate">
+                                    <button
+                                        type="button"
+                                        onClick={(event) => {
+                                            event.stopPropagation()
+                                            onTaskClick?.(task)
+                                        }}
+                                        className="block max-w-full truncate text-left text-sm font-medium text-(--color-prioriza-blue) underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-prioriza-blue) focus-visible:ring-offset-2"
+                                        title={`Abrir tarefa: ${task.title}`}
+                                    >
                                         {task.title}
-                                    </h4>
+                                    </button>
                                     {task.description && (
                                         <p className="text-xs text-neutral-500 truncate">
                                             {task.description}

@@ -101,9 +101,17 @@ export default function KanbanBoard({ tasks, loading, onEdit, onDelete, onStatus
                                                 title="Clique para abrir o espaço de trabalho (Pomodoro, Notas, Checklists)"
                                             >
                                                 <div className="flex justify-between items-start">
-                                                    <h4 className="text-sm font-medium text-neutral-900 line-clamp-2 mb-1 pr-6">
+                                                    <button
+                                                        type="button"
+                                                        onClick={(event) => {
+                                                            event.stopPropagation()
+                                                            onTaskClick?.(task)
+                                                        }}
+                                                        className="mb-1 block pr-6 text-left text-sm font-medium text-(--color-prioriza-blue) underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-prioriza-blue) focus-visible:ring-offset-2 line-clamp-2"
+                                                        title={`Abrir tarefa: ${task.title}`}
+                                                    >
                                                         {task.title}
-                                                    </h4>
+                                                    </button>
                                                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity absolute top-2 right-2 bg-white/90 rounded shadow-sm z-20">
                                                         <button
                                                             onClick={(e) => {

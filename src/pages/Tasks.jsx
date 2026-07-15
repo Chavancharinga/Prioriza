@@ -32,10 +32,10 @@ export default function Tasks({ profile, onNavigate }) {
     const [isDetailsOpen, setIsDetailsOpen] = useState(false)
     const [selectedTaskId, setSelectedTaskId] = useState(null)
     const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, taskId: null })
-    const [feedback, setFeedback] = useState({ isOpen: false, title: '', message: '', type: 'info' })
+    const [feedback, setFeedback] = useState({ isOpen: false, title: '', message: '', type: 'info', task: null })
 
-    function showFeedback(title, message, type = 'info') {
-        setFeedback({ isOpen: true, title, message, type })
+    function showFeedback(title, message, type = 'info', task = null) {
+        setFeedback({ isOpen: true, title, message, type, task })
     }
 
     useEffect(() => {
@@ -59,7 +59,7 @@ export default function Tasks({ profile, onNavigate }) {
             const newTask = await TaskService.createTask(taskData)
             setTasks([newTask, ...tasks])
             setIsModalOpen(false)
-            showFeedback('Tarefa Criada!', 'A sua tarefa foi adicionada com sucesso e o lembrete programado.', 'success')
+            showFeedback('Tarefa criada', 'A sua tarefa foi adicionada com sucesso. Pode abri-la agora para iniciar o trabalho.', 'success', newTask)
         } catch (err) {
             console.error('Error creating task:', err)
             showFeedback('Falha ao criar tarefa', 'Não foi possível criar a tarefa. Tente novamente.', 'danger')
@@ -73,6 +73,7 @@ export default function Tasks({ profile, onNavigate }) {
             setTasks(tasks.map(t => t.id === taskToEdit.id ? updatedTask : t))
             setIsModalOpen(false)
             setTaskToEdit(null)
+            showFeedback('Tarefa atualizada', 'As alterações foram guardadas. Pode abrir a tarefa para continuar o trabalho.', 'success', updatedTask)
         } catch (err) {
             console.error('Error updating task:', err)
             showFeedback('Falha ao atualizar tarefa', 'Não foi possível guardar as alterações. Tente novamente.', 'danger')
@@ -287,10 +288,14 @@ export default function Tasks({ profile, onNavigate }) {
             <ConfirmationModal
                 isOpen={feedback.isOpen}
                 onClose={() => setFeedback(prev => ({ ...prev, isOpen: false }))}
-                onConfirm={() => setFeedback(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={() => {
+                    const task = feedback.task
+                    setFeedback(prev => ({ ...prev, isOpen: false }))
+                    if (task) handleTaskClick(task)
+                }}
                 title={feedback.title}
                 message={feedback.message}
-                confirmText="Entendido"
+                confirmText={feedback.task ? 'Abrir tarefa' : 'Entendido'}
                 cancelText={null}
                 type={feedback.type}
             />

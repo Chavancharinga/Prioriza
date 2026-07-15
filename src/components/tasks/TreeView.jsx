@@ -92,9 +92,17 @@ function TaskNode({ task, level = 0, children, onTaskClick, allTasks, checklistB
                 )}
 
                 <div className="flex-1 min-w-0">
-                    <h4 className={`text-sm font-medium truncate ${task.status === 'Feito' ? 'text-neutral-400 line-through' : 'text-neutral-900'}`}>
+                    <button
+                        type="button"
+                        onClick={(event) => {
+                            event.stopPropagation()
+                            onTaskClick?.(task)
+                        }}
+                        className={`block max-w-full truncate text-left text-sm font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-prioriza-blue) focus-visible:ring-offset-2 ${task.status === 'Feito' ? 'text-neutral-400 line-through' : 'text-(--color-prioriza-blue)'}`}
+                        title={`Abrir tarefa: ${task.title}`}
+                    >
                         {task.title}
-                    </h4>
+                    </button>
                 </div>
 
                 <button
