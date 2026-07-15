@@ -239,7 +239,12 @@ def parse_json_content(raw_content: str):
 
     match = re.search(r"\{.*\}", content, flags=re.DOTALL)
     candidate = match.group(0) if match else content
-    return json.loads(candidate)
+    parsed = json.loads(candidate)
+    if isinstance(parsed, str):
+        parsed = json.loads(parsed.strip())
+    if not isinstance(parsed, dict):
+        raise ValueError("A resposta da IA não contém um objeto JSON.")
+    return parsed
 
 
 def call_openrouter(task, full_context: str, mode: str, question: str | None = None, checklists: list | None = None):

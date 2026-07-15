@@ -299,8 +299,41 @@ function normalizeAction(action) {
     }
 }
 
+function parseEmbeddedPrioResponse(response) {
+    const rawReply = response?.reply
+    if (typeof rawReply !== 'string') return response
+
+    const content = rawReply.trim()
+    if (!content.startsWith('{') && !content.startsWith('```')) return response
+
+    try {
+        const cleanedContent = content
+            .replace(/^```(?:json)?\s*/i, '')
+            .replace(/\s*```$/, '')
+        const firstObject = cleanedContent.match(/\{[\s\S]*\}/)?.[0] || cleanedContent
+        let parsed = JSON.parse(firstObject)
+        if (typeof parsed === 'string') parsed = JSON.parse(parsed)
+
+        if (parsed && typeof parsed === 'object' && typeof parsed.reply === 'string') {
+            return {
+                ...response,
+                ...parsed,
+                action: parsed.action ?? response.action
+            }
+        }
+    } catch {
+        return {
+            ...response,
+            reply: 'Tive um problema técnico a organizar a resposta. Podes enviar a mensagem novamente?'
+        }
+    }
+
+    return response
+}
+
 function normalizePrioResponse(response, message) {
-    let normalizedAction = normalizeAction(response?.action)
+    const parsedResponse = parseEmbeddedPrioResponse(response)
+    let normalizedAction = normalizeAction(parsedResponse?.action)
     if (normalizedAction?.task) {
         normalizedAction = {
             ...normalizedAction,
@@ -318,7 +351,7 @@ function normalizePrioResponse(response, message) {
     }
 
     return {
-        ...response,
+        ...parsedResponse,
         action: normalizedAction
     }
 }
