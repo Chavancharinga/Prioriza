@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { X, Calendar, Clock, AlertTriangle, Save } from 'lucide-react'
 import Button from '../ui/Button'
@@ -100,7 +100,6 @@ export default function TaskModal({ isOpen, onClose, onSubmit, taskToEdit = null
 
     useEffect(() => {
         if (taskToEdit) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setFormData({
                 title: taskToEdit.title || '',
                 description: taskToEdit.description || '',

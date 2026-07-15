@@ -45,6 +45,30 @@ function tomorrowAt(hour = 18, minute = 0) {
     return date.toISOString()
 }
 
+function wantsCreateTask(message = '') {
+    return /\b(cria|crie|criar|adiciona|adicione|nova tarefa)\b/i.test(message)
+}
+
+function cleanTaskTitle(rawTitle = '') {
+    return rawTitle
+        .replace(/^PRIO,?\s*/i, '')
+        .replace(/\b(quero|preciso|podes?|pode|por favor|cria|crie|criar|adiciona|adicione|uma|um|nova|novo|tarefa|task|para)\b/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+}
+
+function isGenericTaskTitle(title = '') {
+    const normalized = cleanTaskTitle(title).toLowerCase()
+    return !normalized || normalized.length < 4 || ['quero', 'criar', 'tarefa', 'nova tarefa', 'nova tarefa criada pelo prio'].includes(normalized)
+}
+
+function buildTaskDetailsReply() {
+    return [
+        'Consigo criar a tarefa, mas preciso do objetivo concreto para não criar uma tarefa genérica.',
+        'Responde com: 1) o que deve ser feito, 2) prazo ou urgência, 3) tempo aproximado ou se queres que eu estime.'
+    ].join(' ')
+}
+
 function normalizePriority(priority) {
     const value = Number(priority)
     if (Number.isNaN(value)) return 3
@@ -147,12 +171,12 @@ function buildFallbackAction(message) {
     if (workHoursAction) return workHoursAction
 
     const text = message.toLowerCase()
-    const wantsCreate = /\b(cria|crie|criar|adiciona|adicione|nova tarefa)\b/i.test(message)
-    if (!wantsCreate) return null
+    if (!wantsCreateTask(message)) return null
 
     const titleMatch = message.match(/(?:para|tarefa)\s+(.+?)(?:\s+amanh[ãa]|\s+hoje|\s+até|\s+prazo|$)/i)
-    const extractedTitle = titleMatch?.[1]?.trim()
-    const title = extractedTitle || message.replace(/prio,?/i, '').replace(/crie|cria|criar|uma tarefa|nova tarefa/gi, '').trim() || 'Nova tarefa criada pelo PRIO'
+    const extractedTitle = cleanTaskTitle(titleMatch?.[1] || '')
+    const title = extractedTitle || cleanTaskTitle(message)
+    if (isGenericTaskTitle(title)) return null
     const dueDate = /amanh[ãa]/i.test(message) ? tomorrowAt() : null
 
     return {
@@ -210,11 +234,16 @@ function normalizeAction(action) {
         } : null
     }
 
+    const title = action.task?.title || 'Nova tarefa criada pelo PRIO'
+    if (['create_task', 'update_last_task', 'update_task'].includes(action.type) && isGenericTaskTitle(title)) {
+        return null
+    }
+
     return {
         type: action.type,
         task: {
             id: action.task?.id || null,
-            title: action.task?.title || 'Nova tarefa criada pelo PRIO',
+            title,
             description: action.task?.description || '',
             priority: normalizePriority(action.task?.priority),
             estimated_minutes: Number(action.task?.estimated_minutes) || 30,
@@ -222,6 +251,21 @@ function normalizeAction(action) {
             checklist: Array.isArray(action.task?.checklist) ? action.task.checklist.filter(Boolean).slice(0, 8) : [],
             note: action.task?.note || ''
         }
+    }
+}
+
+function normalizePrioResponse(response, message) {
+    const normalizedAction = normalizeAction(response?.action)
+    if (wantsCreateTask(message) && !normalizedAction) {
+        return {
+            reply: buildTaskDetailsReply(),
+            action: null
+        }
+    }
+
+    return {
+        ...response,
+        action: normalizedAction
     }
 }
 
@@ -454,9 +498,16 @@ export default function PrioChat({ profile, onProfileUpdate }) {
                     reply: fallbackReply,
                     action: fallbackAction
                 }
+                if (!fallbackAction && wantsCreateTask(message)) {
+                    response = {
+                        reply: buildTaskDetailsReply(),
+                        action: null
+                    }
+                }
                 console.warn('PRIO local fallback:', error)
             }
 
+            response = normalizePrioResponse(response, message)
             updateActiveChatMessages(prev => [...prev, { role: 'assistant', content: response.reply || buildLocalReport(taskSnapshot, profile) }], chatId)
             const actionResult = await applyAction(response.action)
             if (actionResult) {

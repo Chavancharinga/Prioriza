@@ -334,12 +334,50 @@ def build_fallback_work_hours_action(message: str):
     }
 
 
+def wants_create_task(message: str) -> bool:
+    return bool(re.search(r"\b(cria|crie|criar|adiciona|adicione|nova tarefa)\b", message, flags=re.IGNORECASE))
+
+
+def clean_task_title(raw_title: str) -> str:
+    title = re.sub(r"^PRIO,?\s*", "", raw_title or "", flags=re.IGNORECASE)
+    title = re.sub(
+        r"\b(quero|preciso|podes?|pode|por favor|cria|crie|criar|adiciona|adicione|uma|um|nova|novo|tarefa|task|para)\b",
+        " ",
+        title,
+        flags=re.IGNORECASE,
+    )
+    return re.sub(r"\s+", " ", title).strip()
+
+
+def is_generic_task_title(title: str) -> bool:
+    normalized = clean_task_title(title).lower()
+    return not normalized or len(normalized) < 4 or normalized in {
+        "quero",
+        "criar",
+        "tarefa",
+        "nova tarefa",
+        "nova tarefa criada pelo prio",
+    }
+
+
+def task_details_response():
+    return {
+        "reply": (
+            "Consigo criar a tarefa, mas preciso do objetivo concreto para não criar uma tarefa genérica. "
+            "Responde com: 1) o que deve ser feito, 2) prazo ou urgência, 3) tempo aproximado ou se queres que eu estime."
+        ),
+        "action": None,
+        "provider": "local-fallback",
+        "model": None,
+    }
+
+
 def build_fallback_task_action(message: str):
     work_hours_action = build_fallback_work_hours_action(message)
     if work_hours_action:
         return work_hours_action
 
-    if not re.search(r"\b(cria|crie|criar|adiciona|adicione|nova tarefa)\b", message, flags=re.IGNORECASE):
+    if not wants_create_task(message):
         return None
 
     title_match = re.search(
@@ -347,14 +385,14 @@ def build_fallback_task_action(message: str):
         message,
         flags=re.IGNORECASE,
     )
-    title = title_match.group(1).strip() if title_match else re.sub(
+    title = clean_task_title(title_match.group(1)) if title_match else clean_task_title(re.sub(
         r"\b(prio|cria|crie|criar|adiciona|adicione|uma|nova|tarefa|para)\b",
         "",
         message,
         flags=re.IGNORECASE,
-    ).strip()
-    if not title:
-        title = "Nova tarefa criada pelo PRIO"
+    ))
+    if is_generic_task_title(title):
+        return None
 
     lowered = message.lower()
     priority = 1 if any(word in lowered for word in ["urgente", "crítico", "critico", "defeito", "bug"]) else 3
@@ -417,6 +455,8 @@ def fallback_prio_response(req: PrioChatRequest):
         return priority_response
 
     action = build_fallback_task_action(req.message)
+    if wants_create_task(req.message) and not action:
+        return task_details_response()
 
     if action and action.get("type") == "update_work_hours":
         reply = (
@@ -463,6 +503,7 @@ Guardrails obrigatórios:
 - Não executes ações destrutivas. Nunca apagar tarefas, notas, conta, email, senha ou dados sem confirmação explícita no UI.
 - Sê muito amigável, direto e prestativo.
 - Se o utilizador quiser criar uma tarefa, CRIA a tarefa imediatamente com a ação 'create_task'. Não faças perguntas rígidas. Usa o teu bom senso para deduzir prioridade, checklist e estimativa de tempo com base no que ele escreveu.
+- Exceção obrigatória: se a mensagem for apenas "quero criar uma tarefa" ou não tiver objetivo/título concreto, NÃO cries tarefa. Pergunta 1) o que deve ser feito, 2) prazo ou urgência, 3) tempo aproximado ou se quer que estimes.
 - Depois de criar a tarefa, confirma na resposta que a tarefa foi criada e dá dicas úteis.
 - Classifica prioridades de P1 a P5 automaticamente com base na urgência e impacto.
 
@@ -697,6 +738,13 @@ async def prio_chat(req: PrioChatRequest):
 
         if action and action.get("type") == "none":
             action = None
+        if wants_create_task(req.message) and (
+            not action or (
+                action.get("type") == "create_task"
+                and is_generic_task_title((action.get("task") or {}).get("title", ""))
+            )
+        ):
+            return task_details_response()
 
         return {
             "reply": str(parsed.get("reply") or "").strip() or "Analisei suas tarefas. O que quer fazer agora?",
