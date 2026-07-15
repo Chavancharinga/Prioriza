@@ -39,6 +39,23 @@ function buildLocalSubtaskSuggestions(task) {
     }
 }
 
+function renderNoteContent(content = '') {
+    return String(content).split(/(https?:\/\/[^\s<]+)/gi).map((part, index) => {
+        if (!/^https?:\/\//i.test(part)) return part
+        return (
+            <a
+                key={`${part}-${index}`}
+                href={part}
+                target="_blank"
+                rel="noreferrer"
+                className="font-semibold text-(--color-prioriza-blue) underline underline-offset-2"
+            >
+                {part}
+            </a>
+        )
+    })
+}
+
 export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, onNavigate, profile }) {
     const [currentTaskId, setCurrentTaskId] = useState(taskId)
     const [task, setTask] = useState(null)
@@ -1345,7 +1362,7 @@ export default function TaskDetailsModal({ taskId, isOpen, onClose, onUpdate, on
                                                 </div>
                                                 <div className="flex-1">
                                                     <div className="bg-white p-3.5 rounded-2xl rounded-tl-none border-2 border-slate-100 shadow-xs relative group hover:border-slate-200 transition-all">
-                                                        <p className="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">{note.content}</p>
+                                                        <p className="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">{renderNoteContent(note.content)}</p>
                                                         <span className="text-[10px] text-gray-400 mt-2 block font-medium">
                                                             {new Date(note.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}
                                                         </span>

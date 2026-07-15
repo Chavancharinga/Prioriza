@@ -613,6 +613,7 @@ Retorna APENAS JSON v\u00e1lido com esta estrutura:
       "priority": 1,
       "estimated_minutes": 60,
       "due_date": "ISO-8601 ou null",
+      "status": "A Fazer|Em Progresso|Feito ou null",
       "checklist": ["item 1", "item 2"],
       "note": "string",
       "resources": [{"url": "https://...", "title": "titulo do recurso"}]
@@ -633,8 +634,9 @@ Regras:
 - Preserva exatamente a hora pedida, incluindo "meio-dia", "12h" e "12:40". Esses exemplos devem aparecer como 12:00, 12:00 e 12:40 em Lisboa, nunca com uma hora acrescentada por conversão incorreta de UTC.
 - Em due_date devolve ISO-8601 com o offset local correto de Lisboa para a data indicada.
 - Sê assertivo, mas mantém tudo editável manualmente.
-- Para add_resources, o campo 'task.id' é obrigatório (uuid da tarefa onde adicionar os links). Gera URLs reais e verificáveis (YouTube, artigos conhecidos, documentação oficial). Se não tiveres certeza de URLs exatas, gera URLs de pesquisa Google/YouTube com os termos relevantes (ex: https://www.youtube.com/results?search_query=apresentacao+profissional).
-- Quando o utilizador pedir 'links', 'recursos', 'vídeos' ou 'materiais', usa SEMPRE a ação add_resources. NUNCA cries uma tarefa nova para isso.
+- Para update_task e update_last_task, envia apenas os campos que o utilizador pediu alterar. Para mudar estado, usa obrigatoriamente task.status com um destes valores: "A Fazer", "Em Progresso" ou "Feito".
+- Para add_resources, o campo 'task.id' é obrigatório (uuid da tarefa onde adicionar os links) e task.resources tem de ter pelo menos um URL https válido. Gera URLs reais e verificáveis (YouTube, artigos conhecidos, documentação oficial). Se não tiveres certeza de URLs exatas, gera URLs de pesquisa Google/YouTube com os termos relevantes (ex: https://www.youtube.com/results?search_query=apresentacao+profissional).
+- Quando o utilizador pedir 'links', 'recursos', 'vídeos', 'materiais' ou links no "Diário de Bordo", usa SEMPRE a ação add_resources. Os links serão guardados como recursos e registados no Diário de Bordo da tarefa. NUNCA confirmes que adicionaste links se action.resources estiver vazio ou task.id não existir.
 """.strip()
 
     user_message = f"""

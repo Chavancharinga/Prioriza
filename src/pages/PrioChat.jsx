@@ -21,6 +21,7 @@ const initialMessages = [
 
 const CHAT_STORAGE_KEY = 'prioriza_prio_chats'
 const WORK_DAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
+const TASK_STATUSES = ['A Fazer', 'Em Progresso', 'Feito']
 
 function createChat() {
     return {
@@ -89,6 +90,15 @@ function normalizeDueDateFromMessage(message = '', modelDueDate = null) {
 
 function wantsCreateTask(message = '') {
     return /\b(cria|crie|criar|adiciona|adicione|nova tarefa)\b/i.test(message)
+}
+
+function wantsResources(message = '') {
+    return /\b(link|links|recurso|recursos|vídeo|vídeos|video|videos|youtube|material|materiais|diário de bordo)\b/i.test(message)
+}
+
+function wantsStatusChange(message = '') {
+    return /\b(estado|status)\b/i.test(message)
+        && /\b(a fazer|em progresso|feito|concluíd[ao]|concluir)\b/i.test(message)
 }
 
 function cleanTaskTitle(rawTitle = '') {
@@ -271,32 +281,46 @@ function normalizeAction(action) {
     }
 
     if (action.type === 'add_resources') {
-        const resources = Array.isArray(action.task?.resources) ? action.task.resources.filter(r => r?.url) : []
+        const resources = (Array.isArray(action.task?.resources) ? action.task.resources : action.resources || [])
+            .filter(resource => /^https?:\/\//i.test(String(resource?.url || '').trim()))
+            .slice(0, 6)
         return resources.length ? {
             type: 'add_resources',
-            taskId: action.task?.id || null,
+            taskId: action.task?.id || action.taskId || null,
             resources
         } : null
     }
 
-    const title = action.task?.title || 'Nova tarefa criada pelo PRIO'
-    if (['create_task', 'update_last_task', 'update_task'].includes(action.type) && isGenericTaskTitle(title)) {
-        return null
-    }
+    const rawTask = action.task && typeof action.task === 'object' ? action.task : {}
+    const isCreateAction = action.type === 'create_task'
+    const title = isCreateAction ? (rawTask.title || 'Nova tarefa criada pelo PRIO') : (rawTask.title || null)
+    if (isCreateAction && isGenericTaskTitle(title)) return null
 
     return {
         type: action.type,
         task: {
-            id: action.task?.id || null,
+            id: rawTask.id || null,
             title,
-            description: action.task?.description || '',
-            priority: normalizePriority(action.task?.priority),
-            estimated_minutes: Number(action.task?.estimated_minutes) || 30,
-            due_date: action.task?.due_date || null,
-            checklist: Array.isArray(action.task?.checklist) ? action.task.checklist.filter(Boolean).slice(0, 8) : [],
-            note: action.task?.note || ''
+            description: typeof rawTask.description === 'string' ? rawTask.description : (isCreateAction ? '' : null),
+            priority: Number.isInteger(Number(rawTask.priority)) ? normalizePriority(rawTask.priority) : (isCreateAction ? 3 : null),
+            estimated_minutes: Number(rawTask.estimated_minutes) > 0 ? Number(rawTask.estimated_minutes) : (isCreateAction ? 30 : null),
+            due_date: rawTask.due_date || null,
+            status: TASK_STATUSES.includes(rawTask.status) ? rawTask.status : null,
+            checklist: Array.isArray(rawTask.checklist) ? rawTask.checklist.filter(Boolean).slice(0, 8) : [],
+            note: rawTask.note || ''
         }
     }
+}
+
+function buildTaskUpdatePayload(task = {}) {
+    const updates = {}
+    if (task.title) updates.title = task.title
+    if (typeof task.description === 'string') updates.description = task.description
+    if (task.priority) updates.priority = task.priority
+    if (task.estimated_minutes) updates.estimated_minutes = task.estimated_minutes
+    if (task.due_date) updates.due_date = task.due_date
+    if (TASK_STATUSES.includes(task.status)) updates.status = task.status
+    return updates
 }
 
 function parseEmbeddedPrioResponse(response) {
@@ -333,7 +357,13 @@ function parseEmbeddedPrioResponse(response) {
 
 function normalizePrioResponse(response, message) {
     const parsedResponse = parseEmbeddedPrioResponse(response)
-    let normalizedAction = normalizeAction(parsedResponse?.action)
+    const rawAction = parsedResponse?.action
+    const actionWithResourceIntent = wantsResources(message)
+        && rawAction?.task
+        && (Array.isArray(rawAction.task.resources) || Array.isArray(rawAction.resources))
+        ? { ...rawAction, type: 'add_resources' }
+        : rawAction
+    let normalizedAction = normalizeAction(actionWithResourceIntent)
     if (normalizedAction?.task) {
         normalizedAction = {
             ...normalizedAction,
@@ -346,6 +376,22 @@ function normalizePrioResponse(response, message) {
     if (wantsCreateTask(message) && !normalizedAction) {
         return {
             reply: buildTaskDetailsReply(),
+            action: null
+        }
+    }
+
+    if (wantsResources(message) && !normalizedAction) {
+        return {
+            ...parsedResponse,
+            reply: 'Ainda não consegui identificar a tarefa e os links a adicionar. Indica o nome da tarefa ou pede os recursos para a última tarefa criada.',
+            action: null
+        }
+    }
+
+    if (wantsStatusChange(message) && (!normalizedAction || !normalizedAction.task?.status)) {
+        return {
+            ...parsedResponse,
+            reply: 'Ainda não consegui confirmar a alteração de estado. Indica o nome da tarefa e o estado desejado: A Fazer, Em Progresso ou Feito.',
             action: null
         }
     }
@@ -491,6 +537,7 @@ export default function PrioChat({ profile, onProfileUpdate }) {
 
         if (action.type === 'add_resources' && action.taskId) {
             const added = []
+            const journalLines = []
             for (const resource of action.resources) {
                 try {
                     await ResourceService.createResource(action.taskId, resource.url, resource.title || '')
@@ -498,20 +545,18 @@ export default function PrioChat({ profile, onProfileUpdate }) {
                 } catch (err) {
                     console.error('Error adding resource:', err)
                 }
+                journalLines.push(`- ${resource.title || 'Recurso'}: ${resource.url}`)
             }
+
+            await TaskService.createNote(action.taskId, `Recursos adicionados pelo PRIO:\n${journalLines.join('\n')}`)
             await loadTasks()
-            if (added.length === 0) return null
-            return `Adicionei ${added.length} link(s) à tarefa: ${added.join(', ')}.`
+            return `Adicionei ${action.resources.length} link(s) ao Diário de Bordo: ${action.resources.map(resource => resource.title || resource.url).join(', ')}.`
         }
 
         if (action.type === 'update_last_task' && lastCreatedTask?.id) {
-            const updated = await TaskService.updateTask(lastCreatedTask.id, {
-                title: action.task.title || lastCreatedTask.title,
-                description: action.task.description || lastCreatedTask.description,
-                priority: action.task.priority,
-                estimated_minutes: action.task.estimated_minutes,
-                due_date: action.task.due_date
-            })
+            const updates = buildTaskUpdatePayload(action.task)
+            if (Object.keys(updates).length === 0) return null
+            const updated = await TaskService.updateTask(lastCreatedTask.id, updates)
 
             for (const item of action.task.checklist) {
                 await TaskService.createChecklistItem(updated.id, item)
@@ -527,13 +572,9 @@ export default function PrioChat({ profile, onProfileUpdate }) {
         }
 
         if (action.type === 'update_task' && action.task?.id) {
-            const updated = await TaskService.updateTask(action.task.id, {
-                title: action.task.title,
-                description: action.task.description,
-                priority: action.task.priority,
-                estimated_minutes: action.task.estimated_minutes,
-                due_date: action.task.due_date
-            })
+            const updates = buildTaskUpdatePayload(action.task)
+            if (Object.keys(updates).length === 0) return null
+            const updated = await TaskService.updateTask(action.task.id, updates)
 
             for (const item of action.task.checklist) {
                 await TaskService.createChecklistItem(updated.id, item)
